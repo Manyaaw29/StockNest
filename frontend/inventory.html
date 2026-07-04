@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumables — StockNest</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="inventory.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+
+    <div class="app-shell__main">
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <div class="page-layout">
+        <main class="page-content" aria-labelledby="page-title">
+
+          <!-- Page header -->
+          <header class="page-header inventory-header">
+            <div>
+              <h2 id="page-title" class="page-header__title">Consumables</h2>
+              <p class="page-header__subtitle">
+                Track, manage, and predict stockouts for daily office supplies.
+              </p>
+            </div>
+            <div class="inventory-header__actions">
+              <button type="button" class="btn btn--outline btn--with-icon" id="importBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Import
+              </button>
+              <button type="button" class="btn btn--outline btn--with-icon" id="filterBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                </svg>
+                Filter
+              </button>
+              <button type="button" class="btn btn--outline btn--with-icon" id="exportBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export
+              </button>
+              <button type="button" class="btn btn--primary btn--with-icon" id="addStockBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Add Stock
+              </button>
+            </div>
+          </header>
+
+          <!-- Summary cards -->
+          <section class="stat-cards" aria-label="Inventory summary">
+            <article class="stat-card">
+              <div class="stat-card__body">
+                <span class="stat-card__label">Active SKUs</span>
+                <div class="stat-card__row">
+                  <span class="stat-card__value">428</span>
+                  <span class="stat-card__badge stat-card__badge--green">+12 this month</span>
+                </div>
+              </div>
+              <span class="stat-card__icon stat-card__icon--blue">&#9670; &#9632; &#9679;</span>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-card__body">
+                <span class="stat-card__label">Avg Burn Rate</span>
+                <div class="stat-card__row">
+                  <span class="stat-card__value">1.2k</span>
+                  <span class="stat-card__unit">units / week</span>
+                </div>
+              </div>
+              <span class="stat-card__icon">&#9881;</span>
+            </article>
+
+            <article class="stat-card">
+              <div class="stat-card__body">
+                <span class="stat-card__label">Avg Lead Time</span>
+                <div class="stat-card__row">
+                  <span class="stat-card__value">4.5</span>
+                  <span class="stat-card__unit">days to restock</span>
+                </div>
+              </div>
+              <span class="stat-card__icon">&#128666;</span>
+            </article>
+
+            <article class="stat-card stat-card--alert">
+              <div class="stat-card__body">
+                <span class="stat-card__label">Low Stock Alerts</span>
+                <div class="stat-card__row">
+                  <span class="stat-card__value stat-card__value--yellow">14</span>
+                  <span class="stat-card__note">Requires attention</span>
+                </div>
+              </div>
+              <span class="stat-card__icon stat-card__icon--warn">&#9888;</span>
+            </article>
+          </section>
+
+          <!-- Table + right widgets -->
+          <div class="inventory-grid">
+
+            <!-- Active consumables table -->
+            <section class="card consumables-table" aria-labelledby="table-title">
+              <div class="consumables-table__header">
+                <h3 id="table-title" class="consumables-table__title">Active Consumables</h3>
+                <div class="consumables-table__search">
+                  <input type="text" id="tableFilter" placeholder="Filter table..." aria-label="Filter table rows" />
+                  <button type="button" class="search-clear" id="clearSearchBtn" aria-label="Clear search">×</button>
+                </div>
+              </div>
+
+              <div class="asset-table-wrap">
+                <table class="asset-table consumables-table__table">
+                  <thead>
+                    <tr>
+                      <th class="col-check"><input type="checkbox" id="selectAll" aria-label="Select all rows" /></th>
+                      <th class="sortable" data-sort="name">SKU / Item <span class="sort-indicator"></span></th>
+                      <th class="sortable" data-sort="category">Category <span class="sort-indicator"></span></th>
+                      <th class="sortable" data-sort="qty">Stock Level <span class="sort-indicator"></span></th>
+                      <th class="sortable" data-sort="status">Status <span class="sort-indicator"></span></th>
+                      <th class="col-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="consumablesBody">
+                    <!-- rows added by inventory.js -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="inventory-pagination">
+                <span id="paginationInfo">Showing 0 items</span>
+                <div class="inventory-pagination__controls" id="paginationControls"></div>
+              </div>
+            </section>
+
+            <!-- Right sidebar widgets -->
+            <aside class="inventory-widgets">
+
+              <!-- Stockout predictor -->
+              <section class="card widget-card" aria-labelledby="predictor-title">
+                <h3 id="predictor-title" class="widget-card__title">Stockout Predictor</h3>
+                <p class="widget-card__item-name">Coffee Beans (CFB-ESP-104)</p>
+
+                <div class="predictor-chart" aria-hidden="true">
+                  <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+                    <polyline
+                      fill="none"
+                      stroke="#ef4444"
+                      stroke-width="2"
+                      points="0,20 40,25 80,35 120,50 160,65 200,75"
+                    />
+                  </svg>
+                </div>
+
+                <p class="predictor-alert">Predicted Stockout in 2.4 days</p>
+
+                <button type="button" class="btn btn--secondary btn--full" id="purchaseOrderBtn">
+                  Generate Purchase Order
+                </button>
+              </section>
+
+              <!-- Register consumable -->
+              <section class="card widget-card" aria-labelledby="register-title">
+                <h3 id="register-title" class="widget-card__title">Register Consumable</h3>
+                <p class="widget-card__subtitle">Add a new item to inventory tracking.</p>
+
+                <form id="registerForm" class="register-form" novalidate>
+                  <div class="register-form__field">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g. Printer Ink" required />
+                  </div>
+
+                  <div class="register-form__field">
+                    <label for="itemCategory">Category</label>
+                    <select id="itemCategory">
+                      <option value="">Select category</option>
+                      <option value="Office Supplies">Office Supplies</option>
+                      <option value="Stationery">Stationery</option>
+                      <option value="Pantry">Pantry</option>
+                      <option value="Cleaning">Cleaning</option>
+                    </select>
+                  </div>
+
+                  <div class="register-form__field">
+                    <label for="minStock">Minimum Stock Level</label>
+                    <input type="number" id="minStock" placeholder="e.g. 10" min="0" />
+                  </div>
+
+                  <button type="submit" class="btn btn--primary btn--full">Register Item</button>
+                </form>
+              </section>
+
+            </aside>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden></div>
+  <dialog class="inventory-modal" id="inventoryModal">
+    <div class="inventory-modal__header">
+      <h2 class="inventory-modal__title" id="modalTitle">Modal</h2>
+      <button type="button" class="inventory-modal__close" id="modalCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="inventory-modal__body" id="modalBody"></div>
+    <div class="inventory-modal__footer" id="modalFooter"></div>
+  </dialog>
+
+  <div class="action-menu" id="actionMenu" hidden></div>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script type="module" src="inventory.js"></script>
+</body>
+</html>

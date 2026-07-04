@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room Allocation & Transfer — StockNest</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+
+    <div class="app-shell__main">
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <div class="allocation-page">
+        <!-- Page header with breadcrumb and actions -->
+        <header class="allocation-header">
+          <div class="allocation-header__left">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <span class="breadcrumb__item">Assets</span>
+              <span class="breadcrumb__sep" aria-hidden="true">&gt;</span>
+              <span class="breadcrumb__item breadcrumb__item--current">Room Allocation</span>
+            </nav>
+            <h1 class="allocation-header__title">Room Allocation &amp; Transfer</h1>
+          </div>
+          <div class="allocation-header__actions">
+            <button type="button" class="btn btn--outline" id="export-manifest">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export Manifest
+            </button>
+            <button type="button" class="btn btn--primary" id="new-transfer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              New Transfer
+            </button>
+          </div>
+        </header>
+
+        <!-- Two-column main layout -->
+        <div class="allocation-layout">
+
+          <!-- Left column (~65%) -->
+          <div class="allocation-layout__left">
+
+            <!-- Room Asset Mapping -->
+            <section class="asset-mapping card" aria-labelledby="asset-mapping-title">
+              <div class="asset-mapping__header">
+                <div class="asset-mapping__title-group">
+                  <svg class="asset-mapping__title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M8 10h.01M16 10h.01M12 10h.01M8 14h.01M16 14h.01M12 14h.01"/>
+                  </svg>
+                  <h2 id="asset-mapping-title" class="asset-mapping__title">Room Asset Mapping</h2>
+                </div>
+                <div class="asset-mapping__focus">
+                  <span class="asset-mapping__focus-label">Current Focus:</span>
+                  <select id="focus-room" class="asset-mapping__focus-select" aria-label="Current focus room">
+                    <option value="conf-a" selected>Conference Room A (Floor 2)</option>
+                    <option value="conf-b">Conference Room B (Floor 3)</option>
+                    <option value="huddle-1">Huddle Room 1 (Floor 1)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="asset-table-wrap">
+                <table class="asset-table" id="asset-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Asset ID</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="asset-table-body">
+                    <!-- Rendered by allocation.js -->
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- Recent Transfers timeline -->
+            <section class="recent-transfers card" aria-labelledby="recent-transfers-title">
+              <div class="recent-transfers__header">
+                <svg class="recent-transfers__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <h2 id="recent-transfers-title" class="recent-transfers__title">Recent Transfers (Conf. Room A)</h2>
+              </div>
+
+              <ol class="transfer-timeline" id="transfer-timeline" role="list">
+                <!-- Rendered by allocation.js -->
+              </ol>
+            </section>
+
+          </div>
+
+          <!-- Right column (~35%) — Initiate Transfer form -->
+          <aside class="allocation-layout__right">
+            <section class="transfer-form card" aria-labelledby="transfer-form-title" id="transfer-form-section">
+              <div class="transfer-form__header">
+                <svg class="transfer-form__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                </svg>
+                <h2 id="transfer-form-title" class="transfer-form__title">Initiate Transfer</h2>
+              </div>
+
+              <form class="transfer-form__body" id="transfer-form" novalidate>
+                <!-- Asset search -->
+                <div class="transfer-form__field">
+                  <label class="transfer-form__label" for="asset-search">Asset ID / Name</label>
+                  <div class="transfer-form__search-wrap">
+                    <input
+                      type="text"
+                      id="asset-search"
+                      class="transfer-form__search"
+                      placeholder="Scan or type..."
+                      autocomplete="off"
+                    />
+                    <svg class="transfer-form__scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Selected asset chip -->
+                <div class="transfer-form__asset-chip" id="selected-asset-chip">
+                  <svg class="transfer-form__qr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/>
+                  </svg>
+                  <div class="transfer-form__asset-info">
+                    <strong class="transfer-form__asset-id" id="chip-asset-id">AST-0841</strong>
+                    <span class="transfer-form__asset-name" id="chip-asset-name">Logitech MeetUp Camera</span>
+                  </div>
+                </div>
+
+                <!-- Source / Destination route stepper -->
+                <div class="transfer-route">
+                  <div class="transfer-route__step transfer-route__step--active">
+                    <div class="transfer-route__indicator">
+                      <span class="transfer-route__radio transfer-route__radio--filled" aria-hidden="true"></span>
+                      <span class="transfer-route__line" aria-hidden="true"></span>
+                    </div>
+                    <div class="transfer-route__content">
+                      <span class="transfer-form__label transfer-form__label--muted">Source Location</span>
+                      <input
+                        type="text"
+                        id="source-location"
+                        class="transfer-form__input transfer-form__input--readonly"
+                        value="Conf. Room A (Floor 2)"
+                        readonly
+                      />
+                    </div>
+                  </div>
+
+                  <div class="transfer-route__step">
+                    <div class="transfer-route__indicator">
+                      <span class="transfer-route__radio" id="dest-radio" aria-hidden="true"></span>
+                    </div>
+                    <div class="transfer-route__content">
+                      <label class="transfer-form__label transfer-form__label--muted" for="destination">Destination</label>
+                      <select id="destination" class="transfer-form__select">
+                        <option value="" selected disabled>Select destination room...</option>
+                        <option value="maintenance-bay">Maintenance Bay</option>
+                        <option value="storage-c">Storage Room C</option>
+                        <option value="conf-b">Conference Room B (Floor 3)</option>
+                        <option value="it-closet">IT Equipment Closet</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Transfer reason -->
+                <div class="transfer-form__field">
+                  <label class="transfer-form__label" for="transfer-reason">Transfer Reason <span class="transfer-form__required">*</span></label>
+                  <select id="transfer-reason" class="transfer-form__select" required>
+                    <option value="" selected disabled>Select reason category</option>
+                    <option value="maintenance">Scheduled Maintenance</option>
+                    <option value="replacement">Equipment Replacement</option>
+                    <option value="reallocation">Room Reallocation</option>
+                    <option value="repair">Repair / Service</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div class="transfer-form__field">
+                  <label class="transfer-form__label visually-hidden" for="transfer-details">Additional details</label>
+                  <textarea
+                    id="transfer-details"
+                    class="transfer-form__textarea"
+                    rows="3"
+                    placeholder="Provide additional details..."
+                  ></textarea>
+                </div>
+
+                <div class="transfer-form__actions">
+                  <button type="button" class="btn btn--secondary" id="transfer-cancel">Cancel</button>
+                  <button type="submit" class="btn btn--primary btn--with-icon" id="transfer-confirm" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Confirm Transfer
+                  </button>
+                </div>
+              </form>
+            </section>
+          </aside>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="allocation.js"></script>
+</body>
+</html>

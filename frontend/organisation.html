@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockNest &mdash; Organization</title>
+  <link rel="stylesheet" href="stocknest-settings-styles.css" />
+</head>
+<body>
+  <div class="sn-app-shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sn-sidebar" id="snSidebar">
+      <div class="sn-sidebar__brand">
+        <span class="sn-brand__mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect width="20" height="20" rx="6" fill="currentColor"/>
+            <path d="M6 10.5L9 13.5L14 7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="sn-brand__text">
+          <strong>StockNest</strong>
+          <small>Workspace Inventory</small>
+        </span>
+      </div>
+
+      <nav class="sn-sidebar__nav" aria-label="Primary navigation">
+        <a class="sn-nav__item" href="#" data-icon="grid"><span class="sn-icon" aria-hidden="true"></span>Dashboard</a>
+        <a class="sn-nav__item" href="#" data-icon="pin"><span class="sn-icon" aria-hidden="true"></span>Setup and locations</a>
+        <a class="sn-nav__item" href="#" data-icon="box"><span class="sn-icon" aria-hidden="true"></span>Asset Registry</a>
+        <a class="sn-nav__item" href="#" data-icon="inventory"><span class="sn-icon" aria-hidden="true"></span>Inventory Management</a>
+        <a class="sn-nav__item" href="#" data-icon="wrench"><span class="sn-icon" aria-hidden="true"></span>Maintenance</a>
+        <a class="sn-nav__item" href="#" data-icon="door"><span class="sn-icon" aria-hidden="true"></span>Room Booking</a>
+        <a class="sn-nav__item" href="#" data-icon="swap"><span class="sn-icon" aria-hidden="true"></span>Room Allocation and Transfer</a>
+        <a class="sn-nav__item" id="snNavAnalytics" href="sn_dashboard_view.html" data-icon="chart"><span class="sn-icon" aria-hidden="true"></span>Analytics &amp; Reporting</a>
+        <a class="sn-nav__item sn-nav__item--active" id="snNavSettings" href="stocknest-settings-view.html" data-icon="gear"><span class="sn-icon" aria-hidden="true"></span>Settings</a>
+      </nav>
+
+      <div class="sn-sidebar__footer">
+        <button class="sn-btn sn-btn--ghost sn-switch-location" type="button">Switch Location</button>
+        <a class="sn-help-link" href="#" data-icon="help"><span class="sn-icon" aria-hidden="true"></span>Help Center</a>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <div class="sn-main">
+      <header class="sn-topbar">
+        <button class="sn-sidebar-toggle" id="snSidebarToggle" type="button" aria-label="Toggle navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+        <label class="sn-search" for="snSearchInput">
+          <span class="sn-icon sn-icon--search" aria-hidden="true"></span>
+          <input id="snSearchInput" type="text" placeholder="Search users, permissions, configurations..." />
+        </label>
+        <div class="sn-topbar__actions">
+          <button class="sn-btn sn-btn--primary" id="snQuickAddBtn" type="button">
+            <span class="sn-icon sn-icon--plus" aria-hidden="true"></span>Quick Add
+          </button>
+          <button class="sn-icon-btn" id="snNotifBtn" type="button" aria-label="Notifications">
+            <span class="sn-icon sn-icon--bell" aria-hidden="true"></span>
+            <span class="sn-notif-dot"></span>
+          </button>
+          <button class="sn-avatar-btn" id="snAvatarBtn" type="button" aria-label="Account menu">
+            <img src="https://i.pravatar.cc/64?img=13" alt="User avatar" />
+          </button>
+        </div>
+      </header>
+
+      <main class="sn-content">
+        <div class="sn-page-head">
+          <div>
+            <h1>Organization</h1>
+            <p>Manage company profile, locations, and billing for the StockNest workspace.</p>
+          </div>
+          <div class="sn-page-head__actions">
+            <nav class="sn-tabs" id="snSettingsTabs" aria-label="Settings sections">
+              <button class="sn-tab" type="button" data-tab="user-management" onclick="window.location.href='stocknest-settings-view.html'">User Management</button>
+              <button class="sn-tab sn-tab--active" type="button" data-tab="organization">Organization</button>
+              <button class="sn-tab" type="button" data-tab="system-config" onclick="window.location.href='stocknest-settings-view.html'">System Config</button>
+              <button class="sn-tab" type="button" data-tab="backup-security" onclick="window.location.href='stocknest-settings-view.html'">Backup &amp; Security</button>
+            </nav>
+          </div>
+        </div>
+
+        <section class="sn-settings-grid" aria-label="Organization settings">
+          <div class="sn-settings-col">
+            <article class="sn-config-card">
+              <h2>Company Profile</h2>
+              <p class="sn-config-card__desc">Basic information shown on invoices and reports.</p>
+              <div class="sn-config-row">
+                <div class="sn-config-row__label"><strong>Organization name</strong><span>Legal or trading name.</span></div>
+                <div class="sn-config-row__control"><input type="text" value="StockNest, Inc." /></div>
+              </div>
+              <div class="sn-config-row">
+                <div class="sn-config-row__label"><strong>Primary contact</strong><span>Billing and account correspondence.</span></div>
+                <div class="sn-config-row__control"><input type="text" value="ops@stocknest.io" /></div>
+              </div>
+              <div class="sn-config-row">
+                <div class="sn-config-row__label"><strong>Fiscal year start</strong><span>Used for annual reporting periods.</span></div>
+                <div class="sn-config-row__control"><select><option>January</option><option>April</option><option>July</option><option>October</option></select></div>
+              </div>
+              <div class="sn-config-actions">
+                <button class="sn-btn sn-btn--primary sn-btn--sm" type="button" id="snOrgSave">Save Changes</button>
+              </div>
+            </article>
+          </div>
+
+          <div class="sn-settings-col">
+            <article class="sn-config-card">
+              <h2>Plan &amp; Billing</h2>
+              <p class="sn-config-card__desc">Current subscription for this workspace.</p>
+              <div class="sn-config-row">
+                <div class="sn-config-row__label"><strong>Plan</strong><span>Business — 12 locations included</span></div>
+                <span class="sn-badge sn-badge--active">Active</span>
+              </div>
+              <div class="sn-config-row">
+                <div class="sn-config-row__label"><strong>Next invoice</strong><span>Aug 1, 2026 &middot; $890.00</span></div>
+              </div>
+              <div class="sn-config-actions">
+                <button class="sn-btn sn-btn--outline sn-btn--sm" type="button" id="snOrgManageBilling">Manage Billing</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="sn-toast-stack" id="snToastStack" aria-live="polite"></div>
+
+  <script src="sn_toast_module.js"></script>
+  <script src="sn_common.js"></script>
+  <script>
+    document.getElementById("snOrgSave")?.addEventListener("click", () => {
+      snToast("Organization profile has been updated.", { title: "Saved", type: "success" });
+    });
+    document.getElementById("snOrgManageBilling")?.addEventListener("click", () => {
+      snToast("Billing portal would open here (simulated).", { title: "Manage Billing", type: "info" });
+    });
+  </script>
+</body>
+</html>

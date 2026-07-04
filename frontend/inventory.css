@@ -1,0 +1,552 @@
+/* ==========================================================================
+   Inventory Management (Consumables) — Page Styles
+   ========================================================================== */
+
+/* Page header with action buttons */
+.inventory-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.inventory-header__actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Summary stat cards — 4 in a row */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stat-card--alert {
+  border-top: 3px solid #eab308;
+}
+
+.stat-card__label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-card__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.stat-card__value--yellow {
+  color: #ca8a04;
+}
+
+.stat-card__badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.stat-card__badge--green {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.stat-card__unit,
+.stat-card__note {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.stat-card__icon {
+  font-size: 18px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  letter-spacing: 3px;
+}
+
+.stat-card__icon--blue {
+  color: var(--color-primary);
+}
+
+.stat-card__icon--warn {
+  color: #ca8a04;
+  letter-spacing: 0;
+  font-size: 22px;
+}
+
+/* Main grid: table + widgets */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Table card */
+.consumables-table {
+  padding: 0;
+  overflow: hidden;
+}
+
+.consumables-table__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.consumables-table__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.consumables-table__search input {
+  width: 180px;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  font-size: 13px;
+  outline: none;
+}
+
+.consumables-table__search {
+  position: relative;
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: var(--color-text-muted);
+  line-height: 1;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.consumables-table__search input:focus {
+  border-color: var(--color-primary);
+}
+
+.col-check {
+  width: 40px;
+}
+
+/* SKU / item cell */
+.item-cell__name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.item-cell__sku {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* Category pill */
+.category-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Stock level */
+.stock-cell__qty {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.stock-cell__min {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* Status badges */
+.status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pill--healthy {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.status-pill--low {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.status-pill--critical {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Highlight critical row */
+.consumables-table__table tbody tr.row--critical {
+  background: #fef2f2;
+}
+
+.consumables-table__table tbody tr.row--critical:hover {
+  background: #fee2e2;
+}
+
+/* Right widgets */
+.inventory-widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.widget-card {
+  padding: 20px;
+}
+
+.widget-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text);
+}
+
+.widget-card__subtitle {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.widget-card__item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+/* Stockout chart */
+.predictor-chart {
+  height: 80px;
+  margin-bottom: 12px;
+  background: #fafafa;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.predictor-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.predictor-alert {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 14px;
+}
+
+.btn--full {
+  width: 100%;
+  text-align: center;
+}
+
+/* Register form */
+.register-form__field {
+  margin-bottom: 14px;
+}
+
+.register-form__field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.register-form__field input,
+.register-form__field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  font-size: 13px;
+  outline: none;
+}
+
+.register-form__field input:focus,
+.register-form__field select:focus {
+  border-color: var(--color-primary);
+}
+
+.register-form button[type="submit"] {
+  margin-top: 4px;
+}
+
+.col-actions { width: 56px; text-align: center; }
+
+.row-action-btn {
+  color: var(--color-text-muted);
+  font-size: 18px;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.sortable { cursor: pointer; user-select: none; }
+.sortable.sorted-asc .sort-indicator::after { content: ' ↑'; }
+.sortable.sorted-desc .sort-indicator::after { content: ' ↓'; }
+
+.inventory-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inventory-pagination__controls {
+  display: flex;
+  gap: 4px;
+}
+
+.page-btn {
+  min-width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.page-btn--active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.action-menu {
+  position: fixed;
+  z-index: 300;
+  min-width: 170px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-modal);
+  padding: 6px 0;
+}
+
+.action-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 13px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.action-menu button:hover { background: var(--color-bg); }
+.action-menu button.is-danger { color: #dc2626; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 400;
+}
+
+.modal-backdrop[hidden] { display: none; }
+
+.inventory-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, calc(100vw - 32px));
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  z-index: 500;
+  box-shadow: var(--shadow-modal);
+}
+
+.inventory-modal[open] { display: flex; flex-direction: column; }
+.inventory-modal:not([open]) { display: none; }
+
+.inventory-modal__header,
+.inventory-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inventory-modal__footer {
+  border-bottom: none;
+  border-top: 1px solid var(--color-border);
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.inventory-modal__footer:empty { display: none; }
+
+.inventory-modal__title { font-size: 18px; font-weight: 700; }
+
+.inventory-modal__close {
+  font-size: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.inventory-modal__body { padding: 20px; overflow-y: auto; }
+
+.modal-field { margin-bottom: 14px; }
+.modal-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.modal-field input,
+.modal-field select,
+.modal-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.modal-error { font-size: 12px; color: #dc2626; margin-top: 4px; }
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: #0f172a;
+  box-shadow: var(--shadow-modal);
+}
+
+.toast--success { border-left: 4px solid var(--color-success); }
+.toast--error { border-left: 4px solid #dc2626; }
+.toast--info { border-left: 4px solid var(--color-primary); }
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qty-controls button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.qty-controls span {
+  min-width: 40px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .stat-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .inventory-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stat-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-header__actions {
+    width: 100%;
+  }
+
+  .inventory-header__actions .btn {
+    flex: 1;
+  }
+
+  .consumables-table__search input {
+    width: 100%;
+  }
+}

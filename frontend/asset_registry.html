@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockNest — Asset Registry</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="asset_registry.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+
+    <div class="app-shell__main">
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <div class="page-layout">
+        <main class="page-content asset-registry-page">
+
+          <div class="page-header">
+            <div>
+              <h1 class="page-header__title">Asset Registry</h1>
+              <p class="page-header__subtitle">Manage and track physical inventory across all workspace zones.</p>
+            </div>
+            <div class="page-header__actions">
+              <button type="button" class="btn btn--outline" id="importBtn">Import</button>
+              <button type="button" class="btn btn--outline" id="scanBtn">Scan</button>
+              <button type="button" class="btn btn--outline" id="exportBtn">Export</button>
+              <button type="button" class="btn btn--primary" id="addAssetBtn">+ Add New Asset</button>
+            </div>
+          </div>
+
+          <div class="summary-cards">
+            <div class="summary-card">
+              <div class="summary-card__content">
+                <span class="summary-card__label">Total Assets</span>
+                <div class="summary-card__value-row">
+                  <span class="summary-card__value" id="totalAssets">0</span>
+                  <span class="summary-card__change">+<span id="weeklyChange">0</span></span>
+                </div>
+              </div>
+              <div class="summary-card__icon">&#9670; &#9632; &#9679;</div>
+            </div>
+
+            <div class="summary-card summary-card--wide">
+              <div class="summary-card__content">
+                <span class="summary-card__label">Fleet Condition Index</span>
+                <div class="summary-card__value-row">
+                  <span class="summary-card__value" id="fleetIndex">0 / 100</span>
+                  <span class="summary-card__tag summary-card__tag--green">
+                    <span class="summary-card__dot"></span> Optimal
+                  </span>
+                </div>
+                <div class="fleet-bar" id="fleetBar"></div>
+                <div class="fleet-bar__legend" id="fleetLegend"></div>
+              </div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-card__content">
+                <span class="summary-card__label">Requires Maintenance</span>
+                <div class="summary-card__value-row">
+                  <span class="summary-card__value" id="maintCount">0</span>
+                  <span class="summary-card__warn">&#9888;</span>
+                </div>
+                <button type="button" class="summary-card__link" id="reviewTicketsBtn">Review Tickets →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="asset-table-wrapper">
+            <div class="asset-filters">
+              <div class="asset-filters__search">
+                <input type="text" id="filterInput" placeholder="Filter by Name, ID, or Assigned User" />
+                <button type="button" class="filter-clear" id="clearSearchBtn" title="Clear search" aria-label="Clear search">×</button>
+              </div>
+
+              <div class="filter-dropdown-wrap">
+                <button type="button" class="filter-dropdown" id="categoryFilterBtn">Category: All ▾</button>
+                <div class="filter-menu" id="categoryMenu" hidden></div>
+              </div>
+
+              <div class="filter-dropdown-wrap">
+                <button type="button" class="filter-dropdown" id="locationFilterBtn">Location: All Zones ▾</button>
+                <div class="filter-menu" id="locationMenu" hidden></div>
+              </div>
+
+              <div class="filter-dropdown-wrap">
+                <button type="button" class="filter-dropdown" id="statusFilterBtn">Status: All ▾</button>
+                <div class="filter-menu" id="statusMenu" hidden></div>
+              </div>
+
+              <button type="button" class="filter-advanced" id="advancedFilterBtn">Advanced</button>
+              <button type="button" class="filter-reset" id="resetFiltersBtn">Reset</button>
+            </div>
+
+            <div class="asset-table-scroll">
+              <table class="asset-table">
+                <thead>
+                  <tr>
+                    <th class="col-check"><input type="checkbox" id="selectAll" /></th>
+                    <th class="sortable" data-sort="name">Asset Details <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="id">System ID <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="category">Category <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="status">Status <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="assigned">Assigned To <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="condition">Condition <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="lastChecked">Last Checked <span class="sort-indicator"></span></th>
+                    <th class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="assetTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="asset-pagination">
+              <span class="asset-pagination__info" id="paginationInfo">Showing 0 entries</span>
+              <div class="asset-pagination__controls" id="paginationControls"></div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden></div>
+  <dialog class="registry-modal" id="registryModal">
+    <div class="registry-modal__header">
+      <h2 class="registry-modal__title" id="modalTitle">Modal</h2>
+      <button type="button" class="registry-modal__close" id="modalCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="registry-modal__body" id="modalBody"></div>
+    <div class="registry-modal__footer" id="modalFooter"></div>
+  </dialog>
+
+  <div class="action-menu" id="actionMenu" hidden></div>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script type="module" src="asset_registry.js"></script>
+</body>
+</html>

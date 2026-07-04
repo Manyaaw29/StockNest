@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StockNest — Operational dashboard for workspace inventory management.">
+  <title>Dashboard | StockNest</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <div class="app-layout">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__header">
+        <a href="dashboard.html" class="sidebar__brand" aria-label="StockNest home">
+          <div class="sidebar__logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            </svg>
+          </div>
+          <div class="sidebar__brand-text">
+            <span class="sidebar__title">StockNest</span>
+            <span class="sidebar__subtitle">Workspace Inventory</span>
+          </div>
+        </a>
+        <button class="sidebar__close" id="sidebarClose" type="button" aria-label="Close navigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <nav class="sidebar__nav" aria-label="Module navigation">
+        <ul class="sidebar__nav-list" id="sidebarNav">
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='dashboard.html'" data-module="dashboard" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Dashboard</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" data-module="setup-locations" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Setup and Locations</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='asset_registry.html'" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <span>Asset Registry</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Inventory Management</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" data-module="maintenance" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <span>Maintenance</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='room-booking.html'" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Room Booking</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='allocation.html'" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span>Room Allocation and Transfer</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" data-module="analytics" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Analytics &amp; Reporting</span>
+          </button></li>
+          <li><button class="sidebar__nav-btn" data-module="settings" type="button">
+            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </button></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar__footer">
+        <button class="sidebar__location" id="locationBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span>Switch Location</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul class="sidebar__location-menu" id="locationMenu" role="listbox" hidden>
+          <li role="option" data-location="Floor 3 &amp; 4">Floor 3 &amp; 4</li>
+          <li role="option" data-location="East Wing">East Wing</li>
+          <li role="option" data-location="HQ Alpha">HQ Alpha</li>
+        </ul>
+        <button class="sidebar__help" type="button" id="helpCenterBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Help Center</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <div class="main-wrapper">
+
+      <!-- Top navigation bar -->
+      <header class="topbar">
+        <button class="topbar__menu-btn" id="sidebarToggle" type="button" aria-label="Open navigation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+
+        <div class="topbar__search">
+          <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="globalSearch" class="topbar__search-input" placeholder="Search inventory, assets..." autocomplete="off" aria-label="Search inventory and assets">
+          <kbd class="topbar__search-kbd" aria-hidden="true">⌘ K</kbd>
+        </div>
+
+        <div class="topbar__actions">
+          <div class="topbar__dropdown-wrap">
+            <button class="topbar__icon-btn" id="notifBtn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="topbar__notif-dot" aria-hidden="true"></span>
+            </button>
+            <div class="dropdown-panel" id="notifPanel" hidden>
+              <div class="dropdown-panel__header">Notifications</div>
+              <ul class="dropdown-panel__list" id="notifList"></ul>
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--sm" id="quickAddBtn" type="button">+ Quick Add</button>
+
+          <div class="topbar__dropdown-wrap">
+            <button class="topbar__avatar" id="profileBtn" type="button" aria-label="User menu" aria-haspopup="true" aria-expanded="false">U</button>
+            <div class="dropdown-panel dropdown-panel--right" id="profilePanel" hidden>
+              <button class="dropdown-panel__item" type="button" data-action="profile">Profile</button>
+              <button class="dropdown-panel__item" type="button" data-action="settings">Settings</button>
+              <hr class="dropdown-panel__divider">
+              <button class="dropdown-panel__item dropdown-panel__item--danger" type="button" data-action="logout">Logout</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic module content -->
+      <main class="main-content" id="mainContent">
+
+        <!-- Dashboard module (default) -->
+        <section class="module-view" id="module-dashboard" data-module="dashboard">
+
+          <header class="page-header">
+            <div class="page-header__text">
+              <h1 class="page-header__title">Operational Overview</h1>
+              <p class="page-header__subtitle" id="pageSubtitle">Real-time telemetry for Floor 3 &amp; 4.</p>
+            </div>
+            <div class="page-header__actions">
+              <button class="btn btn--outline" id="exportBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+              </button>
+              <button class="btn btn--primary" id="scanAssetBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="21" y2="21"/></svg>
+                Scan Asset
+              </button>
+            </div>
+          </header>
+
+          <!-- Statistics cards -->
+          <div class="stats-grid" id="statsGrid">
+            <article class="stat-card" data-animate>
+              <div class="stat-card__icon stat-card__icon--blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+              </div>
+              <p class="stat-card__label">Total Assets</p>
+              <p class="stat-card__value" data-count="4289">0</p>
+              <p class="stat-card__trend stat-card__trend--up">↗ +12 this week</p>
+            </article>
+
+            <article class="stat-card stat-card--alert" data-animate>
+              <div class="stat-card__icon stat-card__icon--yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <p class="stat-card__label">Low Stock Alerts</p>
+              <p class="stat-card__value" data-count="14">0</p>
+              <p class="stat-card__meta">Requires attention</p>
+            </article>
+
+            <article class="stat-card" data-animate>
+              <div class="stat-card__icon stat-card__icon--orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <p class="stat-card__label">Pending Maint.</p>
+              <p class="stat-card__value" data-count="8">0</p>
+              <p class="stat-card__meta">3 critical priority</p>
+            </article>
+
+            <article class="stat-card" data-animate>
+              <div class="stat-card__icon stat-card__icon--purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              </div>
+              <p class="stat-card__label">Room Util.</p>
+              <p class="stat-card__value"><span data-count="87">0</span>%</p>
+              <div class="stat-card__progress">
+                <div class="stat-card__progress-bar" data-progress="87"></div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Featured + side panels -->
+          <div class="dashboard-grid">
+            <article class="featured-card">
+              <div class="featured-card__image" aria-hidden="true"></div>
+              <div class="featured-card__body">
+                <span class="featured-card__badge">FEATURED</span>
+                <h2 class="featured-card__title">Ergonomic Upgrades</h2>
+                <p class="featured-card__desc">New shipment of premium seating and standing desks arrived for the East Wing renovation. Requires asset tagging.</p>
+                <ul class="featured-card__products">
+                  <li><span>Herman Miller Aeron</span><span class="qty-badge">Qty: 24</span></li>
+                  <li><span>Uplift V2 Desk</span><span class="qty-badge">Qty: 18</span></li>
+                </ul>
+                <button class="btn btn--outline btn--block" id="taggingBtn" type="button">Begin Tagging Sequence</button>
+              </div>
+            </article>
+
+            <div class="side-panels">
+              <section class="panel-card">
+                <h3 class="panel-card__title">Quick Actions</h3>
+                <div class="quick-actions">
+                  <button class="quick-action" data-action="add-stock" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Add Stock</span>
+                  </button>
+                  <button class="quick-action" data-action="request" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>Request</span>
+                  </button>
+                  <button class="quick-action" data-action="transfer" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                    <span>Transfer</span>
+                  </button>
+                  <button class="quick-action" data-action="fix" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    <span>Fix</span>
+                  </button>
+                </div>
+              </section>
+
+              <section class="panel-card">
+                <h3 class="panel-card__title">Inventory Health</h3>
+                <div class="health-bars">
+                  <div class="health-bar">
+                    <div class="health-bar__header"><span>IT Equipment</span><span>92%</span></div>
+                    <div class="health-bar__track"><div class="health-bar__fill health-bar__fill--green" data-progress="92"></div></div>
+                  </div>
+                  <div class="health-bar">
+                    <div class="health-bar__header"><span>Furniture</span><span>85%</span></div>
+                    <div class="health-bar__track"><div class="health-bar__fill health-bar__fill--blue" data-progress="85"></div></div>
+                  </div>
+                  <div class="health-bar">
+                    <div class="health-bar__header"><span>Consumables</span><span>45%</span></div>
+                    <div class="health-bar__track"><div class="health-bar__fill health-bar__fill--yellow" data-progress="45"></div></div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <!-- Recent activity table -->
+          <section class="table-card">
+            <div class="table-card__header">
+              <h3 class="table-card__title">Recent Activity</h3>
+              <button class="link-btn" id="viewAllBtn" type="button">View All</button>
+            </div>
+            <div class="table-wrap">
+              <table class="activity-table" id="activityTable">
+                <thead>
+                  <tr>
+                    <th data-sort="name" class="sortable">Asset ID / Name <span class="sort-icon"></span></th>
+                    <th data-sort="action" class="sortable">Action <span class="sort-icon"></span></th>
+                    <th data-sort="user" class="sortable">User <span class="sort-icon"></span></th>
+                    <th data-sort="status" class="sortable">Status <span class="sort-icon"></span></th>
+                    <th data-sort="time" class="sortable">Time <span class="sort-icon"></span></th>
+                  </tr>
+                </thead>
+                <tbody id="activityTableBody"></tbody>
+              </table>
+            </div>
+            <div class="table-pagination" id="tablePagination">
+              <button class="pagination-btn" id="prevPage" type="button" aria-label="Previous page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="pagination-info" id="paginationInfo">1 / 1</span>
+              <button class="pagination-btn" id="nextPage" type="button" aria-label="Next page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </section>
+        </section>
+
+        <!-- Placeholder modules (shown via JS navigation) -->
+        <section class="module-view module-view--placeholder" id="module-placeholder" data-module="placeholder" hidden>
+          <header class="page-header">
+            <div class="page-header__text">
+              <h1 class="page-header__title" id="placeholderTitle">Module</h1>
+              <p class="page-header__subtitle" id="placeholderSubtitle">Module content coming soon.</p>
+            </div>
+          </header>
+          <div class="placeholder-content">
+            <div class="placeholder-content__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            </div>
+            <p id="placeholderText">This module is under development. Use the sidebar to navigate back to the dashboard.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ========== MODALS ========== -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden aria-hidden="true"></div>
+
+  <!-- Generic modal shell (content injected by JS) -->
+  <dialog class="modal" id="genericModal" aria-labelledby="modalTitle">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modalTitle">Modal</h2>
+      <button class="modal__close" type="button" data-close-modal aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
+    <div class="modal__footer" id="modalFooter"></div>
+  </dialog>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
