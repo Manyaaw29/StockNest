@@ -114,30 +114,38 @@ export function renderSidebar(container, { activeItem, location = 'HQ Alpha' } =
         </div>
       </a>
 
-      <div class="sidebar__location">
-        <label class="sidebar__location-label" for="sidebar-location">Location</label>
-        <div class="sidebar__location-wrap">
-          <select id="sidebar-location" class="sidebar__location-select" aria-label="Switch location">
-            <option value="hq-alpha"${location === 'HQ Alpha' ? ' selected' : ''}>HQ Alpha</option>
-            <option value="hq-beta"${location === 'HQ Beta' ? ' selected' : ''}>HQ Beta</option>
-            <option value="hq-gamma"${location === 'HQ Gamma' ? ' selected' : ''}>HQ Gamma</option>
-          </select>
-          <svg class="sidebar__location-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+  container.innerHTML = `
+    <nav class="sidebar" aria-label="Main navigation">
+      <a href="dashboard.html" class="sidebar__brand-container sidebar__brand-link" aria-label="StockNest home">
+        <div class="sidebar__logo-icon-box" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
           </svg>
         </div>
-      </div>
+        <div class="sidebar__brand-text-container">
+          <h1 class="sidebar__logo-title">StockNest</h1>
+          <p class="sidebar__subtitle-desc">Workspace Inventory</p>
+        </div>
+      </a>
 
       <ul class="sidebar__nav">
         ${navLinks}
       </ul>
 
       <div class="sidebar__footer">
-        <button type="button" class="sidebar__switch-btn" id="sidebarSwitchBtn">
-          <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-          Switch Location
+        <button class="sidebar__location" id="sidebarSwitchBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span>Switch Location</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <a href="#" class="sidebar__help-link" id="sidebarHelpLink">Help Center</a>
+        <ul class="sidebar__location-menu" id="sidebarLocationMenu" role="listbox" hidden>
+          <li role="option" data-location="Floor 3 &amp; 4">Floor 3 &amp; 4</li>
+          <li role="option" data-location="East Wing">East Wing</li>
+          <li role="option" data-location="HQ Alpha">HQ Alpha</li>
+        </ul>
+        <button class="sidebar__help" type="button" id="sidebarHelpLink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Help Center</span>
+        </button>
       </div>
     </nav>`;
 }
@@ -175,11 +183,35 @@ export function initSidebarNav(container) {
   }
 
   const switchBtn = container.querySelector('#sidebarSwitchBtn');
-  const locationSelect = container.querySelector('#sidebar-location');
-  if (switchBtn && locationSelect) {
-    switchBtn.addEventListener('click', () => {
-      locationSelect.focus();
-      locationSelect.click();
+  const locationMenu = container.querySelector('#sidebarLocationMenu');
+  if (switchBtn && locationMenu) {
+    switchBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = locationMenu.hasAttribute('hidden');
+      if (isHidden) {
+        locationMenu.removeAttribute('hidden');
+        switchBtn.setAttribute('aria-expanded', 'true');
+      } else {
+        locationMenu.setAttribute('hidden', '');
+        switchBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', () => {
+      locationMenu.setAttribute('hidden', '');
+      switchBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    // Handle selection
+    locationMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('li');
+      if (!item) return;
+      const selectedLoc = item.dataset.location;
+      // Alert the selection as standard
+      alert(`Location switched to: ${selectedLoc}`);
+      locationMenu.setAttribute('hidden', '');
+      switchBtn.setAttribute('aria-expanded', 'false');
     });
   }
 }
