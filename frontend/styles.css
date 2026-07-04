@@ -278,9 +278,6 @@ ul {
   gap: 12px;
 }
 
-.sidebar__switch-btn {
-  display: flex;
-  align-items: center;
 .sidebar__help {
   display: flex;
   align-items: center;
