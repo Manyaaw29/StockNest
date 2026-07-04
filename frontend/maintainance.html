@@ -1,245 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockNest | Maintenance Center</title>
-
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <!-- Page stylesheet -->
-  <link rel="stylesheet" href="maintainance.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance Management - StockNest</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="maintainance.css">
 </head>
 <body>
 
   <div class="app-shell">
+    <!-- Sidebar component target -->
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
 
-    <!-- ============ SIDEBAR ============ -->
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <div class="brand">
-          <div class="brand-icon"><i class="fa-solid fa-cube"></i></div>
-          <div class="brand-text">
-            <h1>StockNest</h1>
-            <span>Workspace Inventory</span>
-          </div>
-        </div>
+    <div class="app-shell__main">
+      <!-- Topbar component target -->
+      <div id="topbar-root" class="app-shell__topbar"></div>
 
-        <button class="switch-location-btn" type="button">
-          <i class="fa-solid fa-location-dot"></i>
-          <span>Switch Location</span>
-        </button>
+      <div class="page-layout">
+        <main class="page-content">
 
-        <nav class="sidebar-nav">
-          <a href="dashboard_page_index.html" class="nav-item" data-page="dashboard">
-            <i class="fa-solid fa-table-cells-large"></i>
-            <span>Dashboard</span>
-          </a>
-          <a href="setup_locations_page_index.html" class="nav-item" data-page="setup">
-            <i class="fa-solid fa-book-open"></i>
-            <span>Setup and Locations</span>
-          </a>
-          <a href="asset_registry_page_index.html" class="nav-item" data-page="assets">
-            <i class="fa-regular fa-square"></i>
-            <span>Asset Registry</span>
-          </a>
-          <a href="inventory_management_page_index.html" class="nav-item" data-page="inventory">
-            <i class="fa-solid fa-laptop"></i>
-            <span>Inventory Management</span>
-          </a>
-          <a href="maintainance_page_index.html" class="nav-item active" data-page="maintenance">
-            <i class="fa-solid fa-wrench"></i>
-            <span>Maintenance</span>
-          </a>
-          <a href="room_booking_page_index.html" class="nav-item" data-page="booking">
-            <i class="fa-regular fa-calendar"></i>
-            <span>Room Booking</span>
-          </a>
-          <a href="room_allocation_page_index.html" class="nav-item" data-page="allocation">
-            <i class="fa-solid fa-right-left"></i>
-            <span>Room Allocation and Transfer</span>
-          </a>
-          <a href="analytics_reporting_page_index.html" class="nav-item" data-page="analytics">
-            <i class="fa-solid fa-chart-simple"></i>
-            <span>Analytics &amp; Reporting</span>
-          </a>
-          <a href="settings_page_index.html" class="nav-item" data-page="settings">
-            <i class="fa-solid fa-gear"></i>
-            <span>Settings</span>
-          </a>
-        </nav>
-      </div>
-
-      <div class="sidebar-bottom">
-        <a href="help_center_page_index.html" class="nav-item help-item">
-          <i class="fa-regular fa-circle-question"></i>
-          <span>Help Center</span>
-        </a>
-      </div>
-    </aside>
-
-    <!-- ============ MAIN CONTENT ============ -->
-    <div class="main-area">
-
-      <!-- Top bar -->
-      <header class="topbar">
-        <div class="search-wrap">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Search inventory, assets, tickets..." />
-          <span class="kbd">⌘K</span>
-        </div>
-
-        <div class="topbar-actions">
-          <button class="quick-add-btn" type="button">
-            <i class="fa-solid fa-plus"></i>
-            <span>Quick Add</span>
-          </button>
-          <button class="icon-btn notif-btn" type="button" aria-label="Notifications">
-            <i class="fa-regular fa-bell"></i>
-            <span class="notif-dot"></span>
-          </button>
-          <div class="avatar">
-            <img src="https://i.pravatar.cc/64?img=12" alt="User avatar" />
-          </div>
-        </div>
-      </header>
-
-      <!-- Page content -->
-      <main class="page-content">
-
-        <div class="page-heading">
-          <div>
-            <h2>Maintenance Center</h2>
-            <p>Track schedules, report issues, and monitor asset health.</p>
-          </div>
-          <button class="export-btn" type="button" id="exportLogBtn">
-            <i class="fa-solid fa-arrow-down-to-line"></i>
-            <span>Export Log</span>
-          </button>
-        </div>
-
-        <div class="content-grid">
-
-          <!-- ===== Report Issue Card ===== -->
-          <section class="card report-issue-card">
-            <div class="card-header">
-              <h3>Report Issue</h3>
-              <i class="fa-solid fa-magnifying-glass-plus card-header-icon"></i>
+          <!-- Page header -->
+          <div class="page-header">
+            <div>
+              <h1>Maintenance Center</h1>
+              <p>Track schedules, report issues, and monitor asset health.</p>
             </div>
+            <div class="icon-btn-wrap">
+              <button class="export-btn" id="exportBtn">⭳ Export Log</button>
+              <div class="dropdown export-dropdown" id="exportDropdown">
+                <button class="dropdown-item" data-export="csv">📄 Export as CSV</button>
+                <button class="dropdown-item" data-export="pdf">📕 Export as PDF</button>
+              </div>
+            </div>
+          </div>
 
-            <form id="reportIssueForm">
-              <label class="field-label" for="assetInput">Asset ID / Name</label>
-              <input class="text-input" id="assetInput" type="text" placeholder="e.g. PRN-004 or 3D Printer" />
+          <!-- Content grid -->
+          <div class="content-grid">
+
+            <!-- Report Issue Card -->
+            <section class="card report-issue">
+              <div class="card-header">
+                <h2>Report Issue</h2>
+                <span class="refresh-icon" id="refreshBtn">🔄</span>
+              </div>
+
+              <label class="field-label">Asset ID or Name</label>
+              <input type="text" class="text-input" id="reportAssetInput" placeholder="e.g. AST-0001 or Herman Miller">
 
               <label class="field-label">Priority Level</label>
-              <div class="priority-toggle" id="priorityToggle">
-                <button type="button" class="priority-btn critical" data-priority="Critical">Critical</button>
-                <button type="button" class="priority-btn high active" data-priority="High">High</button>
-                <button type="button" class="priority-btn low" data-priority="Low">Low</button>
+              <div class="priority-group" id="reportPriorityGroup">
+                <button class="priority-btn critical" data-priority="Critical">Critical</button>
+                <button class="priority-btn high active" data-priority="High">High</button>
+                <button class="priority-btn low" data-priority="Low">Low</button>
               </div>
-              <p class="sla-note">Est. SLA: <strong id="slaValue">24 Hours</strong></p>
+              <div class="sla-note">Est. SLA: <strong id="slaEstimate">24 Hours</strong></div>
 
-              <label class="field-label" for="descriptionInput">Description</label>
-              <textarea class="text-input textarea-input" id="descriptionInput" rows="5" placeholder="Describe the problem..."></textarea>
+              <label class="field-label">Description / Issue</label>
+              <textarea class="text-area" id="reportDescInput" placeholder="Describe the problem..."></textarea>
 
-              <button class="submit-btn" type="submit">
-                <i class="fa-solid fa-play"></i>
-                <span>Submit Ticket</span>
-              </button>
-            </form>
-          </section>
+              <button class="submit-btn" id="submitTicketBtn">▷ Submit Ticket</button>
+            </section>
 
-          <!-- ===== Right column ===== -->
-          <div class="right-column">
+            <!-- Right column -->
+            <div class="right-col">
 
-            <!-- Upcoming Service -->
-            <section class="card upcoming-service-card">
-              <div class="card-header">
-                <h3>Upcoming Service</h3>
-                <a href="#" class="view-all-link">View All <i class="fa-solid fa-arrow-right"></i></a>
-              </div>
+              <!-- Upcoming Service -->
+              <section class="card upcoming-service">
+                <div class="card-header">
+                  <h2>Service Log</h2>
+                </div>
 
-              <div class="table-wrap">
                 <table class="service-table">
                   <thead>
                     <tr>
                       <th>Asset ID &amp; Name</th>
-                      <th>Service Type</th>
+                      <th>Priority</th>
                       <th>Scheduled Date</th>
                       <th>Status</th>
-                      <th class="action-col">Action</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
-                  <tbody id="serviceTableBody">
+                  <tbody id="maintenanceTableBody">
                     <tr>
-                      <td>
-                        <div class="asset-cell">
-                          <span class="asset-icon"><i class="fa-solid fa-print"></i></span>
-                          <div>
-                            <p class="asset-id">PRN-012</p>
-                            <p class="asset-name">Kyocera TaskAlfa</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>Preventative</td>
-                      <td>Oct 24, 2023</td>
-                      <td><span class="badge badge-pending">Pending</span></td>
-                      <td class="action-col">
-                        <button class="row-menu-btn" type="button" aria-label="More actions">
-                          <i class="fa-solid fa-ellipsis-vertical"></i>
-                        </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div class="asset-cell">
-                          <span class="asset-icon"><i class="fa-solid fa-mug-hot"></i></span>
-                          <div>
-                            <p class="asset-id">CFE-003</p>
-                            <p class="asset-name">Jura Giga X8</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>Deep Clean</td>
-                      <td>Oct 26, 2023</td>
-                      <td><span class="badge badge-scheduled">Scheduled</span></td>
-                      <td class="action-col">
-                        <button class="row-menu-btn" type="button" aria-label="More actions">
-                          <i class="fa-solid fa-ellipsis-vertical"></i>
-                        </button>
-                      </td>
+                      <td colspan="5" class="text-muted" style="text-align:center;padding:32px">Loading maintenance tickets...</td>
                     </tr>
                   </tbody>
                 </table>
-              </div>
-            </section>
+              </section>
 
-            <!-- Asset Health Overview -->
-            <section class="card asset-health-card">
-              <div class="card-header">
-                <div>
-                  <h3>Asset Health Overview</h3>
-                  <p class="card-subtext">Expected lifespan vs. current age across categories.</p>
+              <!-- Asset Health Overview -->
+              <section class="card asset-health">
+                <div class="card-header">
+                  <div>
+                    <h2>Asset Health Overview</h2>
+                    <p class="subtext">Expected lifespan vs. current age across categories.</p>
+                  </div>
                 </div>
-                <button class="category-select" type="button" id="categorySelect">
-                  <span>All Categories</span>
-                  <i class="fa-solid fa-chevron-down"></i>
-                </button>
-              </div>
 
-              <div class="chart-wrap" id="assetHealthChart">
-                <!-- bars injected by JS -->
-              </div>
-            </section>
+                <div class="chart">
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:55%"></div>
+                      <div class="bar-fill blue-light" style="height:25%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:20%"></div>
+                      <div class="bar-fill yellow" style="height:20%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:65%"></div>
+                      <div class="bar-fill blue-light" style="height:15%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill pink" style="height:25%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:30%"></div>
+                      <div class="bar-fill blue-light" style="height:45%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="chart-baseline"></div>
+              </section>
 
+            </div>
           </div>
-        </div>
-      </main>
+
+        </main>
+      </div>
     </div>
   </div>
 
-  <!-- Page script -->
-  <script src="maintainance_page_script.js"></script>
+  <!-- Reschedule Modal -->
+  <div class="modal-overlay" id="rescheduleModal">
+    <div class="modal">
+      <h3>Reschedule Service</h3>
+      <p class="modal-sub">Asset: <strong id="rescheduleAssetName">-</strong></p>
+      <label class="field-label">New Date</label>
+      <input type="date" class="text-input" id="rescheduleDate">
+      <div class="modal-actions">
+        <button class="btn-secondary" id="rescheduleCancel">Cancel</button>
+        <button class="btn-primary" id="rescheduleConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3>Delete Service Entry</h3>
+      <p class="modal-sub">Are you sure you want to delete ticket for <strong id="deleteAssetName">-</strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="deleteCancel">Cancel</button>
+        <button class="btn-danger" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h3>Edit Service Entry</h3>
+      <p class="modal-sub">Asset: <strong id="editAssetName">-</strong></p>
+      <label class="field-label">Priority</label>
+      <select class="text-input" id="editPriority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+        <option value="Critical">Critical</option>
+      </select>
+      <label class="field-label">Status</label>
+      <select class="text-input" id="editStatus">
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="editCancel">Cancel</button>
+        <button class="btn-primary" id="editSave">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden></div>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Added standard data URI to silence browser favicon 404 error -->
+  <link rel="icon" href="data:,">
+
+  <script type="module" src="maintainance.js"></script>
 </body>
 </html>
