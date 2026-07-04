@@ -313,6 +313,40 @@ function setupDropdownListeners() {
   });
 }
 
+// 7. CSV Export Generator
+function exportToCSV() {
+  if (tickets.length === 0) {
+    showToast('No tickets available to export.', 'error');
+    return;
+  }
+
+  const headers = ['Ticket ID', 'Asset ID', 'Asset Name', 'Priority', 'Deadline', 'Status', 'Created At'];
+  const rows = tickets.map(t => [
+    t.request_id,
+    `AST-${String(t.asset_id).padStart(4, '0')}`,
+    t.asset_name || `Asset #${t.asset_id}`,
+    t.priority,
+    t.deadline ? new Date(t.deadline).toLocaleDateString() : 'N/A',
+    t.status,
+    t.created_at ? new Date(t.created_at).toLocaleDateString() : 'N/A'
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `StockNest_Maintenance_Log_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast('Maintenance log exported successfully (CSV)!');
+}
+
 // Initialise App
 function initApp() {
   renderSidebar($('#sidebar-root'), { activeItem: 'maintenance' });
@@ -325,6 +359,7 @@ function initApp() {
   setupDropdownListeners();
 
   $('#submitTicketBtn').addEventListener('click', submitTicket);
+  $('#exportBtn').addEventListener('click', exportToCSV);
 
   loadData();
 }
