@@ -19,7 +19,7 @@ export function renderTopbar(container, { userInitials = 'NY', userName = 'Neha 
         <input
           type="search"
           id="global-search"
-          class="topbar__search-input"
+          class="topbar__search"
           placeholder="${searchPlaceholder}"
           aria-label="${searchPlaceholder}"
         />
