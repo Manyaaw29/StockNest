@@ -1,43 +1,7 @@
-// ============ PAGE ROUTING ============
-// Human-readable titles for the placeholder pages
-const PAGE_TITLES = {
-  dashboard: "Dashboard",
-  setup: "Organization Setup",
-  registry: "Asset Registry",
-  inventory: "Inventory Management",
-  maintenance: "Maintenance",
-  booking: "Room Booking",
-  allocation: "Room Allocation and Transfer",
-  analytics: "Analytics & Reporting",
-  settings: "Settings"
-};
+import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+import { renderTopbar } from './components/topbar.js';
 
 const content = document.getElementById("page-content");
-const navItems = document.querySelectorAll(".nav-item");
-
-function renderPage(page) {
-  // Highlight the active nav item
-  navItems.forEach(item => {
-    item.classList.toggle("active", item.dataset.page === page);
-  });
-
-  content.innerHTML = "";
-
-  if (page === "setup") {
-    const tpl = document.getElementById("tpl-setup");
-    content.appendChild(tpl.content.cloneNode(true));
-    initSetupPage();
-  } else {
-    const tpl = document.getElementById("tpl-placeholder");
-    const clone = tpl.content.cloneNode(true);
-    clone.querySelector("[data-placeholder-title]").textContent = PAGE_TITLES[page] || "Coming soon";
-    content.appendChild(clone);
-  }
-}
-
-navItems.forEach(item => {
-  item.addEventListener("click", () => renderPage(item.dataset.page));
-});
 
 // ============ SETUP PAGE INTERACTIONS ============
 function initSetupPage() {
@@ -84,5 +48,22 @@ function initSetupPage() {
   }
 }
 
-// ============ INITIAL LOAD ============
-renderPage("setup");
+function loadSetupPage() {
+  content.innerHTML = "";
+  const tpl = document.getElementById("tpl-setup");
+  if (tpl) {
+    content.appendChild(tpl.content.cloneNode(true));
+    initSetupPage();
+  }
+}
+
+// Initialise App
+function initApp() {
+  renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'setup-locations' });
+  initSidebarNav(document.getElementById('sidebar-root'));
+  renderTopbar(document.getElementById('topbar-root'), { searchPlaceholder: 'Search organization...' });
+
+  loadSetupPage();
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
