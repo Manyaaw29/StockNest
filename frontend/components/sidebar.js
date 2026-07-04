@@ -114,20 +114,6 @@ export function renderSidebar(container, { activeItem, location = 'HQ Alpha' } =
         </div>
       </a>
 
-  container.innerHTML = `
-    <nav class="sidebar" aria-label="Main navigation">
-      <a href="dashboard.html" class="sidebar__brand-container sidebar__brand-link" aria-label="StockNest home">
-        <div class="sidebar__logo-icon-box" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          </svg>
-        </div>
-        <div class="sidebar__brand-text-container">
-          <h1 class="sidebar__logo-title">StockNest</h1>
-          <p class="sidebar__subtitle-desc">Workspace Inventory</p>
-        </div>
-      </a>
-
       <ul class="sidebar__nav">
         ${navLinks}
       </ul>
