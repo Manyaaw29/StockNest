@@ -244,27 +244,17 @@
      -------------------------------------------------------------------------- */
 
   const MODULE_ROUTES = {
-    'setup-locations': 'organisation_page_html.html',
+    'setup-locations': 'organisation.html',
     'asset-registry': 'asset_registry.html',
     'inventory-management': 'inventory.html',
-    'maintenance': 'maintainance_page_index.html',
+    'maintenance': 'maintainance.html',
     'room-booking': 'room-booking.html',
     'room-allocation': 'allocation.html',
+    'analytics': 'sn_dashboard_view.html',
+    'settings': 'stocknest-settings-view.html',
   };
 
   function switchModule(moduleId) {
-    if (moduleId === 'analytics') {
-      alert('Analytics page coming soon');
-      closeSidebar();
-      return;
-    }
-
-    if (moduleId === 'settings') {
-      alert('Settings page coming soon');
-      closeSidebar();
-      return;
-    }
-
     if (moduleId !== 'dashboard' && MODULE_ROUTES[moduleId]) {
       window.location.href = MODULE_ROUTES[moduleId];
       return;

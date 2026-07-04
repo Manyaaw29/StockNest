@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initSettings() {
     const repairSlider = document.getElementById('repair-time-slider');
     if (repairSlider) {
         repairSlider.addEventListener('input', (e) => {
@@ -13,4 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.classList.add('active');
         });
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSettings);
+} else {
+    initSettings();
+}
