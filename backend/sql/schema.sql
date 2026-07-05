@@ -69,14 +69,19 @@ CREATE TABLE asset (
 
 -- INVENTORY
 CREATE TABLE inventory (
-  inventory_id      SERIAL PRIMARY KEY,
-  org_id            INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
-  item_name         VARCHAR(255) NOT NULL,
-  current_stock     DECIMAL(10,2) NOT NULL DEFAULT 0,
-  reorder_point     DECIMAL(10,2) NOT NULL DEFAULT 0,
+  inventory_id        SERIAL PRIMARY KEY,
+  org_id              INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
+  sku                 VARCHAR(100) UNIQUE,
+  item_name           VARCHAR(255) NOT NULL,
+  category            VARCHAR(100) DEFAULT 'General',
+  unit                VARCHAR(50)  DEFAULT 'Units',
+  current_stock       DECIMAL(10,2) NOT NULL DEFAULT 0,
+  reorder_point       DECIMAL(10,2) NOT NULL DEFAULT 0,
   monthly_consumption DECIMAL(10,2) DEFAULT 0,
   consumption_history JSONB DEFAULT '[]',
-  status            inventory_status DEFAULT 'In Stock'
+  status              inventory_status DEFAULT 'In Stock',
+  supplier_email      VARCHAR(255),
+  created_at          TIMESTAMP DEFAULT NOW()
 );
 
 -- MAINTENANCE

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockNest &mdash; Analytics &amp; Reporting</title>
+  <link rel="stylesheet" href="assets/css/sn_dashboard_style.css" />
+</head>
+<body>
+  <div class="sn-app-shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sn-sidebar" id="snSidebar">
+      <div class="sn-sidebar__brand">
+        <span class="sn-brand__mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect width="20" height="20" rx="6" fill="currentColor"/>
+            <path d="M6 10.5L9 13.5L14 7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="sn-brand__text">
+          <strong>StockNest</strong>
+          <small>Workspace Inventory</small>
+        </span>
+      </div>
+
+      <nav class="sn-sidebar__nav" aria-label="Primary navigation">
+        <a class="sn-nav__item" href="#" data-icon="grid">
+          <span class="sn-icon" aria-hidden="true"></span>Dashboard
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="pin">
+          <span class="sn-icon" aria-hidden="true"></span>Setup and locations
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="box">
+          <span class="sn-icon" aria-hidden="true"></span>Asset Registry
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="inventory">
+          <span class="sn-icon" aria-hidden="true"></span>Inventory Management
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="wrench">
+          <span class="sn-icon" aria-hidden="true"></span>Maintenance
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="door">
+          <span class="sn-icon" aria-hidden="true"></span>Room Booking
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="swap">
+          <span class="sn-icon" aria-hidden="true"></span>Room Allocation and Transfer
+        </a>
+        <a class="sn-nav__item sn-nav__item--active" href="#" data-icon="chart">
+          <span class="sn-icon" aria-hidden="true"></span>Analytics &amp; Reporting
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="gear">
+          <span class="sn-icon" aria-hidden="true"></span>Settings
+        </a>
+      </nav>
+
+      <div class="sn-sidebar__footer">
+        <button class="sn-btn sn-btn--ghost sn-switch-location" type="button">Switch Location</button>
+        <a class="sn-help-link" href="#" data-icon="help">
+          <span class="sn-icon" aria-hidden="true"></span>Help Center
+        </a>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <div class="sn-main">
+
+      <!-- Topbar -->
+      <header class="sn-topbar">
+        <button class="sn-sidebar-toggle" id="snSidebarToggle" type="button" aria-label="Toggle navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+
+        <label class="sn-search" for="snSearchInput">
+          <span class="sn-icon sn-icon--search" aria-hidden="true"></span>
+          <input id="snSearchInput" type="text" placeholder="Search reports, assets, locations... (Cmd+K)" />
+        </label>
+
+        <div class="sn-topbar__actions">
+          <button class="sn-btn sn-btn--primary" id="snQuickAddBtn" type="button">
+            <span class="sn-icon sn-icon--plus" aria-hidden="true"></span>Quick Add
+          </button>
+          <button class="sn-icon-btn" id="snNotifBtn" type="button" aria-label="Notifications">
+            <span class="sn-icon sn-icon--bell" aria-hidden="true"></span>
+            <span class="sn-notif-dot"></span>
+          </button>
+          <button class="sn-avatar-btn" id="snAvatarBtn" type="button" aria-label="Account menu">
+            <img src="https://i.pravatar.cc/64?img=13" alt="User avatar" />
+          </button>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="sn-content">
+        <div class="sn-page-head">
+          <div>
+            <h1>Analytics &amp; Reporting</h1>
+            <p>Real-time insights across 12 locations and 4,200+ active assets.</p>
+          </div>
+          <div class="sn-page-head__actions">
+            <button class="sn-btn sn-btn--outline" id="snDateRangeBtn" type="button">
+              <span class="sn-icon sn-icon--calendar" aria-hidden="true"></span>
+              <span class="sn-daterange-label">Last 30 Days</span>
+              <span class="sn-icon sn-icon--chevron" aria-hidden="true"></span>
+            </button>
+            <button class="sn-btn sn-btn--dark" id="snExportBtn" type="button">
+              <span class="sn-icon sn-icon--download" aria-hidden="true"></span>Export
+            </button>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <section class="sn-stat-grid" aria-label="Key metrics">
+          <article class="sn-stat-card">
+            <div class="sn-stat-card__top">
+              <span class="sn-stat-card__label">Total Value<br />Tracked</span>
+              <span class="sn-stat-card__icon sn-stat-card__icon--blue">
+                <span class="sn-icon sn-icon--sheet" aria-hidden="true"></span>
+              </span>
+            </div>
+            <div class="sn-stat-card__value">$1.24M</div>
+            <div class="sn-stat-card__trend sn-trend--up">
+              <span class="sn-icon sn-icon--arrow-up" aria-hidden="true"></span>+2.4% vs last month
+            </div>
+          </article>
+
+          <article class="sn-stat-card">
+            <div class="sn-stat-card__top">
+              <span class="sn-stat-card__label">Asset Utilization</span>
+              <span class="sn-stat-card__icon sn-stat-card__icon--purple">
+                <span class="sn-icon sn-icon--donut" aria-hidden="true"></span>
+              </span>
+            </div>
+            <div class="sn-stat-card__value">87%</div>
+            <div class="sn-progress">
+              <div class="sn-progress__bar" style="width:87%"></div>
+            </div>
+            <div class="sn-stat-card__foot">Target: 90%</div>
+          </article>
+
+          <article class="sn-stat-card">
+            <div class="sn-stat-card__top">
+              <span class="sn-stat-card__label">SLA Compliance</span>
+              <span class="sn-stat-card__icon sn-stat-card__icon--amber">
+                <span class="sn-icon sn-icon--check" aria-hidden="true"></span>
+              </span>
+            </div>
+            <div class="sn-stat-card__value">94.2%</div>
+            <div class="sn-stat-card__trend sn-trend--down">
+              <span class="sn-icon sn-icon--arrow-down" aria-hidden="true"></span>-1.1% vs last month
+            </div>
+          </article>
+
+          <article class="sn-stat-card">
+            <div class="sn-stat-card__top">
+              <span class="sn-stat-card__label">Items in Maint.</span>
+              <span class="sn-stat-card__icon sn-stat-card__icon--rose">
+                <span class="sn-icon sn-icon--tool" aria-hidden="true"></span>
+              </span>
+            </div>
+            <div class="sn-stat-card__value">142</div>
+            <div class="sn-stat-card__foot">Avg resolution: 2.4 days</div>
+          </article>
+        </section>
+
+        <!-- Charts row -->
+        <section class="sn-panel-grid" aria-label="Reports">
+          <article class="sn-panel sn-panel--chart">
+            <div class="sn-panel__head">
+              <h2>Room Utilization Trends</h2>
+              <button class="sn-icon-btn sn-icon-btn--ghost" id="snChartMenuBtn" type="button" aria-label="More options">
+                <span class="sn-icon sn-icon--dots" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="sn-bar-chart" id="snBarChart" role="img" aria-label="Room utilization trends bar chart">
+              <!-- bars injected by JS -->
+            </div>
+          </article>
+
+          <article class="sn-panel sn-panel--status">
+            <div class="sn-panel__head">
+              <h2>Asset Status</h2>
+            </div>
+            <div class="sn-donut-wrap">
+              <svg class="sn-donut" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="Asset status donut chart: 60% available, 25% in use, 15% maintenance">
+                <circle cx="90" cy="90" r="70" fill="none" stroke="#EDEFF3" stroke-width="22"/>
+                <circle class="sn-donut__seg sn-donut__seg--available" cx="90" cy="90" r="70" fill="none" stroke-width="22" stroke-linecap="round"/>
+                <circle class="sn-donut__seg sn-donut__seg--inuse" cx="90" cy="90" r="70" fill="none" stroke-width="22" stroke-linecap="round"/>
+                <circle class="sn-donut__seg sn-donut__seg--maint" cx="90" cy="90" r="70" fill="none" stroke-width="22" stroke-linecap="round"/>
+              </svg>
+              <div class="sn-donut__center">
+                <strong>4.2k</strong>
+                <span>Total</span>
+              </div>
+            </div>
+            <ul class="sn-legend">
+              <li><span class="sn-dot sn-dot--available"></span>Available <em>60%</em></li>
+              <li><span class="sn-dot sn-dot--inuse"></span>In Use <em>25%</em></li>
+              <li><span class="sn-dot sn-dot--maint"></span>Maintenance <em>15%</em></li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/js/sn_dashboard_script.js"></script>
+</body>
+</html>

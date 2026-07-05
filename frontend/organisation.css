@@ -1,0 +1,453 @@
+/* ============ RESET & BASE ============ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F3F4F9;
+  --card: #FFFFFF;
+  --border: #E7E8F1;
+  --text: #1B1D28;
+  --text-soft: #6B6F80;
+  --text-faint: #9A9DAC;
+  --blue: #2F6FED;
+  --blue-dark: #2159C8;
+  --blue-soft: #EAF1FE;
+  --sidebar-bg: #12141C;
+  --sidebar-bg-soft: #1B1E29;
+  --sidebar-text: #9498A8;
+  --sidebar-text-active: #FFFFFF;
+  --green: #2FCB6B;
+  --yellow: #F4B740;
+  --yellow-soft: #FDEFD3;
+  --red: #E4573D;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(20, 22, 40, 0.04), 0 8px 24px rgba(20, 22, 40, 0.04);
+}
+
+html, body {
+  height: 100%;
+  font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select { font-family: inherit; }
+ul { list-style: none; }
+svg { display: block; }
+
+/* ============ PAGE CONTENT LAYOUT ============ */
+
+/* ---- Page content ---- */
+#page-content {
+  padding: 28px 32px 48px;
+  max-width: 1400px;
+  width: 100%;
+}
+
+.page-head { margin-bottom: 22px; }
+.page-head h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.3px; }
+.page-head p { color: var(--text-soft); font-size: 14px; margin-top: 6px; }
+
+/* ---- Cards ---- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-head h2 {
+  font-size: 15.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  letter-spacing: 0.6px;
+  margin-top: 2px;
+}
+
+.head-ic { width: 18px; height: 18px; color: var(--text-faint); }
+.info-ic { width: 14px; height: 14px; color: var(--text-faint); vertical-align: middle; }
+
+/* ---- Grids ---- */
+.grid-top {
+  display: grid;
+  grid-template-columns: 1.05fr 1.5fr 1fr;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.grid-bottom {
+  display: grid;
+  grid-template-columns: 0.85fr 1.7fr;
+  gap: 18px;
+  align-items: start;
+}
+
+/* ============ TIER CARD ============ */
+.tier-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.tier-option:last-child { margin-bottom: 0; }
+.tier-option input { display: none; }
+
+.tier-option.selected {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.tier-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-faint);
+  flex-shrink: 0;
+  margin-top: 1px;
+  position: relative;
+}
+
+.tier-option.selected .tier-radio {
+  border-color: var(--blue);
+}
+.tier-option.selected .tier-radio::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+
+.tier-name {
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-desc {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.badge {
+  background: var(--blue);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+/* ============ BRANCH DETAILS ============ */
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+
+.field input, .field select {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13.5px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+  background: var(--card);
+}
+.field input:focus { border-color: var(--blue); }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.prefixed-input {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.prefixed-input .prefix {
+  padding: 10px 0 10px 12px;
+  font-size: 13.5px;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+.prefixed-input input {
+  border: none;
+  padding: 10px 12px 10px 2px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-ghost, .btn-primary {
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-ghost {
+  background: var(--bg);
+  color: var(--text-soft);
+}
+.btn-ghost:hover { background: var(--border); }
+
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--blue-dark); }
+.btn-primary.full { width: 100%; margin-top: 14px; }
+
+/* ============ GEO SYNC ============ */
+.geo-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--text);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px rgba(47, 203, 107, 0.18);
+}
+
+.map {
+  position: relative;
+  height: 190px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(160deg, #123057, #0B1E3D);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.map-grid { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.pin {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50% 50% 50% 0;
+  background: #FF5C7C;
+  transform: translate(-50%, -100%) rotate(-45deg);
+  box-shadow: 0 0 0 3px rgba(255, 92, 124, 0.22);
+}
+
+.qr-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.qr-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.qr-icon svg { width: 18px; height: 18px; }
+
+.qr-title { font-size: 13.5px; font-weight: 600; }
+.qr-sub { font-size: 12px; color: var(--text-faint); margin-top: 1px; }
+
+/* ============ LOCATION TREE ============ */
+.add-btn { width: 30px; height: 30px; background: var(--bg); }
+
+.tree { display: flex; flex-direction: column; gap: 3px; }
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 6px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: var(--text);
+  position: relative;
+}
+
+.tree-node:hover { background: var(--bg); }
+
+.tree-node.depth-1 { padding-left: 22px; }
+.tree-node.depth-2 { padding-left: 38px; }
+.tree-node.depth-3 { padding-left: 54px; }
+
+.tree-node .tree-ic { width: 16px; height: 16px; color: var(--text-faint); flex-shrink: 0; }
+
+.tree-node.active-leaf { background: var(--blue-soft); color: var(--blue-dark); font-weight: 600; }
+.tree-node.active-leaf .tree-ic { color: var(--blue); }
+
+.current { font-weight: 600; }
+
+.caret {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  position: relative;
+}
+.caret::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  width: 6px;
+  height: 6px;
+  border-right: 1.6px solid var(--text-faint);
+  border-bottom: 1.6px solid var(--text-faint);
+  transform: rotate(45deg);
+}
+
+/* ============ SPATIAL DISTRIBUTION ============ */
+.spatial-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.floor-select {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 30px 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B6F80' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+}
+
+.view-toggle {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-faint);
+}
+.view-toggle.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+.treemap {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  height: 220px;
+}
+
+.tile {
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+}
+
+.tile-name { font-size: 14px; font-weight: 700; }
+.tile-count { font-size: 12.5px; font-weight: 600; margin-top: 2px; opacity: 0.85; }
+
+.tile-desk {
+  grid-row: 1 / 3;
+  background: linear-gradient(160deg, var(--yellow-soft), #FBE2A8);
+  color: #8A5A0B;
+  justify-content: flex-start;
+}
+
+.tile-meeting {
+  background: #F1F2F8;
+  color: var(--text);
+}
+
+.tile-storage {
+  background: linear-gradient(160deg, #FBD9D0, #F3AFA0);
+  color: #93321C;
+}
+
+/* ============ PLACEHOLDER PAGES ============ */
+.empty-state {
+  background: var(--card);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-faint);
+  font-size: 13.5px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1180px) {
+  .grid-top { grid-template-columns: 1fr 1fr; }
+  .geo-card { grid-column: 1 / 3; }
+  .grid-bottom { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  .app { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; }
+  .grid-top { grid-template-columns: 1fr; }
+  .geo-card { grid-column: auto; }
+  .search { width: 200px; }
+  #page-content { padding: 20px; }
+}

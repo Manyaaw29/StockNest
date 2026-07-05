@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintenance Management - StockNest</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="maintainance.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <!-- Sidebar component target -->
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+
+    <div class="app-shell__main">
+      <!-- Topbar component target -->
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <div class="page-layout">
+        <main class="page-content">
+
+          <!-- Page header -->
+          <div class="page-header">
+            <div>
+              <h1>Maintenance Center</h1>
+              <p>Track schedules, report issues, and monitor asset health.</p>
+            </div>
+            <button class="export-btn" id="exportBtn">⭳ Export Log (CSV)</button>
+          </div>
+
+          <!-- Content grid -->
+          <div class="content-grid">
+
+            <!-- Report Issue Card -->
+            <section class="card report-issue">
+              <div class="card-header">
+                <h2>Report Issue</h2>
+                <span class="refresh-icon" id="refreshBtn">🔄</span>
+              </div>
+
+              <label class="field-label">Asset ID or Name</label>
+              <input type="text" class="text-input" id="reportAssetInput" placeholder="e.g. AST-0001 or Herman Miller">
+
+              <label class="field-label">Priority Level</label>
+              <div class="priority-group" id="reportPriorityGroup">
+                <button class="priority-btn critical" data-priority="Critical">Critical</button>
+                <button class="priority-btn high active" data-priority="High">High</button>
+                <button class="priority-btn low" data-priority="Low">Low</button>
+              </div>
+              <div class="sla-note">Est. SLA: <strong id="slaEstimate">24 Hours</strong></div>
+
+              <label class="field-label">Description / Issue</label>
+              <textarea class="text-area" id="reportDescInput" placeholder="Describe the problem..."></textarea>
+
+              <button class="submit-btn" id="submitTicketBtn">▷ Submit Ticket</button>
+            </section>
+
+            <!-- Right column -->
+            <div class="right-col">
+
+              <!-- Upcoming Service -->
+              <section class="card upcoming-service">
+                <div class="card-header">
+                  <h2>Service Log</h2>
+                </div>
+
+                <table class="service-table">
+                  <thead>
+                    <tr>
+                      <th>Asset ID &amp; Name</th>
+                      <th>Priority</th>
+                      <th>Scheduled Date</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="maintenanceTableBody">
+                    <tr>
+                      <td colspan="5" class="text-muted" style="text-align:center;padding:32px">Loading maintenance tickets...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+
+              <!-- Asset Health Overview -->
+              <section class="card asset-health">
+                <div class="card-header">
+                  <div>
+                    <h2>Asset Health Overview</h2>
+                    <p class="subtext">Expected lifespan vs. current age across categories.</p>
+                  </div>
+                </div>
+
+                <div class="chart">
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:55%"></div>
+                      <div class="bar-fill blue-light" style="height:25%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:20%"></div>
+                      <div class="bar-fill yellow" style="height:20%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:65%"></div>
+                      <div class="bar-fill blue-light" style="height:15%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill pink" style="height:25%"></div>
+                    </div>
+                  </div>
+                  <div class="bar-wrap">
+                    <div class="bar">
+                      <div class="bar-fill blue" style="height:30%"></div>
+                      <div class="bar-fill blue-light" style="height:45%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="chart-baseline"></div>
+              </section>
+
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reschedule Modal -->
+  <div class="modal-overlay" id="rescheduleModal">
+    <div class="modal">
+      <h3>Reschedule Service</h3>
+      <p class="modal-sub">Asset: <strong id="rescheduleAssetName">-</strong></p>
+      <label class="field-label">New Date</label>
+      <input type="date" class="text-input" id="rescheduleDate">
+      <div class="modal-actions">
+        <button class="btn-secondary" id="rescheduleCancel">Cancel</button>
+        <button class="btn-primary" id="rescheduleConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <h3>Delete Service Entry</h3>
+      <p class="modal-sub">Are you sure you want to delete ticket for <strong id="deleteAssetName">-</strong>? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="deleteCancel">Cancel</button>
+        <button class="btn-danger" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h3>Edit Service Entry</h3>
+      <p class="modal-sub">Asset: <strong id="editAssetName">-</strong></p>
+      <label class="field-label">Priority</label>
+      <select class="text-input" id="editPriority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+        <option value="Critical">Critical</option>
+      </select>
+      <label class="field-label">Status</label>
+      <select class="text-input" id="editStatus">
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="editCancel">Cancel</button>
+        <button class="btn-primary" id="editSave">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden></div>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Added standard data URI to silence browser favicon 404 error -->
+  <link rel="icon" href="data:,">
+
+  <script type="module" src="maintainance.js"></script>
+</body>
+</html>

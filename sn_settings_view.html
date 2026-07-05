@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockNest &mdash; Settings</title>
+  <link rel="stylesheet" href="assets/css/sn_dashboard_style.css" />
+</head>
+<body>
+  <div class="sn-app-shell">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sn-sidebar" id="snSidebar">
+      <div class="sn-sidebar__brand">
+        <span class="sn-brand__mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect width="20" height="20" rx="6" fill="currentColor"/>
+            <path d="M6 10.5L9 13.5L14 7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="sn-brand__text">
+          <strong>StockNest</strong>
+          <small>Workspace Inventory</small>
+        </span>
+      </div>
+
+      <nav class="sn-sidebar__nav" aria-label="Primary navigation">
+        <a class="sn-nav__item" href="#" data-icon="grid">
+          <span class="sn-icon" aria-hidden="true"></span>Dashboard
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="pin">
+          <span class="sn-icon" aria-hidden="true"></span>Setup and locations
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="box">
+          <span class="sn-icon" aria-hidden="true"></span>Asset Registry
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="inventory">
+          <span class="sn-icon" aria-hidden="true"></span>Inventory Management
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="wrench">
+          <span class="sn-icon" aria-hidden="true"></span>Maintenance
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="door">
+          <span class="sn-icon" aria-hidden="true"></span>Room Booking
+        </a>
+        <a class="sn-nav__item" href="#" data-icon="swap">
+          <span class="sn-icon" aria-hidden="true"></span>Room Allocation and Transfer
+        </a>
+        <a class="sn-nav__item" href="sn_dashboard_view.html" data-icon="chart">
+          <span class="sn-icon" aria-hidden="true"></span>Analytics &amp; Reporting
+        </a>
+        <a class="sn-nav__item sn-nav__item--active" href="#" data-icon="gear">
+          <span class="sn-icon" aria-hidden="true"></span>Settings
+        </a>
+      </nav>
+
+      <div class="sn-sidebar__footer">
+        <button class="sn-btn sn-btn--ghost sn-switch-location" type="button">Switch Location</button>
+        <a class="sn-help-link" href="#" data-icon="help">
+          <span class="sn-icon" aria-hidden="true"></span>Help Center
+        </a>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <div class="sn-main">
+
+      <!-- Topbar -->
+      <header class="sn-topbar">
+        <button class="sn-sidebar-toggle" id="snSidebarToggle" type="button" aria-label="Toggle navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+
+        <label class="sn-search" for="snSearchInput">
+          <span class="sn-icon sn-icon--search" aria-hidden="true"></span>
+          <input id="snSearchInput" type="text" placeholder="Search settings..." />
+        </label>
+
+        <div class="sn-topbar__actions">
+          <button class="sn-btn sn-btn--primary" id="snQuickAddBtn" type="button">
+            <span class="sn-icon sn-icon--plus" aria-hidden="true"></span>Quick Add
+          </button>
+          <button class="sn-icon-btn" id="snNotifBtn" type="button" aria-label="Notifications">
+            <span class="sn-icon sn-icon--bell" aria-hidden="true"></span>
+            <span class="sn-notif-dot"></span>
+          </button>
+          <button class="sn-avatar-btn" id="snAvatarBtn" type="button" aria-label="Account menu">
+            <img src="https://i.pravatar.cc/64?img=13" alt="User avatar" />
+          </button>
+        </div>
+      </header>
+
+      <!-- Page content -->
+      <main class="sn-content">
+        <div class="sn-page-head">
+          <div>
+            <h1>Settings</h1>
+            <p>Manage users, organization preferences, and system configurations.</p>
+          </div>
+          <div class="sn-page-head__actions">
+            <nav class="sn-tabs" aria-label="Settings sections">
+              <button class="sn-tab sn-tab--active" type="button" data-tab="user-management">User Management</button>
+              <button class="sn-tab" type="button" data-tab="organization">Organization</button>
+              <button class="sn-tab" type="button" data-tab="system-config">System Config</button>
+              <button class="sn-tab" type="button" data-tab="backup-security">Backup &amp; Security</button>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Settings grid -->
+        <section class="sn-settings-grid" aria-label="Settings panels">
+
+          <!-- LEFT COLUMN -->
+          <div class="sn-settings-col">
+
+            <!-- Users & Roles -->
+            <article class="sn-panel">
+              <div class="sn-panel__head sn-panel__head--settings">
+                <h2>Users &amp; Roles</h2>
+                <button class="sn-btn sn-btn--outline" id="snInviteUserBtn" type="button">
+                  <span class="sn-icon sn-icon--user-plus" aria-hidden="true"></span>Invite User
+                </button>
+              </div>
+
+              <div class="sn-table-scroll">
+                <table class="sn-user-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Last Active</th>
+                      <th class="sn-row-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="snUserTableBody">
+                    <!-- rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="sn-table-foot">
+                <span id="snTableFootLabel">Showing 1 to 3 of 12 users</span>
+                <div class="sn-pager">
+                  <button type="button" id="snPagerPrev" aria-label="Previous page" disabled>
+                    <span class="sn-icon" aria-hidden="true" style="-webkit-mask-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2'><path d='M15 6l-6 6 6 6'/></svg>&quot;);mask-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2'><path d='M15 6l-6 6 6 6'/></svg>&quot;);"></span>
+                  </button>
+                  <button type="button" id="snPagerNext" aria-label="Next page">
+                    <span class="sn-icon" aria-hidden="true" style="-webkit-mask-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2'><path d='M9 6l6 6-6 6'/></svg>&quot;);mask-image:url(&quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2'><path d='M9 6l6 6-6 6'/></svg>&quot;);"></span>
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <!-- SLA Rules -->
+            <article class="sn-panel">
+              <div class="sn-panel__head sn-panel__head--settings">
+                <h2>SLA Rules</h2>
+              </div>
+
+              <div class="sn-sla-rule">
+                <div class="sn-sla-rule__head">
+                  <h3>Critical Asset Repair Time</h3>
+                  <span class="sn-sla-value-badge" id="snRepairTimeBadge">24 Hours</span>
+                </div>
+                <p>Maximum time allowed before a critical maintenance ticket is escalated.</p>
+                <div class="sn-range-wrap">
+                  <span>1h</span>
+                  <input class="sn-range" type="range" id="snRepairTimeRange" min="1" max="72" value="24" step="1" aria-label="Critical asset repair time in hours" />
+                  <span>72h</span>
+                </div>
+              </div>
+
+              <div class="sn-sla-rule">
+                <div class="sn-sla-rule__head">
+                  <h3>Standard Vendor Restock Alert</h3>
+                  <span class="sn-sla-value-badge" id="snRestockBadge">15% Capacity</span>
+                </div>
+                <p>Threshold to automatically notify vendors for consumable restocking.</p>
+                <div class="sn-range-wrap">
+                  <span>5%</span>
+                  <input class="sn-range" type="range" id="snRestockRange" min="5" max="50" value="15" step="1" aria-label="Standard vendor restock alert percentage" />
+                  <span>50%</span>
+                </div>
+              </div>
+
+              <div class="sn-sla-save">
+                <button class="sn-btn sn-btn--primary" id="snSaveSlaBtn" type="button">Save SLA Rules</button>
+              </div>
+            </article>
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="sn-settings-col">
+
+            <!-- System Audit Log -->
+            <article class="sn-panel">
+              <div class="sn-panel__head sn-panel__head--settings">
+                <h2>System Audit Log</h2>
+                <button class="sn-link-btn" id="snViewAllAuditBtn" type="button">View All</button>
+              </div>
+
+              <ul class="sn-audit-list" id="snAuditList">
+                <!-- items injected by JS -->
+              </ul>
+            </article>
+
+            <!-- Security Check -->
+            <article class="sn-security-card">
+              <span class="sn-security-card__icon" aria-hidden="true">
+                <span class="sn-icon sn-icon--shield"></span>
+              </span>
+              <h3>Security Check</h3>
+              <p>All systems optimal. Last scan 2h ago.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/js/sn_settings_script.js"></script>
+</body>
+</html>

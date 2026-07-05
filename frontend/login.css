@@ -473,3 +473,91 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* --- Form alerts --------------------------------------------------------- */
+.form-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.form-alert--error {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fee2e2;
+}
+
+.form-alert--success {
+  background-color: #f0fdf4;
+  color: #166534;
+  border-color: #dcfce7;
+}
+
+/* --- OR separator -------------------------------------------------------- */
+.or-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0.25rem 0;
+}
+
+.or-separator__line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.or-separator__text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- Google Button ------------------------------------------------------- */
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  height: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.btn-google:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.btn-google:active {
+  transform: scale(0.99);
+}
+
+.btn-google:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.btn-google__icon {
+  flex-shrink: 0;
+}
+

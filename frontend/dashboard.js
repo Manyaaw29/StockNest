@@ -52,6 +52,7 @@
   let searchQuery = '';
   let currentModule = 'dashboard';
   let currentLocation = 'Floor 3 & 4';
+  const BACKEND_URL = 'http://localhost:5000/api';
 
   /* --------------------------------------------------------------------------
      DOM references
@@ -243,33 +244,36 @@
      -------------------------------------------------------------------------- */
 
   const MODULE_ROUTES = {
-    'setup-locations': 'organisation_page_html.html',
+    'setup-locations': 'organisation.html',
     'asset-registry': 'asset_registry.html',
     'inventory-management': 'inventory.html',
-    'maintenance': 'maintainance_page_index.html',
+    'maintenance': 'maintainance.html',
     'room-booking': 'room-booking.html',
     'room-allocation': 'allocation.html',
+    'analytics': 'sn_dashboard_view.html',
+    'settings': 'stocknest-settings-view.html',
   };
 
   function switchModule(moduleId) {
-    if (moduleId === 'analytics') {
-      alert('Analytics page coming soon');
-      closeSidebar();
-      return;
-    }
-
-    if (moduleId === 'settings') {
-      alert('Settings page coming soon');
-      closeSidebar();
-      return;
-    }
-
     if (moduleId !== 'dashboard' && MODULE_ROUTES[moduleId]) {
       window.location.href = MODULE_ROUTES[moduleId];
       return;
     }
 
     currentModule = moduleId;
+
+    // Define the actual routes available in the app
+    const NAV_ROUTES = {
+      'asset-registry': 'asset_registry.html',
+      'inventory-management': 'inventory.html',
+      'room-booking': 'room-booking.html',
+      'room-allocation': 'allocation.html',
+    };
+
+    if (NAV_ROUTES[moduleId]) {
+      window.location.href = NAV_ROUTES[moduleId];
+      return;
+    }
 
     $$('.sidebar__nav-btn').forEach((btn) => {
       btn.classList.toggle('sidebar__nav-btn--active', btn.dataset.module === moduleId);
@@ -378,29 +382,71 @@
        <button class="btn btn--primary" type="button" id="qaSubmit">Add Asset</button>`
     );
 
-    $('#qaSubmit').addEventListener('click', () => {
+    $('#qaSubmit').addEventListener('click', async () => {
       const name = $('#qaName').value.trim();
       if (!name) return;
 
       const category = $('#qaCategory').value;
-      const id = '#' + Math.floor(100 + Math.random() * 900);
+      const qty = parseInt($('#qaQty').value, 10) || 1;
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-      activities.unshift({
-        id,
-        name,
-        category,
-        action: 'Added',
-        user: 'You',
-        userInitial: 'U',
-        status: 'Available',
-        statusClass: 'badge--available',
-        time: 'Just now',
-        timeMinutes: 0,
-      });
+      if (!token) {
+        alert('You must be logged in to add assets.');
+        return;
+      }
 
-      renderActivityTable();
-      closeModal();
-      showToast(`"${name}" added successfully.`);
+      try {
+        $('#qaSubmit').disabled = true;
+        $('#qaSubmit').textContent = 'Adding...';
+
+        for (let i = 0; i < qty; i++) {
+          const assetName = qty > 1 ? `${name} #${i + 1}` : name;
+          const response = await fetch(`${BACKEND_URL}/assets`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: assetName,
+              condition_level: 100,
+              status: 'Active'
+            })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to create asset in database.');
+          }
+        }
+
+        closeModal();
+        showToast(`"${name}" (×${qty}) added to database successfully.`);
+        
+        activities.unshift({
+          id: '#NEW',
+          name: name,
+          category: category,
+          action: `Added (×${qty})`,
+          user: 'You',
+          userInitial: 'U',
+          status: 'Available',
+          statusClass: 'badge--available',
+          time: 'Just now',
+          timeMinutes: 0,
+        });
+        renderActivityTable();
+
+      } catch (err) {
+        console.error('Error adding asset:', err);
+        alert(err.message);
+      } finally {
+        const qaSubmit = $('#qaSubmit');
+        if (qaSubmit) {
+          qaSubmit.disabled = false;
+          qaSubmit.textContent = 'Add Asset';
+        }
+      }
     });
   }
 
@@ -575,26 +621,103 @@
        <button class="btn btn--primary" type="button" id="fixSubmit">Create Ticket</button>`
     );
 
-    $('#fixSubmit').addEventListener('click', () => {
-      const asset = $('#fixAsset').value.trim();
-      if (!asset) return;
+    $('#fixSubmit').addEventListener('click', async () => {
+      const assetIdentifier = $('#fixAsset').value.trim();
+      const issue = $('#fixIssue').value.trim();
+      const priority = $('#fixPriority').value;
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-      activities.unshift({
-        id: '#' + Math.floor(100 + Math.random() * 900),
-        name: asset,
-        category: 'General',
-        action: 'Maintenance Req.',
-        user: 'You',
-        userInitial: 'U',
-        status: 'Maintenance',
-        statusClass: 'badge--maintenance',
-        time: 'Just now',
-        timeMinutes: 0,
-      });
+      if (!assetIdentifier || !issue) {
+        alert('Please fill out all fields.');
+        return;
+      }
 
-      renderActivityTable();
-      closeModal();
-      showToast('Maintenance ticket created.');
+      if (!token) {
+        alert('You must be logged in to create maintenance tickets.');
+        return;
+      }
+
+      try {
+        $('#fixSubmit').disabled = true;
+        $('#fixSubmit').textContent = 'Creating...';
+
+        // 1. Fetch assets to find a match by ID or Name
+        const assetsRes = await fetch(`${BACKEND_URL}/assets`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const assetsData = await assetsRes.json();
+        
+        const matchedAsset = assetsData.assets.find(a => 
+          a.name.toLowerCase().includes(assetIdentifier.toLowerCase()) || 
+          String(a.asset_id) === assetIdentifier ||
+          `AST-${String(a.asset_id).padStart(4, '0')}`.toLowerCase() === assetIdentifier.toLowerCase()
+        );
+
+        if (!matchedAsset) {
+          throw new Error(`Could not find an asset matching "${assetIdentifier}". Register it in the Asset Registry first.`);
+        }
+
+        // 2. Create the ticket
+        const response = await fetch(`${BACKEND_URL}/maintenance`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            asset_id: matchedAsset.asset_id,
+            priority: priority,
+            deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to create ticket.');
+        }
+
+        // 3. Mark asset status as 'In-Maintenance'
+        await fetch(`${BACKEND_URL}/assets/${matchedAsset.asset_id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            status: 'In-Maintenance'
+          })
+        });
+
+        closeModal();
+        showToast(`Maintenance ticket created for "${matchedAsset.name}"!`);
+        
+        activities.unshift({
+          id: `AST-${String(matchedAsset.asset_id).padStart(4, '0')}`,
+          name: matchedAsset.name,
+          category: 'Hardware',
+          action: 'Maintenance Req.',
+          user: 'You',
+          userInitial: 'U',
+          status: 'Maintenance',
+          statusClass: 'badge--maintenance',
+          time: 'Just now',
+          timeMinutes: 0,
+        });
+        renderActivityTable();
+
+      } catch (err) {
+        console.error('Error creating maintenance ticket:', err);
+        alert(err.message);
+      } finally {
+        const fixSubmit = $('#fixSubmit');
+        if (fixSubmit) {
+          fixSubmit.disabled = false;
+          fixSubmit.textContent = 'Create Ticket';
+        }
+      }
     });
   }
 

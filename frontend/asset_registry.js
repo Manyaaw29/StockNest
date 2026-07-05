@@ -1,24 +1,27 @@
 /**
- * StockNest — Asset Registry Page
+ * StockNest — Asset Registry Page (PostgreSQL Database Integration)
  */
 
 import { renderSidebar, initSidebarNav } from './components/sidebar.js';
 import { renderTopbar, initTopbarEvents } from './components/topbar.js';
+
+// Authentication Check
+const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
+
+if (!token) {
+  console.warn('No authentication token found. Redirecting to login...');
+  window.location.href = 'index.html';
+}
+
+const BACKEND_URL = 'http://localhost:5000/api';
 
 const PAGE_SIZE = 4;
 const CATEGORIES = ['All', 'Furniture', 'Electronics', 'Amenities'];
 const LOCATIONS = ['All Zones', 'Zone A', 'Zone B', 'Zone C'];
 const STATUSES = ['All', 'In Use', 'Available', 'Maintenance', 'Low Supplies'];
 
-let assets = [
-  { id: 'AST-8821-HM', name: 'Herman Miller Aeron', location: 'Zone A - Desk 42', zone: 'Zone A', category: 'Furniture', status: 'In Use', statusClass: 'status-in-use', assignedTo: { name: 'Elena H.', initials: 'EH', color: '#f97316' }, condition: 92, lastChecked: 'Oct 12, 2023', icon: '🪑' },
-  { id: 'AST-4410-MB', name: 'MacBook Pro 16"', location: 'Zone B - Hot Desk 12', zone: 'Zone B', category: 'Electronics', status: 'Available', statusClass: 'status-available', assignedTo: null, condition: 100, lastChecked: 'Oct 14, 2023', icon: '💻' },
-  { id: 'AST-3302-LM', name: 'La Marzocco Linea Mini', location: 'Zone C - Kitchen', zone: 'Zone C', category: 'Amenities', status: 'Maintenance', statusClass: 'status-maintenance', assignedTo: { name: 'Community Team', initials: 'CT', color: '#6366f1' }, condition: 45, lastChecked: 'Sep 28, 2023', icon: '☕' },
-  { id: 'AST-1190-HP', name: 'HP LaserJet Pro', location: 'Zone A - Print Station', zone: 'Zone A', category: 'Electronics', status: 'Low Supplies', statusClass: 'status-low-supplies', assignedTo: { name: 'Shared Asset', initials: 'SA', color: '#64748b' }, condition: 68, lastChecked: 'Oct 10, 2023', icon: '🖨️' },
-  { id: 'AST-5520-DK', name: 'Standing Desk Frame', location: 'Zone B - Desk 08', zone: 'Zone B', category: 'Furniture', status: 'In Use', statusClass: 'status-in-use', assignedTo: { name: 'Jordan L.', initials: 'JL', color: '#8b5cf6' }, condition: 88, lastChecked: 'Oct 01, 2023', icon: '🗄️' },
-  { id: 'AST-7741-PR', name: 'Epson Projector', location: 'Zone C - Conference', zone: 'Zone C', category: 'Electronics', status: 'Available', statusClass: 'status-available', assignedTo: null, condition: 95, lastChecked: 'Sep 20, 2023', icon: '📽️' },
-];
-
+let assets = [];
 let filters = { search: '', category: 'All', location: 'All Zones', status: 'All' };
 let sortKey = 'name';
 let sortDir = 'asc';
@@ -29,6 +32,7 @@ const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
 function showToast(message, type = 'success') {
   const container = $('#toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
   toast.className = `toast toast--${type}`;
   toast.textContent = message;
@@ -50,6 +54,60 @@ function getConditionColor(value) {
   if (value >= 80) return '#16a34a';
   if (value >= 60) return '#ca8a04';
   return '#dc2626';
+}
+
+// Fetch all assets from PostgreSQL backend
+async function fetchAssets() {
+  try {
+    const response = await fetch(`${BACKEND_URL}/assets`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        window.location.href = 'index.html';
+        return;
+      }
+      throw new Error('Failed to fetch assets from server.');
+    }
+
+    const data = await response.json();
+    
+    // Map backend database data to frontend schema
+    assets = data.assets.map(a => {
+      let status = 'Available';
+      if (a.status === 'Active') status = 'Available';
+      else if (a.status === 'In-Maintenance') status = 'Maintenance';
+      else if (a.status === 'Damaged' || a.status === 'Retired') status = 'Low Supplies';
+
+      return {
+        dbId: a.asset_id, // keep actual database serial ID
+        id: `AST-${String(a.asset_id).padStart(4, '0')}`,
+        name: a.name,
+        location: 'Floor 3 - Main Zone', // default
+        zone: 'Zone A', // default
+        category: 'Furniture', // default
+        status: status,
+        statusClass: getStatusClass(status),
+        assignedTo: null,
+        condition: a.condition_level,
+        lastChecked: a.last_service_date ? new Date(a.last_service_date).toLocaleDateString() : 'Never',
+        icon: a.name.toLowerCase().includes('chair') || a.name.toLowerCase().includes('seating') ? '🪑' : 
+              (a.name.toLowerCase().includes('desk') || a.name.toLowerCase().includes('table') ? '📂' : '💻')
+      };
+    });
+
+    renderTable();
+
+  } catch (err) {
+    console.error('Error fetching assets:', err);
+    showToast(err.message || 'Error connecting to backend API.', 'error');
+  }
 }
 
 function getFilteredAssets() {
@@ -151,6 +209,8 @@ function renderTable() {
   const pageItems = filtered.slice(start, start + PAGE_SIZE);
   const tbody = $('#assetTableBody');
 
+  if (!tbody) return;
+
   tbody.innerHTML = pageItems.length
     ? pageItems.map(renderRow).join('')
     : '<tr><td colspan="9" class="text-muted" style="text-align:center;padding:32px">No assets found.</td></tr>';
@@ -173,6 +233,7 @@ function renderTable() {
 
 function renderPagination(totalPages) {
   const controls = $('#paginationControls');
+  if (!controls) return;
   let html = `<button type="button" class="page-btn" data-page="prev" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>`;
 
   for (let i = 1; i <= totalPages; i++) {
@@ -201,9 +262,9 @@ function closeModal() {
 function assetForm(asset = null) {
   return `
     <div class="form-group"><label class="form-label">Asset Name</label><input class="form-input" id="fName" value="${asset?.name || ''}" required></div>
-    <div class="form-group"><label class="form-label">System ID</label><input class="form-input" id="fId" value="${asset?.id || ''}" ${asset ? 'readonly' : ''} required></div>
+    <div class="form-group"><label class="form-label">System ID (Readonly)</label><input class="form-input" id="fId" value="${asset?.id || '(Auto Generated)'}" readonly required></div>
     <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="fCategory">${CATEGORIES.filter((c) => c !== 'All').map((c) => `<option${asset?.category === c ? ' selected' : ''}>${c}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="fLocation" value="${asset?.location || ''}" required></div>
+    <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="fLocation" value="${asset?.location || 'Zone A - Main'}" required></div>
     <div class="form-group"><label class="form-label">Zone</label><select class="form-select" id="fZone">${LOCATIONS.filter((l) => l !== 'All Zones').map((z) => `<option${asset?.zone === z ? ' selected' : ''}>${z}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="fStatus">${STATUSES.filter((s) => s !== 'All').map((s) => `<option${asset?.status === s ? ' selected' : ''}>${s}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Condition (%)</label><input class="form-input" id="fCondition" type="number" min="0" max="100" value="${asset?.condition ?? 100}"></div>
@@ -211,55 +272,72 @@ function assetForm(asset = null) {
     <p class="form-error" id="formError"></p>`;
 }
 
-function saveAssetFromForm(existingId = null) {
+async function saveAssetFromForm(existingId = null) {
   const name = $('#fName').value.trim();
-  const id = $('#fId').value.trim();
   const category = $('#fCategory').value;
   const location = $('#fLocation').value.trim();
-  const zone = $('#fZone').value;
   const status = $('#fStatus').value;
   const condition = Math.min(100, Math.max(0, parseInt($('#fCondition').value, 10) || 0));
-  const assignedName = $('#fAssigned').value.trim();
   const errorEl = $('#formError');
 
-  if (!name || !id || !location) {
+  if (!name || !location) {
     errorEl.textContent = 'Please fill in all required fields.';
     return false;
   }
 
-  if (!existingId && assets.some((a) => a.id === id)) {
-    errorEl.textContent = 'System ID already exists.';
+  try {
+    let response;
+    
+    // Map UI statuses back to DB values
+    let dbStatus = 'Active';
+    if (status === 'Maintenance') dbStatus = 'In-Maintenance';
+    else if (status === 'Low Supplies') dbStatus = 'Damaged';
+
+    if (existingId) {
+      const asset = assets.find((a) => a.id === existingId);
+      if (!asset) return false;
+
+      response = await fetch(`${BACKEND_URL}/assets/${asset.dbId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: name,
+          condition_level: condition,
+          status: dbStatus
+        })
+      });
+    } else {
+      response = await fetch(`${BACKEND_URL}/assets`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: name,
+          condition_level: condition,
+          status: dbStatus
+        })
+      });
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to save asset.');
+    }
+
+    showToast(`Asset "${name}" successfully saved to database!`);
+    closeModal();
+    fetchAssets(); // Refresh table
+    return true;
+
+  } catch (err) {
+    errorEl.textContent = err.message;
     return false;
   }
-
-  const payload = {
-    id,
-    name,
-    location,
-    zone,
-    category,
-    status,
-    statusClass: getStatusClass(status),
-    assignedTo: assignedName
-      ? { name: assignedName, initials: assignedName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase(), color: '#6366f1' }
-      : null,
-    condition,
-    lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    icon: '📦',
-  };
-
-  if (existingId) {
-    const idx = assets.findIndex((a) => a.id === existingId);
-    if (idx !== -1) assets[idx] = payload;
-    showToast(`Asset "${name}" updated.`);
-  } else {
-    assets.unshift(payload);
-    showToast(`Asset "${name}" added.`);
-  }
-
-  renderTable();
-  closeModal();
-  return true;
 }
 
 function openAddModal() {
@@ -299,11 +377,29 @@ function deleteAsset(id) {
   openModal('Delete Asset', `<p>Are you sure you want to delete <strong>${asset.name}</strong> (${asset.id})?</p>`,
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="confirmDeleteBtn">Delete</button>`);
-  $('#confirmDeleteBtn').addEventListener('click', () => {
-    assets = assets.filter((a) => a.id !== id);
-    showToast(`Asset "${asset.name}" deleted.`, 'info');
-    renderTable();
-    closeModal();
+  
+  $('#confirmDeleteBtn').addEventListener('click', async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/assets/${asset.dbId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete asset.');
+      }
+
+      showToast(`Asset "${asset.name}" deleted.`, 'info');
+      closeModal();
+      fetchAssets();
+
+    } catch (err) {
+      alert(err.message);
+    }
   });
 }
 
@@ -327,27 +423,40 @@ function exportAssets() {
 
 function openImportModal() {
   openModal('Import Assets', `
-    <p style="margin-bottom:12px;color:#6b7280;font-size:14px;">Paste CSV data (ID,Name,Category) — one asset per line.</p>
-    <textarea class="form-textarea" id="importData" placeholder="AST-0001-XX,Sample Asset,Electronics"></textarea>`,
+    <p style="margin-bottom:12px;color:#6b7280;font-size:14px;">Paste CSV data (Name,Condition,Value) — one asset per line.</p>
+    <textarea class="form-textarea" id="importData" placeholder="Sample Chair, 95, 1200"></textarea>`,
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="importConfirmBtn">Import</button>`);
 
-  $('#importConfirmBtn').addEventListener('click', () => {
+  $('#importConfirmBtn').addEventListener('click', async () => {
     const lines = $('#importData').value.trim().split('\n').filter(Boolean);
     let count = 0;
-    lines.forEach((line) => {
-      const [id, name, category] = line.split(',').map((s) => s.trim());
-      if (!id || !name || assets.some((a) => a.id === id)) return;
-      assets.push({
-        id, name, category: category || 'Electronics', location: 'Zone A - Imported', zone: 'Zone A',
-        status: 'Available', statusClass: 'status-available', assignedTo: null, condition: 100,
-        lastChecked: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), icon: '📦',
-      });
-      count++;
-    });
-    showToast(count ? `Imported ${count} asset(s).` : 'No valid rows imported.', count ? 'success' : 'error');
-    renderTable();
-    closeModal();
+    try {
+      for (const line of lines) {
+        const [name, condition, value] = line.split(',').map((s) => s.trim());
+        if (!name) continue;
+
+        const response = await fetch(`${BACKEND_URL}/assets`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            condition_level: parseInt(condition, 10) || 100,
+            current_value: parseFloat(value) || 0,
+            status: 'Active'
+          })
+        });
+        if (response.ok) count++;
+      }
+      showToast(count ? `Imported ${count} asset(s) to database.` : 'No valid rows imported.', count ? 'success' : 'error');
+      closeModal();
+      fetchAssets();
+    } catch (err) {
+      alert(err.message);
+    }
   });
 }
 
@@ -395,8 +504,8 @@ function showActionMenu(id, btn) {
     <button type="button" data-action="edit">Edit Asset</button>
     <button type="button" data-action="delete" class="is-danger">Delete Asset</button>`;
   const rect = btn.getBoundingClientRect();
-  menu.style.top = `${rect.bottom + 4}px`;
-  menu.style.left = `${Math.max(8, rect.left - 120)}px`;
+  menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
+  menu.style.left = `${Math.max(8, rect.left + window.scrollX - 120)}px`;
   menu.hidden = false;
 }
 
@@ -545,7 +654,7 @@ function initApp() {
   initTopbarSearch();
   initFilters();
   initEvents();
-  renderTable();
+  fetchAssets(); // Load real assets from database
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

@@ -4,91 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StockNest &mdash; Analytics &amp; Reporting</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="assets/css/sn_dashboard_style.css" />
 </head>
 <body>
-  <div class="sn-app-shell">
+  <div class="app-shell">
+    <!-- Sidebar component target -->
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
 
-    <!-- ===================== SIDEBAR ===================== -->
-    <aside class="sn-sidebar" id="snSidebar">
-      <div class="sn-sidebar__brand">
-        <span class="sn-brand__mark" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect width="20" height="20" rx="6" fill="currentColor"/>
-            <path d="M6 10.5L9 13.5L14 7" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="sn-brand__text">
-          <strong>StockNest</strong>
-          <small>Workspace Inventory</small>
-        </span>
-      </div>
-
-      <nav class="sn-sidebar__nav" aria-label="Primary navigation">
-        <a class="sn-nav__item" href="#" data-icon="grid">
-          <span class="sn-icon" aria-hidden="true"></span>Dashboard
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="pin">
-          <span class="sn-icon" aria-hidden="true"></span>Setup and locations
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="box">
-          <span class="sn-icon" aria-hidden="true"></span>Asset Registry
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="inventory">
-          <span class="sn-icon" aria-hidden="true"></span>Inventory Management
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="wrench">
-          <span class="sn-icon" aria-hidden="true"></span>Maintenance
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="door">
-          <span class="sn-icon" aria-hidden="true"></span>Room Booking
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="swap">
-          <span class="sn-icon" aria-hidden="true"></span>Room Allocation and Transfer
-        </a>
-        <a class="sn-nav__item sn-nav__item--active" href="#" data-icon="chart">
-          <span class="sn-icon" aria-hidden="true"></span>Analytics &amp; Reporting
-        </a>
-        <a class="sn-nav__item" href="#" data-icon="gear">
-          <span class="sn-icon" aria-hidden="true"></span>Settings
-        </a>
-      </nav>
-
-      <div class="sn-sidebar__footer">
-        <button class="sn-btn sn-btn--ghost sn-switch-location" type="button">Switch Location</button>
-        <a class="sn-help-link" href="#" data-icon="help">
-          <span class="sn-icon" aria-hidden="true"></span>Help Center
-        </a>
-      </div>
-    </aside>
-
-    <!-- ===================== MAIN CONTENT ===================== -->
-    <div class="sn-main">
-
-      <!-- Topbar -->
-      <header class="sn-topbar">
-        <button class="sn-sidebar-toggle" id="snSidebarToggle" type="button" aria-label="Toggle navigation menu">
-          <span></span><span></span><span></span>
-        </button>
-
-        <label class="sn-search" for="snSearchInput">
-          <span class="sn-icon sn-icon--search" aria-hidden="true"></span>
-          <input id="snSearchInput" type="text" placeholder="Search reports, assets, locations... (Cmd+K)" />
-        </label>
-
-        <div class="sn-topbar__actions">
-          <button class="sn-btn sn-btn--primary" id="snQuickAddBtn" type="button">
-            <span class="sn-icon sn-icon--plus" aria-hidden="true"></span>Quick Add
-          </button>
-          <button class="sn-icon-btn" id="snNotifBtn" type="button" aria-label="Notifications">
-            <span class="sn-icon sn-icon--bell" aria-hidden="true"></span>
-            <span class="sn-notif-dot"></span>
-          </button>
-          <button class="sn-avatar-btn" id="snAvatarBtn" type="button" aria-label="Account menu">
-            <img src="https://i.pravatar.cc/64?img=13" alt="User avatar" />
-          </button>
-        </div>
-      </header>
+    <div class="app-shell__main">
+      <!-- Topbar component target -->
+      <div id="topbar-root" class="app-shell__topbar"></div>
 
       <!-- Page content -->
       <main class="sn-content">
@@ -204,6 +136,6 @@
     </div>
   </div>
 
-  <script src="assets/js/sn_dashboard_script.js"></script>
+  <script type="module" src="sn_dashboard_init.js"></script>
 </body>
 </html>

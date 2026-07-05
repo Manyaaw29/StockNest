@@ -3,12 +3,18 @@
    Script: sn_dashboard_script.js
    ======================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+function initAnalytics() {
   initSidebarToggle();
   renderRoomUtilizationChart();
   renderAssetStatusDonut();
   wireTopbarActions();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAnalytics);
+} else {
+  initAnalytics();
+}
 
 /* ---------- Sidebar toggle (mobile) ---------- */
 function initSidebarToggle() {

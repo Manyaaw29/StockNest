@@ -86,11 +86,48 @@
     return valid;
   }
 
-  form.addEventListener('submit', function (event) {
+  form.addEventListener('submit', async function (event) {
     event.preventDefault();
     if (!validateForm()) return;
 
-    alert('Account created successfully');
-    window.location.href = 'index.html';
+    var fullName = document.getElementById('fullName').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var password = passwordInput.value;
+
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Creating Account...';
+
+    try {
+      var response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: fullName,
+          email: email,
+          password: password,
+          role: 'Staff',
+          org_id: 1 // Default BMU Organization
+        })
+      });
+
+      var data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed.');
+      }
+
+      alert('Account created successfully!');
+      window.location.href = 'index.html'; // Redirect to login page
+
+    } catch (err) {
+      alert('Error: ' + err.message);
+      setError('email', err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
   });
 })();

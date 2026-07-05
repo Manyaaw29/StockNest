@@ -6,55 +6,17 @@
     <title>StockNest - Workspace Inventory Settings</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="stocknest-settings-styles.css">
 </head>
 <body>
-    <div class="sn-app-container">
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="sn-sidebar">
-            <div class="sn-brand-section">
-                <div class="sn-logo-box"><i class="fa-solid fa-cubes"></i></div>
-                <div class="sn-brand-info">
-                    <h2>StockNest</h2>
-                    <p>WORKSPACE INVENTORY</p>
-                </div>
-            </div>
-            <nav class="sn-nav-menu">
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-map-location-dot"></i> Setup and Locations</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-boxes-stacked"></i> Asset Registry</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-warehouse"></i> Inventory Management</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-door-open"></i> Room Booking</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-arrow-right-arrows-left"></i> Room Allocation and Transfer</a>
-                <a href="#" class="sn-nav-item"><i class="fa-solid fa-chart-line"></i> Analytics & Reporting</a>
-                <a href="#" class="sn-nav-item active"><i class="fa-solid fa-gear"></i> Settings</a>
-            </nav>
-            <div class="sn-sidebar-footer">
-                <button class="sn-btn-location"><i class="fa-solid fa-building"></i> Switch Location</button>
-                <a href="#" class="sn-help-link"><i class="fa-regular fa-circle-question"></i> Help Center</a>
-            </div>
-        </aside>
+    <div class="app-shell">
+        <!-- Sidebar component target -->
+        <aside id="sidebar-root" class="app-shell__sidebar"></aside>
 
-        <!-- MAIN CONTENT AREA -->
-        <main class="sn-main-layout">
-            <header class="sn-topbar">
-                <div class="sn-search-container">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Search settings...">
-                    <kbd class="sn-shortcut">⌘ K</kbd>
-                </div>
-                <div class="sn-topbar-actions">
-                    <div class="sn-notification-icon">
-                        <i class="fa-regular fa-bell"></i>
-                        <span class="sn-dot"></span>
-                    </div>
-                    <button class="sn-btn-quickadd"><i class="fa-solid fa-plus"></i> Quick Add</button>
-                    <div class="sn-user-avatar">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Profile">
-                    </div>
-                </div>
-            </header>
+        <div class="app-shell__main">
+            <!-- Topbar component target -->
+            <div id="topbar-root" class="app-shell__topbar"></div>
 
             <div class="sn-content-body">
                 <h1 class="sn-page-title">Settings</h1>
@@ -160,8 +122,8 @@
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
-    <script src="stocknest-settings-actions.js"></script>
+    <script type="module" src="stocknest-settings-init.js"></script>
 </body>
 </html>

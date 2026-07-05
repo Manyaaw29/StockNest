@@ -1,12 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const bookingRoutes = require('./routes/bookingRoutes');
 require('dotenv').config();
 
-const authRoutes          = require('./routes/authRoutes');
-const dashboardRoutes     = require('./routes/dashboardRoutes');
-const organizationRoutes  = require('./routes/organizationRoutes');
-const roomRoutes = require('./routes/roomRoutes');
+const authRoutes                        = require('./routes/authRoutes');
+const dashboardRoutes                   = require('./routes/dashboardRoutes');
+const organizationRoutes                = require('./routes/organizationRoutes');
+const { assetsRouter, maintenanceRouter } = require('./routes/assets');
+const inventoryRoutes                   = require('./routes/inventoryRoutes');
+const roomRoutes                        = require('./routes/roomRoutes');
+const bookingRoutes                     = require('./routes/bookingRoutes');
+
 const app = express();
 
 app.use(cors());
@@ -16,8 +19,12 @@ app.use(express.json());
 app.use('/api/auth',          authRoutes);
 app.use('/api/dashboard',     dashboardRoutes);
 app.use('/api/organizations', organizationRoutes);
-app.use('/api/rooms', roomRoutes);
-app.use('/api/bookings', bookingRoutes);
+app.use('/api/assets',        assetsRouter);
+app.use('/api/maintenance',   maintenanceRouter);
+app.use('/api/inventory',     inventoryRoutes);
+app.use('/api/rooms',         roomRoutes);
+app.use('/api/bookings',      bookingRoutes);
+
 app.get('/api/test', (req, res) => {
     res.json({ message: 'StockNest Backend is Running!' });
 });
