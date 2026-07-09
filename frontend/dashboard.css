@@ -1182,3 +1182,8 @@ a:hover { text-decoration: underline; }
   .page-header__actions .btn { flex: 1; }
   .quick-actions { grid-template-columns: 1fr 1fr; }
 }
+
+/* Clickable Stats Cards style */
+.stat-card {
+  cursor: pointer;
+}

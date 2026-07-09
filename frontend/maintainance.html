@@ -34,8 +34,8 @@
             <button class="export-btn" id="exportBtn">⭳ Export Log (CSV)</button>
           </div>
 
-          <!-- Content grid -->
-          <div class="content-grid">
+          <!-- Top Row split grid (Report Issue + Asset Health Overview) -->
+          <div class="top-row-grid">
 
             <!-- Report Issue Card -->
             <section class="card report-issue">
@@ -61,78 +61,112 @@
               <button class="submit-btn" id="submitTicketBtn">▷ Submit Ticket</button>
             </section>
 
-            <!-- Right column -->
-            <div class="right-col">
-
-              <!-- Upcoming Service -->
-              <section class="card upcoming-service">
-                <div class="card-header">
-                  <h2>Service Log</h2>
+            <!-- Asset Health Overview -->
+            <section class="card asset-health">
+              <div class="card-header">
+                <div>
+                  <h2>Asset Health Overview</h2>
+                  <p class="subtext">Expected lifespan vs. current age across categories.</p>
                 </div>
+              </div>
 
-                <table class="service-table">
-                  <thead>
-                    <tr>
-                      <th>Asset ID &amp; Name</th>
-                      <th>Priority</th>
-                      <th>Scheduled Date</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="maintenanceTableBody">
-                    <tr>
-                      <td colspan="5" class="text-muted" style="text-align:center;padding:32px">Loading maintenance tickets...</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </section>
-
-              <!-- Asset Health Overview -->
-              <section class="card asset-health">
-                <div class="card-header">
-                  <div>
-                    <h2>Asset Health Overview</h2>
-                    <p class="subtext">Expected lifespan vs. current age across categories.</p>
+              <div class="chart">
+                <div class="bar-wrap">
+                  <div class="bar">
+                    <div class="bar-fill blue" style="height:55%"></div>
+                    <div class="bar-fill blue-light" style="height:25%"></div>
                   </div>
                 </div>
-
-                <div class="chart">
-                  <div class="bar-wrap">
-                    <div class="bar">
-                      <div class="bar-fill blue" style="height:55%"></div>
-                      <div class="bar-fill blue-light" style="height:25%"></div>
-                    </div>
-                  </div>
-                  <div class="bar-wrap">
-                    <div class="bar">
-                      <div class="bar-fill blue" style="height:20%"></div>
-                      <div class="bar-fill yellow" style="height:20%"></div>
-                    </div>
-                  </div>
-                  <div class="bar-wrap">
-                    <div class="bar">
-                      <div class="bar-fill blue" style="height:65%"></div>
-                      <div class="bar-fill blue-light" style="height:15%"></div>
-                    </div>
-                  </div>
-                  <div class="bar-wrap">
-                    <div class="bar">
-                      <div class="bar-fill pink" style="height:25%"></div>
-                    </div>
-                  </div>
-                  <div class="bar-wrap">
-                    <div class="bar">
-                      <div class="bar-fill blue" style="height:30%"></div>
-                      <div class="bar-fill blue-light" style="height:45%"></div>
-                    </div>
+                <div class="bar-wrap">
+                  <div class="bar">
+                    <div class="bar-fill blue" style="height:20%"></div>
+                    <div class="bar-fill yellow" style="height:20%"></div>
                   </div>
                 </div>
-                <div class="chart-baseline"></div>
-              </section>
+                <div class="bar-wrap">
+                  <div class="bar">
+                    <div class="bar-fill blue" style="height:65%"></div>
+                    <div class="bar-fill blue-light" style="height:15%"></div>
+                  </div>
+                </div>
+                <div class="bar-wrap">
+                  <div class="bar">
+                    <div class="bar-fill pink" style="height:25%"></div>
+                  </div>
+                </div>
+                <div class="bar-wrap">
+                  <div class="bar">
+                    <div class="bar-fill blue" style="height:30%"></div>
+                    <div class="bar-fill blue-light" style="height:45%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="chart-baseline"></div>
+            </section>
 
-            </div>
           </div>
+
+          <!-- Bottom Row: Service Log (Upcoming Service / Ticket Queries) full-width -->
+          <section class="card upcoming-service service-log-full">
+            <div class="card-header query-header">
+              <h2>Service Log</h2>
+              
+              <!-- Query / Filters Bar -->
+              <div class="ticket-filters">
+                <div class="filter-search-wrap">
+                  <input type="text" id="ticketSearchInput" placeholder="Search Name, ID, priority..." />
+                  <button type="button" class="search-clear-btn" id="clearTicketSearch" title="Clear Search">×</button>
+                </div>
+
+                <div class="filter-select-wrap">
+                  <select id="statusFilter" class="filter-select">
+                    <option value="All">Status: All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+
+                <div class="filter-select-wrap">
+                  <select id="priorityFilter" class="filter-select">
+                    <option value="All">Priority: All</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                  </select>
+                </div>
+
+                <button type="button" class="btn-reset" id="resetTicketFilters">Reset</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="service-table">
+                <thead>
+                  <tr>
+                    <th class="sortable" data-sort="asset">Asset Details <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="priority">Priority <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="deadline">Scheduled Date <span class="sort-indicator"></span></th>
+                    <th class="sortable" data-sort="status">Status <span class="sort-indicator"></span></th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="maintenanceTableBody">
+                  <tr>
+                    <td colspan="5" class="text-muted" style="text-align:center;padding:32px">Loading maintenance tickets...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="table-pagination">
+              <span class="pagination-info" id="paginationInfo">Showing 0 entries</span>
+              <div class="pagination-controls" id="paginationControls"></div>
+            </div>
+          </section>
 
         </main>
       </div>
@@ -141,7 +175,7 @@
 
   <!-- Reschedule Modal -->
   <div class="modal-overlay" id="rescheduleModal">
-    <div class="modal">
+    <div class="maintenance-modal">
       <h3>Reschedule Service</h3>
       <p class="modal-sub">Asset: <strong id="rescheduleAssetName">-</strong></p>
       <label class="field-label">New Date</label>
@@ -155,7 +189,7 @@
 
   <!-- Delete Confirm Modal -->
   <div class="modal-overlay" id="deleteModal">
-    <div class="modal">
+    <div class="maintenance-modal">
       <h3>Delete Service Entry</h3>
       <p class="modal-sub">Are you sure you want to delete ticket for <strong id="deleteAssetName">-</strong>? This action cannot be undone.</p>
       <div class="modal-actions">
@@ -167,7 +201,7 @@
 
   <!-- Edit Modal -->
   <div class="modal-overlay" id="editModal">
-    <div class="modal">
+    <div class="maintenance-modal">
       <h3>Edit Service Entry</h3>
       <p class="modal-sub">Asset: <strong id="editAssetName">-</strong></p>
       <label class="field-label">Priority</label>
@@ -184,6 +218,8 @@
         <option value="Resolved">Resolved</option>
         <option value="Closed">Closed</option>
       </select>
+      <label class="field-label">Description / Issue</label>
+      <textarea class="text-area" id="editDesc" placeholder="Describe the problem..."></textarea>
       <div class="modal-actions">
         <button class="btn-secondary" id="editCancel">Cancel</button>
         <button class="btn-primary" id="editSave">Save Changes</button>

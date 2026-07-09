@@ -94,6 +94,7 @@ CREATE TABLE maintenance (
   priority        VARCHAR(20) DEFAULT 'Medium',
   cost            DECIMAL(10,2),
   deadline        DATE,
+  description     TEXT,
   created_at      TIMESTAMP DEFAULT NOW()
 );
 -- Users table for authentication

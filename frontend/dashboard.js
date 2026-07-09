@@ -6,6 +6,14 @@
 (function () {
   'use strict';
 
+  // Authentication Check
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  if (!token) {
+    console.warn('No authentication token found. Redirecting to login...');
+    window.location.href = 'index.html';
+    return;
+  }
+
   /* --------------------------------------------------------------------------
      Data
      -------------------------------------------------------------------------- */
@@ -222,21 +230,79 @@
      Stats & progress animations
      -------------------------------------------------------------------------- */
 
-  function initAnimations() {
-    $$('.stat-card[data-animate]').forEach((card, i) => {
+  async function fetchDashboardStats() {
+    // Fade cards in
+    $$('.stats-grid .stat-card').forEach((card, i) => {
       setTimeout(() => card.classList.add('is-visible'), i * 100);
     });
 
-    $$('[data-count]').forEach((el) => {
-      const target = parseInt(el.dataset.count, 10);
-      setTimeout(() => animateCounter(el, target), 300);
-    });
-
-    setTimeout(() => {
-      $$('[data-progress]').forEach((bar) => {
-        bar.style.width = bar.dataset.progress + '%';
+    try {
+      const response = await fetch(`${BACKEND_URL}/dashboard`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
-    }, 500);
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = 'index.html';
+          return;
+        }
+        throw new Error('Failed to fetch dashboard stats.');
+      }
+      const data = await response.json();
+      
+      const totalAssetsCard = $('.stats-grid .stat-card:nth-child(1) .stat-card__value');
+      if (totalAssetsCard) {
+        totalAssetsCard.dataset.count = data.totalAssets;
+        animateCounter(totalAssetsCard, data.totalAssets);
+      }
+
+      const lowStockCard = $('.stats-grid .stat-card:nth-child(2) .stat-card__value');
+      if (lowStockCard) {
+        lowStockCard.dataset.count = data.lowStock;
+        animateCounter(lowStockCard, data.lowStock);
+      }
+
+      const maintCard = $('.stats-grid .stat-card:nth-child(3) .stat-card__value');
+      if (maintCard) {
+        maintCard.dataset.count = data.pendingMaintenance;
+        animateCounter(maintCard, data.pendingMaintenance);
+        const meta = $('.stats-grid .stat-card:nth-child(3) .stat-card__meta');
+        if (meta) {
+          meta.textContent = `${data.pendingMaintenance} require attention`;
+        }
+      }
+
+      const utilCardSpan = $('.stats-grid .stat-card:nth-child(4) .stat-card__value span');
+      if (utilCardSpan) {
+        const pct = Math.round(data.roomUtilization);
+        utilCardSpan.dataset.count = pct;
+        animateCounter(utilCardSpan, pct);
+        const utilBar = $('.stats-grid .stat-card:nth-child(4) .stat-card__progress-bar');
+        if (utilBar) {
+          utilBar.dataset.progress = pct;
+          utilBar.style.width = pct + '%';
+        }
+      }
+    } catch (err) {
+      console.error('Error loading dashboard stats:', err);
+      // Fallback to static animation
+      $$('[data-count]').forEach((el) => {
+        const target = parseInt(el.dataset.count, 10);
+        setTimeout(() => animateCounter(el, target), 300);
+      });
+      setTimeout(() => {
+        $$('[data-progress]').forEach((bar) => {
+          bar.style.width = bar.dataset.progress + '%';
+        });
+      }, 500);
+    }
+  }
+
+  function initAnimations() {
+    fetchDashboardStats();
   }
 
   /* --------------------------------------------------------------------------
@@ -670,7 +736,8 @@
           body: JSON.stringify({
             asset_id: matchedAsset.asset_id,
             priority: priority,
-            deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            description: issue
           })
         });
 
@@ -857,6 +924,15 @@
      -------------------------------------------------------------------------- */
 
   function bindEvents() {
+    // Make cards clickable
+    const cards = $$('.stats-grid .stat-card');
+    if (cards.length >= 4) {
+      cards[0].addEventListener('click', () => { window.location.href = 'asset_registry.html'; });
+      cards[1].addEventListener('click', () => { window.location.href = 'inventory.html'; });
+      cards[2].addEventListener('click', () => { window.location.href = 'maintainance.html'; });
+      cards[3].addEventListener('click', () => { window.location.href = 'room-booking.html'; });
+    }
+
     /* Sidebar */
     $$('.sidebar__nav-btn').forEach((btn) => {
       btn.addEventListener('click', () => switchModule(btn.dataset.module));

@@ -198,10 +198,19 @@ const autoScheduleMaintenance = async (assetId, conditionLevel) => {
   deadline.setDate(deadline.getDate() + 7);
 
   const result = await pool.query(
-    `INSERT INTO maintenance (asset_id, status, priority, deadline)
-     VALUES ($1, 'Pending', 'High', $2)
+    `INSERT INTO maintenance (asset_id, status, priority, deadline, description)
+     VALUES ($1, 'Pending', 'High', $2, $3)
      RETURNING *`,
-    [assetId, deadline.toISOString().split('T')[0]]
+    [
+      assetId,
+      deadline.toISOString().split('T')[0],
+      `Auto-scheduled due to condition level dropping to ${conditionLevel}%.`
+    ]
+  );
+
+  await pool.query(
+    `UPDATE asset SET status = 'In-Maintenance' WHERE asset_id = $1`,
+    [assetId]
   );
 
   console.log(
@@ -224,7 +233,7 @@ const getMaintenance = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT m.request_id, m.asset_id, m.room_id, m.assigned_to,
-              m.status, m.priority, m.cost, m.deadline, m.created_at,
+              m.status, m.priority, m.cost, m.deadline, m.description, m.created_at,
               a.name AS asset_name,
               r.room_name,
               u.name AS assigned_to_name
@@ -253,7 +262,7 @@ const getMaintenanceById = async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT m.request_id, m.asset_id, m.room_id, m.assigned_to,
-              m.status, m.priority, m.cost, m.deadline, m.created_at,
+              m.status, m.priority, m.cost, m.deadline, m.description, m.created_at,
               a.name AS asset_name, a.org_id AS asset_org_id,
               r.room_name,         r.org_id AS room_org_id,
               u.name AS assigned_to_name
@@ -293,7 +302,7 @@ const getMaintenanceById = async (req, res) => {
 // Body: { asset_id?, room_id?, priority, deadline, assigned_to? }
 // ─────────────────────────────────────────────
 const createMaintenance = async (req, res) => {
-  const { asset_id, room_id, assigned_to, priority, cost, deadline } = req.body;
+  const { asset_id, room_id, assigned_to, priority, cost, deadline, description } = req.body;
 
   if (!asset_id && !room_id) {
     return res.status(400).json({ message: 'Either asset_id or room_id is required.' });
@@ -323,8 +332,8 @@ const createMaintenance = async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO maintenance (asset_id, room_id, assigned_to, status, priority, cost, deadline)
-       VALUES ($1, $2, $3, 'Pending', $4, $5, $6)
+      `INSERT INTO maintenance (asset_id, room_id, assigned_to, status, priority, cost, deadline, description)
+       VALUES ($1, $2, $3, 'Pending', $4, $5, $6, $7)
        RETURNING *`,
       [
         asset_id || null,
@@ -333,8 +342,17 @@ const createMaintenance = async (req, res) => {
         priority || 'Medium',
         cost || null,
         deadline || null,
+        description || null,
       ]
     );
+
+    // Sync status: set asset to In-Maintenance
+    if (asset_id) {
+      await pool.query(
+        `UPDATE asset SET status = 'In-Maintenance' WHERE asset_id = $1`,
+        [asset_id]
+      );
+    }
 
     return res.status(201).json({
       message: 'Maintenance request created successfully.',
@@ -353,7 +371,7 @@ const createMaintenance = async (req, res) => {
 // ─────────────────────────────────────────────
 const updateMaintenance = async (req, res) => {
   const { id } = req.params;
-  const { status, priority, cost, deadline, assigned_to } = req.body;
+  const { status, priority, cost, deadline, assigned_to, description } = req.body;
 
   const allowedStatuses = ['Pending', 'In Progress', 'Resolved', 'Closed'];
   if (status && !allowedStatuses.includes(status)) {
@@ -363,7 +381,7 @@ const updateMaintenance = async (req, res) => {
   try {
     // First verify ownership
     const existing = await pool.query(
-      `SELECT m.request_id, a.org_id AS asset_org, r.org_id AS room_org
+      `SELECT m.request_id, m.asset_id, a.org_id AS asset_org, r.org_id AS room_org
        FROM maintenance m
        LEFT JOIN asset a ON m.asset_id = a.asset_id
        LEFT JOIN room  r ON m.room_id  = r.room_id
@@ -386,15 +404,37 @@ const updateMaintenance = async (req, res) => {
            priority    = COALESCE($2, priority),
            cost        = COALESCE($3, cost),
            deadline    = COALESCE($4, deadline),
-           assigned_to = COALESCE($5, assigned_to)
-       WHERE request_id = $6
+           assigned_to = COALESCE($5, assigned_to),
+           description = COALESCE($6, description)
+       WHERE request_id = $7
        RETURNING *`,
-      [status, priority, cost, deadline, assigned_to, id]
+      [status, priority, cost, deadline, assigned_to, description, id]
     );
+
+    const updatedMaint = result.rows[0];
+
+    // Status sync logic for assets
+    if (updatedMaint.asset_id) {
+      if (status === 'Resolved' || status === 'Closed') {
+        await pool.query(
+          `UPDATE asset 
+           SET status = 'Active', condition_level = 100, last_service_date = NOW() 
+           WHERE asset_id = $1`,
+          [updatedMaint.asset_id]
+        );
+      } else if (status === 'Pending' || status === 'In Progress') {
+        await pool.query(
+          `UPDATE asset 
+           SET status = 'In-Maintenance' 
+           WHERE asset_id = $1`,
+          [updatedMaint.asset_id]
+        );
+      }
+    }
 
     return res.status(200).json({
       message: 'Maintenance request updated successfully.',
-      maintenance: result.rows[0],
+      maintenance: updatedMaint,
     });
   } catch (err) {
     console.error('updateMaintenance error:', err.message);
@@ -411,7 +451,7 @@ const deleteMaintenance = async (req, res) => {
   try {
     // Ownership check
     const existing = await pool.query(
-      `SELECT m.request_id, a.org_id AS asset_org, r.org_id AS room_org
+      `SELECT m.request_id, m.asset_id, a.org_id AS asset_org, r.org_id AS room_org
        FROM maintenance m
        LEFT JOIN asset a ON m.asset_id = a.asset_id
        LEFT JOIN room  r ON m.room_id  = r.room_id
@@ -429,6 +469,22 @@ const deleteMaintenance = async (req, res) => {
     }
 
     await pool.query('DELETE FROM maintenance WHERE request_id = $1', [id]);
+
+    // Restore asset status if no other open tickets remain
+    const assetId = row.asset_id;
+    if (assetId) {
+      const otherCheck = await pool.query(
+        `SELECT request_id FROM maintenance 
+         WHERE asset_id = $1 AND request_id != $2 AND status IN ('Pending', 'In Progress')`,
+        [assetId, id]
+      );
+      if (otherCheck.rows.length === 0) {
+        await pool.query(
+          `UPDATE asset SET status = 'Active' WHERE asset_id = $1`,
+          [assetId]
+        );
+      }
+    }
 
     return res.status(200).json({ message: `Maintenance request #${id} deleted successfully.` });
   } catch (err) {

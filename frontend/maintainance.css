@@ -703,7 +703,7 @@ button {
 .modal-overlay.open {
   display: flex;
 }
-.modal {
+.maintenance-modal {
   background: #fff;
   border-radius: 14px;
   padding: 24px;
@@ -711,15 +711,17 @@ button {
   max-width: 90vw;
   box-shadow: 0 20px 50px rgba(20,24,40,0.25);
   border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
 }
-.modal h3 {
+.maintenance-modal h3 {
   font-size: 16px;
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 6px;
   margin-top: 0;
 }
-.modal-sub {
+.maintenance-modal .modal-sub {
   font-size: 13px;
   color: var(--text-muted);
   margin-bottom: 16px;
@@ -814,3 +816,184 @@ button {
   background: rgba(0, 0, 0, 0.4);
   z-index: 299;
 }
+
+/* ── UI Upgrades: Full Width Layout, Filters & Pagination ── */
+
+.top-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+  .top-row-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.service-log-full {
+  width: 100%;
+  margin-top: 20px;
+  min-width: 0;
+}
+
+.query-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ticket-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  width: 260px;
+}
+
+.filter-search-wrap input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-main);
+  padding-right: 20px;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.filter-select {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  outline: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.filter-select:focus {
+  border-color: var(--accent-blue);
+}
+
+.btn-reset {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--text-muted);
+  padding-bottom: 1px;
+}
+
+.btn-reset:hover {
+  color: var(--text-main);
+  border-color: var(--text-main);
+}
+
+/* Sorting indicators */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+th.sortable:hover {
+  color: var(--text-main) !important;
+}
+
+th.sortable .sort-indicator::after {
+  content: ' ↕';
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+th.sortable.sorted-asc .sort-indicator::after {
+  content: ' ↑';
+  color: var(--accent-blue);
+  opacity: 1;
+}
+
+th.sortable.sorted-desc .sort-indicator::after {
+  content: ' ↓';
+  color: var(--accent-blue);
+  opacity: 1;
+}
+
+/* Table Pagination styling */
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 14px;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.page-btn {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text-main);
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--bg-page);
+  border-color: #d1d5db;
+}
+
+.page-btn--active {
+  background: var(--accent-blue);
+  color: #fff;
+  border-color: var(--accent-blue);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+

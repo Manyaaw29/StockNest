@@ -103,6 +103,7 @@ async function fetchAssets() {
     });
 
     renderTable();
+    applyURLQueryParams();
 
   } catch (err) {
     console.error('Error fetching assets:', err);
@@ -496,12 +497,59 @@ function closeAllMenus() {
   $('#actionMenu').hidden = true;
 }
 
+function applyURLQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const statusParam = params.get('status');
+  const searchParam = params.get('search');
+  const viewParam = params.get('view');
+  const editParam = params.get('edit');
+
+  let shouldRender = false;
+
+  if (statusParam) {
+    const normalizedStatus = statusParam.charAt(0).toUpperCase() + statusParam.slice(1).toLowerCase();
+    if (STATUSES.includes(normalizedStatus)) {
+      filters.status = normalizedStatus;
+      const statusBtn = $('#statusFilterBtn');
+      if (statusBtn) statusBtn.textContent = `Status: ${normalizedStatus} ▾`;
+      shouldRender = true;
+    }
+  }
+
+  if (searchParam) {
+    filters.search = searchParam;
+    const filterInput = $('#filterInput');
+    if (filterInput) filterInput.value = searchParam;
+    const globalSearch = document.getElementById('global-search');
+    if (globalSearch) globalSearch.value = searchParam;
+    shouldRender = true;
+  }
+
+  if (shouldRender) {
+    currentPage = 1;
+    renderTable();
+  }
+
+  if (viewParam) {
+    const match = assets.find(a => a.id === viewParam || String(a.dbId) === viewParam);
+    if (match) {
+      openViewModal(match.id);
+    }
+  } else if (editParam) {
+    const match = assets.find(a => a.id === editParam || String(a.dbId) === editParam);
+    if (match) {
+      openEditModal(match.id);
+    }
+  }
+}
+
 function showActionMenu(id, btn) {
   actionTargetId = id;
   const menu = $('#actionMenu');
   menu.innerHTML = `
     <button type="button" data-action="view">View Details</button>
     <button type="button" data-action="edit">Edit Asset</button>
+    <button type="button" data-action="report-issue">Report Issue</button>
     <button type="button" data-action="delete" class="is-danger">Delete Asset</button>`;
   const rect = btn.getBoundingClientRect();
   menu.style.top = `${rect.bottom + window.scrollY + 4}px`;
@@ -575,11 +623,7 @@ function initEvents() {
   $('#importBtn').addEventListener('click', openImportModal);
   $('#scanBtn').addEventListener('click', openScanModal);
   $('#reviewTicketsBtn').addEventListener('click', () => {
-    filters.status = 'Maintenance';
-    $('#statusFilterBtn').textContent = 'Status: Maintenance ▾';
-    currentPage = 1;
-    renderTable();
-    showToast('Showing maintenance assets.', 'info');
+    window.location.href = 'maintainance.html';
   });
 
   $('#selectAll').addEventListener('change', (e) => {
@@ -608,7 +652,7 @@ function initEvents() {
 
   $('#assetTableBody').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action-menu]');
-    if (!btn) return;
+    if (!btn || btn.disabled) return;
     e.stopPropagation();
     showActionMenu(btn.dataset.actionMenu, btn);
   });
@@ -621,6 +665,9 @@ function initEvents() {
     if (action === 'view') openViewModal(actionTargetId);
     else if (action === 'edit') openEditModal(actionTargetId);
     else if (action === 'delete') deleteAsset(actionTargetId);
+    else if (action === 'report-issue') {
+      window.location.href = `maintainance.html?asset_id=${actionTargetId}`;
+    }
   });
 
   document.addEventListener('click', (e) => {
