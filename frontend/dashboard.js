@@ -222,18 +222,53 @@
      Stats & progress animations
      -------------------------------------------------------------------------- */
 
-  function initAnimations() {
-    $$('.stat-card[data-animate]').forEach((card, i) => {
-      setTimeout(() => card.classList.add('is-visible'), i * 100);
-    });
-
-    $$('[data-count]').forEach((el) => {
+  function animateStatCounters() {
+    const statsGrid = $('#statsGrid');
+    statsGrid.querySelectorAll('[data-count]').forEach((el) => {
       const target = parseInt(el.dataset.count, 10);
       setTimeout(() => animateCounter(el, target), 300);
     });
 
     setTimeout(() => {
+      const progressBar = statsGrid.querySelector('.stat-card__progress-bar[data-progress]');
+      if (progressBar) {
+        progressBar.style.width = progressBar.dataset.progress + '%';
+      }
+    }, 500);
+  }
+
+  async function loadDashboardStats() {
+    try {
+      const res = await fetch('http://localhost:5000/api/dashboard');
+      if (!res.ok) throw new Error('Request failed');
+      const data = await res.json();
+
+      const statsGrid = $('#statsGrid');
+      const [totalEl, lowStockEl, maintenanceEl, roomEl] = statsGrid.querySelectorAll('[data-count]');
+      const progressBar = statsGrid.querySelector('.stat-card__progress-bar[data-progress]');
+      const roomUtil = Math.round(data.roomUtilization);
+
+      totalEl.dataset.count = data.totalAssets;
+      lowStockEl.dataset.count = data.lowStock;
+      maintenanceEl.dataset.count = data.pendingMaintenance;
+      roomEl.dataset.count = roomUtil;
+      if (progressBar) progressBar.dataset.progress = roomUtil;
+
+      animateStatCounters();
+    } catch {
+      showToast('Failed to load dashboard data.', 'error');
+      animateStatCounters();
+    }
+  }
+
+  function initAnimations() {
+    $$('.stat-card[data-animate]').forEach((card, i) => {
+      setTimeout(() => card.classList.add('is-visible'), i * 100);
+    });
+
+    setTimeout(() => {
       $$('[data-progress]').forEach((bar) => {
+        if (bar.closest('#statsGrid')) return;
         bar.style.width = bar.dataset.progress + '%';
       });
     }, 500);
@@ -1002,6 +1037,7 @@
     initTableSorting();
     initAnimations();
     bindEvents();
+    loadDashboardStats();
   }
 
   if (document.readyState === 'loading') {
