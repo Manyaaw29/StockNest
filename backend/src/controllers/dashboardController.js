@@ -12,6 +12,9 @@ const getDashboard = async (req, res) => {
       availableRoomsResult,
       todayBookingsResult,
       bookingTrendResult,
+      occupancyResult,
+      upcomingBookingsResult,
+      roomAvailabilityResult,
     ] = await Promise.all([
       // Count all rooms.
       pool.query('SELECT COUNT(*) AS count FROM room'),
@@ -34,6 +37,39 @@ const getDashboard = async (req, res) => {
         LEFT JOIN booking ON booking.booking_date = days.booking_date::date
         GROUP BY days.booking_date
         ORDER BY days.booking_date ASC
+      `),
+      // Count rooms by every defined room status, including statuses with no rooms.
+      pool.query(`
+        SELECT
+          statuses.status::text AS label,
+          COUNT(room.room_id) AS count
+        FROM unnest(enum_range(NULL::room_status)) WITH ORDINALITY AS statuses(status, sort_order)
+        LEFT JOIN room ON room.status = statuses.status
+        GROUP BY statuses.status, statuses.sort_order
+        ORDER BY statuses.sort_order ASC
+      `),
+      // Fetch the next five upcoming bookings with their room and booking user details.
+      pool.query(`
+        SELECT
+          room.room_name AS room,
+          TO_CHAR(booking.start_time, 'HH24:MI') || ' - ' || TO_CHAR(booking.end_time, 'HH24:MI') AS time,
+          users.name AS "bookedBy",
+          '' AS purpose,
+          booking.status::text AS status
+        FROM booking
+        JOIN room ON room.room_id = booking.room_id
+        JOIN users ON users.user_id = booking.user_id
+        WHERE booking.booking_date >= CURRENT_DATE
+        ORDER BY booking.booking_date ASC, booking.start_time ASC
+        LIMIT 5
+      `),
+      // List room utilization percentages using room names as availability labels.
+      pool.query(`
+        SELECT
+          room_name AS floor,
+          utilization_pct::double precision AS percentage
+        FROM room
+        ORDER BY room_name ASC
       `),
     ]);
 
@@ -58,11 +94,13 @@ const getDashboard = async (req, res) => {
         }],
       },
       occupancy: {
-        labels: [],
-        datasets: [],
+        labels: occupancyResult.rows.map((row) => row.label),
+        datasets: [{
+          data: occupancyResult.rows.map((row) => parseInt(row.count, 10)),
+        }],
       },
-      upcomingBookings: [],
-      roomAvailability: [],
+      upcomingBookings: upcomingBookingsResult.rows,
+      roomAvailability: roomAvailabilityResult.rows,
       recentActivity: [],
     });
 
