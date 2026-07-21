@@ -279,16 +279,18 @@
      -------------------------------------------------------------------------- */
 
   async function fetchDashboardData() {
-    // TODO: Connect backend API
-    // Example:
-    // const res = await fetch('/api/dashboard');
-    // const data = await res.json();
-    // DashboardData.summary = data.summary;
-    // DashboardData.bookingTrend = data.bookingTrend;
-    // DashboardData.occupancy = data.occupancy;
-    // DashboardData.upcomingBookings = data.upcomingBookings;
-    // DashboardData.roomAvailability = data.roomAvailability;
-    // DashboardData.recentActivity = data.recentActivity;
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard');
+
+      if (!response.ok) {
+        throw new Error(`Dashboard request failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      Object.assign(DashboardData, data);
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    }
 
     renderDashboard();
   }
