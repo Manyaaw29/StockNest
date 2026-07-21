@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | StockNest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="stocknest-settings-styles.css">
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <a href="dashboard.html" class="sidebar__brand">
+          <div class="sidebar__logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="sidebar__brand-text">
+            <span class="sidebar__title">StockNest</span>
+            <span class="sidebar__subtitle">Workspace Inventory</span>
+          </div>
+        </a>
+      </div>
+      <nav class="sidebar__nav">
+        <ul class="sidebar__nav-list">
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='dashboard.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Inventory Management</span></button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='stocknest-settings-view.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar__search">
+          <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="snSearchInput" class="topbar__search-input" placeholder="Search...">
+        </div>
+        <div class="topbar__actions">
+          <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
+          <div class="topbar__dropdown-wrap">
+            <button class="topbar__avatar" id="snAvatarBtn" type="button">J</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <header class="page-header">
+          <div>
+            <h1 class="page-header__title">User Profile</h1>
+            <p class="page-header__subtitle">Manage your account information and login security.</p>
+          </div>
+        </header>
+
+        <div class="profile-container">
+          <div class="profile-card">
+            <div class="profile-grid">
+              <div class="profile-avatar-section">
+                <div class="profile-avatar-lg">J</div>
+                <button class="btn btn--outline btn--sm" id="btnChangeAvatar">Change Avatar</button>
+              </div>
+
+              <div>
+                <h2 class="profile-card__title">Personal Information</h2>
+                <p class="profile-card__desc">Update your personal account details.</p>
+                <form id="profileDetailsForm">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label">Full Name</label>
+                      <input class="form-input" type="text" value="Jordan Reyes">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Email Address</label>
+                      <input class="form-input" type="email" value="jordan@stocknest.io">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Role</label>
+                      <input class="form-input" type="text" value="Workspace Admin" disabled style="background:#f3f4f6;">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Department</label>
+                      <input class="form-input" type="text" value="Operations & IT">
+                    </div>
+                  </div>
+                  <button class="btn btn--primary" type="submit" style="margin-top:16px;">Save Profile</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-card">
+            <h2 class="profile-card__title">Change Password</h2>
+            <p class="profile-card__desc">Ensure your account stays secure with a strong password.</p>
+            <form id="passwordForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Current Password</label>
+                  <input class="form-input" type="password" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">New Password</label>
+                  <input class="form-input" type="password" placeholder="••••••••">
+                </div>
+              </div>
+              <button class="btn btn--outline" type="submit" style="margin-top:16px;">Update Password</button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="sn_toast_module.js"></script>
+  <script src="sn_common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('profileDetailsForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        snToast('Profile information updated successfully!', { title: 'Profile Saved', type: 'success' });
+      });
+
+      document.getElementById('passwordForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        snToast('Password changed successfully!', { title: 'Security Updated', type: 'success' });
+      });
+
+      document.getElementById('btnChangeAvatar')?.addEventListener('click', () => {
+        snToast('Avatar change dialog triggered.', { title: 'Avatar', type: 'info' });
+      });
+    });
+  </script>
+</body>
+</html>
