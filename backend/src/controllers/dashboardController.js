@@ -15,6 +15,7 @@ const getDashboard = async (req, res) => {
       occupancyResult,
       upcomingBookingsResult,
       roomAvailabilityResult,
+      recentActivityResult,
     ] = await Promise.all([
       // Count all rooms.
       pool.query('SELECT COUNT(*) AS count FROM room'),
@@ -71,6 +72,35 @@ const getDashboard = async (req, res) => {
         FROM room
         ORDER BY room_name ASC
       `),
+      // Combine recent booking and maintenance activity into one chronological feed.
+      pool.query(`
+        SELECT
+          description,
+          TO_CHAR(activity_time, 'DD Mon YYYY HH24:MI') AS time
+        FROM (
+          SELECT
+            users.name || ' booked ' || room.room_name AS description,
+            booking.created_at AS activity_time
+          FROM booking
+          JOIN users ON users.user_id = booking.user_id
+          JOIN room ON room.room_id = booking.room_id
+
+          UNION ALL
+
+          SELECT
+            CASE
+              WHEN room.room_id IS NOT NULL THEN 'Maintenance request created for ' || room.room_name
+              WHEN asset.asset_id IS NOT NULL THEN 'Maintenance request created for ' || asset.name
+              ELSE 'Maintenance request created'
+            END AS description,
+            maintenance.created_at AS activity_time
+          FROM maintenance
+          LEFT JOIN room ON room.room_id = maintenance.room_id
+          LEFT JOIN asset ON asset.asset_id = maintenance.asset_id
+        ) AS activities
+        ORDER BY activity_time DESC
+        LIMIT 10
+      `),
     ]);
 
     return res.status(200).json({
@@ -101,7 +131,7 @@ const getDashboard = async (req, res) => {
       },
       upcomingBookings: upcomingBookingsResult.rows,
       roomAvailability: roomAvailabilityResult.rows,
-      recentActivity: [],
+      recentActivity: recentActivityResult.rows,
     });
 
   } catch (err) {

@@ -105,14 +105,26 @@
     const tbody = $('#bookingsTableBody');
 
     if (!bookings.length) {
-      if (empty) empty.hidden = false;
-      if (tableWrap) tableWrap.hidden = true;
+      if (empty) {
+        empty.hidden = false;
+        empty.style.display = '';
+      }
+      if (tableWrap) {
+        tableWrap.hidden = true;
+        tableWrap.style.display = 'none';
+      }
       if (tbody) tbody.innerHTML = '';
       return;
     }
 
-    if (empty) empty.hidden = true;
-    if (tableWrap) tableWrap.hidden = false;
+    if (empty) {
+      empty.hidden = true;
+      empty.style.display = 'none';
+    }
+    if (tableWrap) {
+      tableWrap.hidden = false;
+      tableWrap.style.display = '';
+    }
     if (tbody) {
       tbody.innerHTML = bookings.map((b) => `
         <tr>
@@ -131,17 +143,25 @@
     const list = $('#availabilityList');
 
     if (!floors.length) {
-      if (empty) empty.hidden = false;
+      if (empty) {
+        empty.hidden = false;
+        empty.style.display = '';
+      }
       if (list) {
         list.hidden = true;
+        list.style.display = 'none';
         list.innerHTML = '';
       }
       return;
     }
 
-    if (empty) empty.hidden = true;
+    if (empty) {
+      empty.hidden = true;
+      empty.style.display = 'none';
+    }
     if (list) {
       list.hidden = false;
+      list.style.display = '';
       list.innerHTML = floors.map((f) => `
         <div class="availability-item">
           <div class="availability-item__header">
@@ -161,17 +181,25 @@
     const list = $('#activityList');
 
     if (!activities.length) {
-      if (empty) empty.hidden = false;
+      if (empty) {
+        empty.hidden = false;
+        empty.style.display = '';
+      }
       if (list) {
         list.hidden = true;
+        list.style.display = 'none';
         list.innerHTML = '';
       }
       return;
     }
 
-    if (empty) empty.hidden = true;
+    if (empty) {
+      empty.hidden = true;
+      empty.style.display = 'none';
+    }
     if (list) {
       list.hidden = false;
+      list.style.display = '';
       list.innerHTML = activities.map((a) => `
         <div class="activity-item">
           <div class="activity-item__dot"></div>
