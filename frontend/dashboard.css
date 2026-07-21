@@ -510,8 +510,8 @@ a:hover { text-decoration: underline; }
   padding: 24px;
   box-shadow: var(--shadow-sm);
   position: relative;
-  opacity: 0;
-  transform: translateY(12px);
+  opacity: 1;
+  transform: translateY(Y);
   transition: opacity 0.45s ease, transform 0.45s ease, box-shadow var(--transition);
 }
 
