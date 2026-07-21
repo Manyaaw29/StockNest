@@ -15,7 +15,6 @@
   <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
   <div class="app-layout">
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar__header">
         <a href="dashboard.html" class="sidebar__brand">
@@ -41,12 +40,12 @@
       <header class="topbar">
         <div class="topbar__search">
           <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" class="topbar__search-input" placeholder="Search account parameters...">
+          <input type="search" class="topbar__search-input" placeholder="Search profile...">
         </div>
         <div class="topbar__actions">
           <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
           <div class="topbar__dropdown-wrap">
-            <button class="topbar__avatar" id="snAvatarBtn" type="button" onclick="window.location.href='profile.html'">JD</button>
+            <button class="topbar__avatar" id="mainHeaderAvatar" type="button" onclick="window.location.href='profile.html'">JD</button>
           </div>
         </div>
       </header>
@@ -55,152 +54,93 @@
         <!-- Hero Header -->
         <div class="profile-hero-card">
           <div class="profile-hero__left">
-            <div class="profile-avatar-container">
-              <div class="profile-avatar-xl" id="avatarPreviewText">JD</div>
-              <label for="avatarInput" class="avatar-upload-btn" title="Change Avatar">📷</label>
-              <input type="file" id="avatarInput" accept="image/*" style="display:none;">
-            </div>
+            <div class="profile-avatar-xl" id="avatarPreviewText">JD</div>
             <div>
-              <div class="profile-hero__name" id="heroNameText">Jane Doe</div>
-              <div class="profile-hero__email" id="heroEmailText">jane.doe@stocknest.io</div>
-              <div class="profile-hero__badges">
-                <span class="hero-pill hero-pill--blue">Workspace Admin</span>
-                <span class="hero-pill">Floor 3 & 4 Lead</span>
-                <span class="hero-pill">ID: #SN-8821</span>
-              </div>
+              <div style="font-size:20px; font-weight:700;" id="heroNameText">Jane Doe</div>
+              <div style="font-size:13px; color:#9ca3af;" id="heroEmailText">jane.doe@stocknest.io</div>
+              <div style="font-size:12px; color:#60a5fa; margin-top:4px;">Workspace Administrator</div>
             </div>
           </div>
           <div>
-            <button class="btn btn--primary btn--sm" id="btnEditProfileQuick">Edit Details</button>
+            <button class="btn btn--primary btn--sm" id="btnOpenAvatarModal">📷 Change Avatar</button>
           </div>
         </div>
 
-        <!-- Grid Sections -->
-        <div class="settings-grid-layout">
-          <!-- Left Main Forms -->
-          <div>
-            <!-- Account Form -->
-            <div class="sn-card">
-              <h2 class="sn-card__title">Personal Profile Details</h2>
-              <p class="sn-card__desc">Update your personal identification and contact settings.</p>
+        <div class="sn-card">
+          <h2 class="sn-card__title">Personal Profile Details</h2>
+          <p class="sn-card__desc">Update your personal account information.</p>
 
-              <form id="proProfileForm" style="margin-top:20px;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                  <div class="form-group">
-                    <label class="form-label">First Name</label>
-                    <input class="form-input" type="text" id="profFirstName" value="Jane" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Last Name</label>
-                    <input class="form-input" type="text" id="profLastName" value="Doe" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input class="form-input" type="email" id="profEmail" value="jane.doe@stocknest.io" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input class="form-input" type="text" value="+1 (555) 234-5678">
-                  </div>
-                  <div class="form-group" style="grid-column: span 2;">
-                    <label class="form-label">Primary Assigned Workspace</label>
-                    <select class="form-select">
-                      <option selected>HQ Tech Park — Floor 3 & 4</option>
-                      <option>East Wing Distribution Center</option>
-                      <option>Austin Regional Hub</option>
-                    </select>
-                  </div>
-                </div>
-                <div style="margin-top:16px; display:flex; gap:10px;">
-                  <button class="btn btn--primary" type="submit">Save Changes</button>
-                  <button class="btn btn--outline" type="reset">Reset</button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Password & Auth -->
-            <div class="sn-card">
-              <h2 class="sn-card__title">Security Credentials</h2>
-              <p class="sn-card__desc">Manage your password and multi-factor authentication preferences.</p>
-
-              <form id="proPasswordForm" style="margin-top:16px;">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                  <div class="form-group">
-                    <label class="form-label">Current Password</label>
-                    <input class="form-input" type="password" placeholder="••••••••" required>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">New Password</label>
-                    <input class="form-input" type="password" placeholder="••••••••" required>
-                  </div>
-                </div>
-                <button class="btn btn--outline" type="submit" style="margin-top:12px;">Update Password</button>
-              </form>
-            </div>
-          </div>
-
-          <!-- Right Sidebar Options -->
-          <div>
-            <div class="sn-card">
-              <h2 class="sn-card__title">Security Preferences</h2>
-
-              <div class="toggle-switch-row">
-                <div>
-                  <strong style="font-size:13px; display:block;">Two-Factor Auth (2FA)</strong>
-                  <span style="font-size:11px; color:#6b7280;">Require SMS/App Code</span>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="toggle2FA" checked>
-                  <span class="toggle-slider"></span>
-                </label>
+          <form id="proProfileForm" style="margin-top:20px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input class="form-input" type="text" id="profFirstName" value="Jane" required>
               </div>
-
-              <div class="toggle-switch-row">
-                <div>
-                  <strong style="font-size:13px; display:block;">Email Inventory Alerts</strong>
-                  <span style="font-size:11px; color:#6b7280;">Get low stock warnings</span>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="toggleAlerts" checked>
-                  <span class="toggle-slider"></span>
-                </label>
+              <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input class="form-input" type="text" id="profLastName" value="Doe" required>
               </div>
-
-              <div class="toggle-switch-row" style="border-bottom:none;">
-                <div>
-                  <strong style="font-size:13px; display:block;">Auto-Lock Session</strong>
-                  <span style="font-size:11px; color:#6b7280;">After 15 min inactivity</span>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="toggleAutoLock">
-                  <span class="toggle-slider"></span>
-                </label>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input class="form-input" type="email" id="profEmail" value="jane.doe@stocknest.io" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input class="form-input" type="text" value="+1 (555) 234-5678">
               </div>
             </div>
+            <div style="margin-top:16px;">
+              <button class="btn btn--primary" type="submit">Save Details</button>
+            </div>
+          </form>
+        </div>
 
-            <!-- Activity Summary -->
-            <div class="sn-card">
-              <h2 class="sn-card__title">Recent User Activity</h2>
-              <div class="audit-list" style="margin-top:12px;">
-                <div class="audit-item">
-                  <div class="audit-icon-circle audit-icon--blue">✓</div>
-                  <div>
-                    <div class="audit-text">Logged in from NY Office IP (192.168.1.1)</div>
-                    <div class="audit-time">10 mins ago</div>
-                  </div>
-                </div>
-                <div class="audit-item">
-                  <div class="audit-icon-circle audit-icon--green">⚙</div>
-                  <div>
-                    <div class="audit-text">Updated Restock SLA threshold to 15%</div>
-                    <div class="audit-time">2 hours ago</div>
-                  </div>
-                </div>
+        <div class="sn-card">
+          <h2 class="sn-card__title">Password Security</h2>
+          <form id="proPasswordForm" style="margin-top:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input class="form-input" type="password" placeholder="••••••••" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input class="form-input" type="password" placeholder="••••••••" required>
               </div>
             </div>
-          </div>
+            <button class="btn btn--outline" type="submit" style="margin-top:12px;">Update Password</button>
+          </form>
         </div>
       </main>
+    </div>
+  </div>
+
+  <!-- AVATAR CHANGE MODAL POPUP -->
+  <div class="sn-modal-backdrop" id="avatarModalBackdrop">
+    <div class="sn-modal-box">
+      <div class="sn-modal__head">
+        <h3 class="sn-modal__title">Update Profile Picture</h3>
+        <button class="sn-modal__close" onclick="closeModal('avatarModalBackdrop')">✕</button>
+      </div>
+      
+      <p style="font-size:13px; color:#6b7280;">Choose a color avatar preset or upload a custom image from your computer.</p>
+
+      <div class="avatar-preset-grid">
+        <div class="avatar-preset-opt is-selected" style="background:#2563eb;" onclick="selectPreset('#2563eb', 'JD')">JD</div>
+        <div class="avatar-preset-opt" style="background:#10b981;" onclick="selectPreset('#10b981', 'JD')">JD</div>
+        <div class="avatar-preset-opt" style="background:#8b5cf6;" onclick="selectPreset('#8b5cf6', 'JD')">JD</div>
+        <div class="avatar-preset-opt" style="background:#f59e0b;" onclick="selectPreset('#f59e0b', 'JD')">JD</div>
+      </div>
+
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #f3f4f6;">
+        <label class="form-label">Upload Custom Image</label>
+        <input type="file" id="localAvatarUpload" accept="image/*" class="form-input" style="padding:8px;">
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button class="btn btn--outline" onclick="closeModal('avatarModalBackdrop')">Cancel</button>
+        <button class="btn btn--primary" id="btnSaveAvatarChoice">Apply Avatar</button>
+      </div>
     </div>
   </div>
 
@@ -208,49 +148,71 @@
   <script src="sn_common.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Live Form Syncing with Hero Section
-      const form = document.getElementById('proProfileForm');
-      form?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const firstName = document.getElementById('profFirstName').value;
-        const lastName = document.getElementById('profLastName').value;
-        const email = document.getElementById('profEmail').value;
-
-        document.getElementById('heroNameText').textContent = `${firstName} ${lastName}`;
-        document.getElementById('heroEmailText').textContent = email;
-        document.getElementById('avatarPreviewText').textContent = `${firstName[0]}${lastName[0]}`.toUpperCase();
-
-        snToast('Profile details updated and synced across workspace!', { title: 'Saved Successfully', type: 'success' });
+      // Open Avatar Modal
+      document.getElementById('btnOpenAvatarModal')?.addEventListener('click', () => {
+        openModal('avatarModalBackdrop');
       });
 
-      // Live Image Avatar Upload Preview
-      const avatarInput = document.getElementById('avatarInput');
-      avatarInput?.addEventListener('change', (e) => {
+      // Handle Image File Upload Preview
+      const fileInput = document.getElementById('localAvatarUpload');
+      fileInput?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function(evt) {
-            const preview = document.getElementById('avatarPreviewText');
-            preview.style.backgroundImage = `url(${evt.target.result})`;
-            preview.style.backgroundSize = 'cover';
-            preview.style.backgroundPosition = 'center';
-            preview.textContent = '';
-            snToast('Profile picture uploaded successfully!', { title: 'Photo Updated', type: 'success' });
+            const avatarBox = document.getElementById('avatarPreviewText');
+            avatarBox.style.backgroundImage = `url(${evt.target.result})`;
+            avatarBox.textContent = '';
+            
+            closeModal('avatarModalBackdrop');
+            snToast('Custom profile picture uploaded and applied!', { title: 'Photo Updated', type: 'success' });
           };
           reader.readAsDataURL(file);
         }
       });
 
-      // Toggles
-      document.getElementById('toggle2FA')?.addEventListener('change', (e) => {
-        snToast(`2FA Authentication ${e.target.checked ? 'Enabled' : 'Disabled'}`, { title: 'Security', type: 'info' });
+      // Save Form
+      document.getElementById('proProfileForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const f = document.getElementById('profFirstName').value;
+        const l = document.getElementById('profLastName').value;
+        const email = document.getElementById('profEmail').value;
+
+        document.getElementById('heroNameText').textContent = `${f} ${l}`;
+        document.getElementById('heroEmailText').textContent = email;
+        const initials = `${f[0]}${l[0]}`.toUpperCase();
+        
+        const avatarBox = document.getElementById('avatarPreviewText');
+        if (!avatarBox.style.backgroundImage) {
+          avatarBox.textContent = initials;
+        }
+
+        snToast('Profile details updated successfully!', { title: 'Saved', type: 'success' });
       });
 
       document.getElementById('proPasswordForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        snToast('Password updated securely!', { title: 'Security Saved', type: 'success' });
+        snToast('Password changed securely!', { title: 'Security Updated', type: 'success' });
       });
     });
+
+    function selectPreset(color, initials) {
+      document.querySelectorAll('.avatar-preset-opt').forEach(el=>el.classList.remove('is-selected'));
+      event.target.classList.add('is-selected');
+
+      const avatarBox = document.getElementById('avatarPreviewText');
+      avatarBox.style.backgroundImage = '';
+      avatarBox.style.backgroundColor = color;
+      avatarBox.textContent = initials;
+    }
+
+    document.getElementById('btnSaveAvatarChoice')?.addEventListener('click', () => {
+      closeModal('avatarModalBackdrop');
+      snToast('Profile avatar updated!', { title: 'Success', type: 'success' });
+    });
+
+    function openModal(id) { document.getElementById(id)?.classList.add('is-open'); }
+    function closeModal(id) { document.getElementById(id)?.classList.remove('is-open'); }
   </script>
 </body>
 </html>

@@ -1,129 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockNest - Workspace Inventory Settings</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="stocknest-settings-styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | StockNest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="stocknest-settings-styles.css">
 </head>
 <body>
-    <div class="app-shell">
-        <!-- Sidebar component target -->
-        <aside id="sidebar-root" class="app-shell__sidebar"></aside>
 
-        <div class="app-shell__main">
-            <!-- Topbar component target -->
-            <div id="topbar-root" class="app-shell__topbar"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
-            <div class="sn-content-body">
-                <h1 class="sn-page-title">Settings</h1>
-                <p class="sn-page-subtitle">Manage users, organization preferences, and system configurations.</p>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <a href="dashboard.html" class="sidebar__brand">
+          <div class="sidebar__logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="sidebar__brand-text">
+            <span class="sidebar__title">StockNest</span>
+            <span class="sidebar__subtitle">Workspace Inventory</span>
+          </div>
+        </a>
+      </div>
+      <nav class="sidebar__nav">
+        <ul class="sidebar__nav-list">
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='dashboard.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Inventory Management</span></button></li>
+          <li><button class="sidebar__nav-btn sidebar__nav-btn--active" onclick="window.location.href='stocknest-settings-view.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button></li>
+        </ul>
+      </nav>
+    </aside>
 
-                <div class="sn-tabs-container">
-                    <button class="sn-tab-link active">User Management</button>
-                    <button class="sn-tab-link">Organization</button>
-                    <button class="sn-tab-link">System Config</button>
-                    <button class="sn-tab-link">Backup & Sec</button>
-                </div>
-
-                <div class="sn-grid-workspace">
-                    <div class="sn-col-left">
-                        <section class="sn-card">
-                            <div class="sn-card-header">
-                                <h3 class="sn-card-title"><i class="fa-solid fa-users"></i> Users & Roles</h3>
-                                <button class="sn-btn-secondary" id="sn-invite-trigger"><i class="fa-solid fa-user-plus"></i> Invite User</button>
-                            </div>
-                            <div class="sn-table-responsive">
-                                <table class="sn-data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>USER</th>
-                                            <th>ROLE</th>
-                                            <th>STATUS</th>
-                                            <th>LAST ACTIVE</th>
-                                            <th class="txt-center">ACTIONS</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="sn-table-user">
-                                                    <div class="sn-avatar-initials bg-blue">JD</div>
-                                                    <div>
-                                                        <div class="font-bold">Jane Doe</div>
-                                                        <div class="txt-muted">jane.doe@stocknest.io</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td><span class="sn-badge bg-badge-blue">Admin</span></td>
-                                            <td><span class="sn-status-indicator online">Active</span></td>
-                                            <td class="txt-muted">2 mins ago</td>
-                                            <td class="txt-center"><button class="sn-btn-row-action"><i class="fa-solid fa-ellipsis-vertical"></i></button></td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="sn-table-user">
-                                                    <div class="sn-avatar-initials bg-orange">AS</div>
-                                                    <div>
-                                                        <div class="font-bold">Alex Smith</div>
-                                                        <div class="txt-muted">alex.smith@stocknest.io</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td><span class="sn-badge bg-badge-gray">Manager</span></td>
-                                            <td><span class="sn-status-indicator online">Active</span></td>
-                                            <td class="txt-muted">1 hour ago</td>
-                                            <td class="txt-center"><button class="sn-btn-row-action"><i class="fa-solid fa-ellipsis-vertical"></i></button></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-
-                        <section class="sn-card mt-24">
-                            <div class="sn-card-header border-none pb-0">
-                                <h3 class="sn-card-title"><i class="fa-solid fa-sliders"></i> SLA Rules</h3>
-                            </div>
-                            <form id="sn-sla-form" onsubmit="event.preventDefault();">
-                                <div class="sn-slider-group">
-                                    <div class="sn-slider-label-row">
-                                        <div>
-                                            <div class="font-bold">Critical Asset Repair Time</div>
-                                        </div>
-                                        <span class="sn-value-bubble">24 Hours</span>
-                                    </div>
-                                    <input type="range" min="1" max="72" value="24" class="sn-range-slider" id="repair-time-slider">
-                                </div>
-                                <div class="sn-form-actions">
-                                    <button type="submit" class="sn-btn-primary" id="save-sla-btn">Save SLA Rules</button>
-                                </div>
-                            </form>
-                        </section>
-                    </div>
-
-                    <div class="sn-col-right">
-                        <section class="sn-card mb-24">
-                            <div class="sn-card-header">
-                                <h3 class="sn-card-title"><i class="fa-solid fa-clock-rotate-left"></i> System Audit Log</h3>
-                            </div>
-                            <ul class="sn-audit-timeline">
-                                <li class="sn-timeline-item">
-                                    <div class="sn-timeline-icon edit-icon"><i class="fa-solid fa-pen"></i></div>
-                                    <div class="sn-timeline-content">
-                                        <p><strong>Jane Doe</strong> modified role for Alex Smith.</p>
-                                        <span class="sn-timeline-time">10:42 AM Today</span>
-                                    </div>
-                                </li>
-                            </ul>
-                        </section>
-                    </div>
-                </div>
-            </div>
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar__search">
+          <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" class="topbar__search-input" placeholder="Search settings...">
         </div>
+        <div class="topbar__actions">
+          <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
+          <div class="topbar__dropdown-wrap">
+            <button class="topbar__avatar" type="button" onclick="window.location.href='profile.html'">JD</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <header class="page-header">
+          <div>
+            <h1 class="page-header__title">Workspace Settings</h1>
+            <p class="page-header__subtitle">Manage team members, location preferences, and inventory thresholds.</p>
+          </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="settings-tabs-row">
+          <button class="sn-tab-pill is-active" data-tab="users">Team Members</button>
+          <button class="sn-tab-pill" data-tab="org">Branch & Location</button>
+          <button class="sn-tab-pill" data-tab="config">Inventory Thresholds</button>
+          <button class="sn-tab-pill" data-tab="backup">Data Management</button>
+        </div>
+
+        <div class="settings-grid-layout">
+          <div>
+            <!-- TAB 1: TEAM MEMBERS -->
+            <div class="tab-section is-active" id="tab-users">
+              <div class="sn-card">
+                <div class="sn-card__header">
+                  <h2 class="sn-card__title">Team Members & Access</h2>
+                  <button class="btn btn--primary btn--sm" id="btnOpenInviteModal">+ Add Member</button>
+                </div>
+
+                <div class="sn-table-wrap">
+                  <table class="sn-table">
+                    <thead>
+                      <tr><th>USER</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr>
+                    </thead>
+                    <tbody id="usersTbody">
+                      <tr id="user-row-0">
+                        <td>
+                          <div class="user-cell-wrap">
+                            <div class="user-avatar-badge" style="background:#2563eb;">JD</div>
+                            <div><strong>Jane Doe</strong><br><span style="color:#6b7280; font-size:12px;">jane.doe@stocknest.io</span></div>
+                          </div>
+                        </td>
+                        <td><span class="role-badge role-badge--admin" id="role-tag-0">Admin</span></td>
+                        <td><span class="status-dot-active">Active</span></td>
+                        <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-0', 'Jane Doe', 'Admin')">Edit</button></td>
+                      </tr>
+                      <tr id="user-row-1">
+                        <td>
+                          <div class="user-cell-wrap">
+                            <div class="user-avatar-badge" style="background:#eab308;">AS</div>
+                            <div><strong>Alex Smith</strong><br><span style="color:#6b7280; font-size:12px;">alex.smith@stocknest.io</span></div>
+                          </div>
+                        </td>
+                        <td><span class="role-badge role-badge--manager" id="role-tag-1">Manager</span></td>
+                        <td><span class="status-dot-active">Active</span></td>
+                        <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-1', 'Alex Smith', 'Manager')">Edit</button></td>
+                      </tr>
+                      <tr id="user-row-2">
+                        <td>
+                          <div class="user-cell-wrap">
+                            <div class="user-avatar-badge" style="background:#6b7280;">RJ</div>
+                            <div><strong>Robert Johnson</strong><br><span style="color:#6b7280; font-size:12px;">robert.j@stocknest.io</span></div>
+                          </div>
+                        </td>
+                        <td><span class="role-badge role-badge--staff" id="role-tag-2">Staff</span></td>
+                        <td><span class="status-dot-active">Active</span></td>
+                        <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-2', 'Robert Johnson', 'Staff')">Edit</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: BRANCH SETUP -->
+            <div class="tab-section" id="tab-org">
+              <div class="sn-card">
+                <h2 class="sn-card__title">Branch & Location Profile</h2>
+                <p class="sn-card__desc">Primary coworking building and address details.</p>
+                <form id="formOrgSetup" style="margin-top:16px;">
+                  <div class="form-group">
+                    <label class="form-label">Branch / Building Name</label>
+                    <input class="form-input" type="text" value="HQ Tech Park — Floor 3 & 4" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Location Address</label>
+                    <input class="form-input" type="text" value="120 Broadway, Suite 1000, New York" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Support Email</label>
+                    <input class="form-input" type="email" value="support@stocknest.io" required>
+                  </div>
+                  <button class="btn btn--primary" type="submit" style="margin-top:10px;">Save Branch Details</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- TAB 3: THRESHOLDS -->
+            <div class="tab-section" id="tab-config">
+              <div class="sn-card">
+                <h2 class="sn-card__title">Low Stock Alert Thresholds</h2>
+                <p class="sn-card__desc">Set automatic warning levels when items run low in stock.</p>
+                
+                <div style="margin-top:16px;">
+                  <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; margin-bottom:6px;">
+                    <span>Consumables Low-Stock Threshold</span>
+                    <span id="valThreshold" style="background:#eff6ff; color:#2563eb; padding:2px 8px; border-radius:6px;">15 Units</span>
+                  </div>
+                  <input type="range" class="slider-input" id="slideThreshold" min="5" max="50" value="15">
+                  <p style="font-size:12px; color:#6b7280; margin-top:6px;">Triggers a dashboard alert when quantity drops below this level.</p>
+                </div>
+
+                <div class="form-group" style="margin-top:20px;">
+                  <label class="form-label">Default Currency</label>
+                  <select class="form-select">
+                    <option>INR (₹)</option>
+                    <option selected>USD ($)</option>
+                    <option>EUR (€)</option>
+                  </select>
+                </div>
+                <button class="btn btn--primary" id="btnSaveConfig" style="margin-top:10px;">Save Preferences</button>
+              </div>
+            </div>
+
+            <!-- TAB 4: DATA MANAGEMENT (EXPORT / BACKUP) -->
+            <div class="tab-section" id="tab-backup">
+              <div class="sn-card">
+                <h2 class="sn-card__title">Data Import & Backup</h2>
+                <p class="sn-card__desc">Export workspace records or trigger a manual data backup.</p>
+                <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                  <button class="btn btn--primary" id="btnExportCSV">Export Inventory CSV</button>
+                  <button class="btn btn--outline" id="btnDownloadJSON">Trigger Backup</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div>
+            <div class="sn-card">
+              <h2 class="sn-card__title">Recent Activity Log</h2>
+              <div class="audit-list" id="activityList">
+                <div class="audit-item"><div class="audit-icon-circle">✓</div><div><div class="audit-text">Jane Doe updated branch address.</div><div class="audit-time">10 mins ago</div></div></div>
+                <div class="audit-item"><div class="audit-icon-circle">⚙</div><div><div class="audit-text">Low stock threshold set to 15 units.</div><div class="audit-time">2 hours ago</div></div></div>
+                <div class="audit-item"><div class="audit-icon-circle">＋</div><div><div class="audit-text">New member Alex Smith invited.</div><div class="audit-time">Yesterday</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
-    <script type="module" src="stocknest-settings-init.js"></script>
+  </div>
+
+  <!-- MODAL 1: ADD MEMBER -->
+  <div class="sn-modal-backdrop" id="inviteModalBackdrop">
+    <div class="sn-modal-box">
+      <div class="sn-modal__head">
+        <h3 class="sn-modal__title">Invite New Team Member</h3>
+        <button class="sn-modal__close" onclick="closeModal('inviteModalBackdrop')">✕</button>
+      </div>
+      <form id="formInviteMember">
+        <div class="form-group">
+          <label class="form-label">Member Full Name</label>
+          <input class="form-input" type="text" id="invName" placeholder="e.g. Nikhil Sharma" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="invEmail" placeholder="nikhil@stocknest.io" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="invRole">
+            <option value="Staff">Staff</option>
+            <option value="Manager">Manager</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+          <button class="btn btn--outline" type="button" onclick="closeModal('inviteModalBackdrop')">Cancel</button>
+          <button class="btn btn--primary" type="submit">Send Invite</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: EDIT ROLE -->
+  <div class="sn-modal-backdrop" id="editRoleModalBackdrop">
+    <div class="sn-modal-box">
+      <div class="sn-modal__head">
+        <h3 class="sn-modal__title" id="editRoleTitle">Edit Member Role</h3>
+        <button class="sn-modal__close" onclick="closeModal('editRoleModalBackdrop')">✕</button>
+      </div>
+      <form id="formEditRole">
+        <div class="form-group">
+          <label class="form-label">Select Role Access Level</label>
+          <select class="form-select" id="editRoleSelect">
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Staff">Staff</option>
+          </select>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+          <button class="btn btn--outline" type="button" onclick="closeModal('editRoleModalBackdrop')">Cancel</button>
+          <button class="btn btn--primary" type="submit">Update Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="sn_toast_module.js"></script>
+  <script src="sn_common.js"></script>
+  <script>
+    let activeRowId = null;
+    let memberCount = 3;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Tab Navigation
+      const tabs = document.querySelectorAll('.sn-tab-pill');
+      const sections = document.querySelectorAll('.tab-section');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('is-active'));
+          sections.forEach(s => s.classList.remove('is-active'));
+          tab.classList.add('is-active');
+          const target = document.getElementById(`tab-${tab.dataset.tab}`);
+          if (target) target.classList.add('is-active');
+        });
+      });
+
+      // 2. Threshold Slider
+      const slide = document.getElementById('slideThreshold');
+      const val = document.getElementById('valThreshold');
+      slide?.addEventListener('input', (e) => { val.textContent = `${e.target.value} Units`; });
+
+      // 3. Open Invite Modal
+      document.getElementById('btnOpenInviteModal')?.addEventListener('click', () => {
+        openModal('inviteModalBackdrop');
+      });
+
+      // 4. Invite Submit
+      document.getElementById('formInviteMember')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('invName').value;
+        const email = document.getElementById('invEmail').value;
+        const role = document.getElementById('invRole').value;
+
+        const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase() || 'NM';
+        const newRowId = `user-row-${memberCount++}`;
+        const newRoleTagId = `role-tag-${memberCount}`;
+
+        document.getElementById('usersTbody').innerHTML += `
+          <tr id="${newRowId}">
+            <td>
+              <div class="user-cell-wrap">
+                <div class="user-avatar-badge" style="background:#10b981;">${initials}</div>
+                <div><strong>${name}</strong><br><span style="color:#6b7280; font-size:12px;">${email}</span></div>
+              </div>
+            </td>
+            <td><span class="role-badge role-badge--${role.toLowerCase()}" id="${newRoleTagId}">${role}</span></td>
+            <td><span class="status-dot-active">Active</span></td>
+            <td><button class="action-btn-trigger" onclick="openEditRoleModal('${newRowId}', '${name}', '${role}')">Edit</button></td>
+          </tr>`;
+
+        closeModal('inviteModalBackdrop');
+        snToast(`Member ${name} invited as ${role}!`, { title: 'Success', type: 'success' });
+        document.getElementById('formInviteMember').reset();
+      });
+
+      // 5. Submit Role Edit (DOM Live Update Fix!)
+      document.getElementById('formEditRole')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newRole = document.getElementById('editRoleSelect').value;
+        
+        if (activeRowId) {
+          const row = document.getElementById(activeRowId);
+          if (row) {
+            const roleBadge = row.querySelector('.role-badge');
+            if (roleBadge) {
+              roleBadge.textContent = newRole;
+              roleBadge.className = `role-badge role-badge--${newRole.toLowerCase()}`;
+            }
+          }
+        }
+
+        closeModal('editRoleModalBackdrop');
+        snToast(`Member role updated to ${newRole}!`, { title: 'Role Updated', type: 'success' });
+      });
+
+      // 6. Real CSV Download (Frontend JS)
+      document.getElementById('btnExportCSV')?.addEventListener('click', () => {
+        const csvContent = "data:text/csv;charset=utf-8,ID,Item Name,Category,Quantity,Status\n1,Ergonomic Chair,Furniture,45,In Stock\n2,Dell Monitor 27,Electronics,12,Low Stock\n3,USB-C Cables,Accessories,150,In Stock";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "StockNest_Inventory_Export.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        snToast('CSV file downloaded to your computer!', { title: 'Export Success', type: 'success' });
+      });
+
+      // 7. Real JSON Backup Download (Frontend JS)
+      document.getElementById('btnDownloadJSON')?.addEventListener('click', () => {
+        const backupData = {
+          workspace: "HQ Tech Park",
+          exportDate: new Date().toISOString(),
+          usersCount: 3,
+          status: "Optimal"
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "StockNest_Backup.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        snToast('JSON Backup downloaded!', { title: 'Backup Saved', type: 'success' });
+      });
+
+      // Form Submits
+      document.getElementById('formOrgSetup')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        snToast('Branch details saved!', { title: 'Saved', type: 'success' });
+      });
+
+      document.getElementById('btnSaveConfig')?.addEventListener('click', () => {
+        snToast('Thresholds updated!', { title: 'Saved', type: 'success' });
+      });
+    });
+
+    function openEditRoleModal(rowId, name, currentRole) {
+      activeRowId = rowId;
+      document.getElementById('editRoleTitle').textContent = `Edit Role for ${name}`;
+      document.getElementById('editRoleSelect').value = currentRole;
+      openModal('editRoleModalBackdrop');
+    }
+
+    function openModal(id) { document.getElementById(id)?.classList.add('is-open'); }
+    function closeModal(id) { document.getElementById(id)?.classList.remove('is-open'); }
+  </script>
 </body>
 </html>
