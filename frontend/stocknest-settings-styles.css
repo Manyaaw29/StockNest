@@ -46,3 +46,132 @@ body { background-color: #f4f7fc; color: #1e293b; overflow-x: hidden; }
 .sn-timeline-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; background-color: #eff6ff; color: #3b82f6; }
 @media (max-width: 1024px) { .sn-grid-workspace { grid-template-columns: 1fr; } }
 @media (max-width: 768px) { .sn-sidebar { display: none; } }
+/* ==========================================================================
+   StockNest Profile Page - Pro Dashboard Extensions
+   ========================================================================== */
+
+.profile-hero-card {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border-radius: 16px;
+  padding: 28px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.profile-hero__left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-avatar-container {
+  position: relative;
+}
+
+.profile-avatar-xl {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.avatar-upload-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #111827;
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+.avatar-upload-btn:hover { transform: scale(1.1); }
+
+.profile-hero__name {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.profile-hero__email {
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.profile-hero__badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hero-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+  color: #e5e7eb;
+}
+
+.hero-pill--blue { background: rgba(37, 99, 235, 0.2); color: #93c5fd; }
+
+.toggle-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider { background-color: #2563eb; }
+input:checked + .toggle-slider:before { transform: translateX(20px); }
