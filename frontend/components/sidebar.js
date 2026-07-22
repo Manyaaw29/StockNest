@@ -11,7 +11,6 @@ const NAV_ROUTES = {
   'room-booking': 'room-booking.html',
   'bookings.html': 'room-booking',
   'room-allocation-transfer': 'allocation.html',
-  'analytics-reporting': 'sn_dashboard_view.html',
   'profile': 'profile.html',
   'settings': 'stocknest-settings-view.html',
 };
@@ -48,11 +47,6 @@ const NAV_ITEMS = [
     icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
   },
   {
-    id: 'analytics-reporting',
-    label: 'Analytics & Reports',
-    icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
-  },
-  {
     id: 'profile',
     label: 'My Profile',
     icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
@@ -75,7 +69,6 @@ export function detectActiveItem() {
     'room-booking.html': 'room-booking',
     'bookings.html': 'room-booking',
     'allocation.html': 'room-allocation-transfer',
-    'sn_dashboard_view.html': 'analytics-reporting',
     'profile.html': 'profile',
     'stocknest-settings-view.html': 'settings',
   };

@@ -44,7 +44,6 @@ const BACKEND_URL = 'http://localhost:5000/api';
     'maintenance': 'maintainance.html',
     'room-booking': 'room-booking.html',
     'room-allocation': 'allocation.html',
-    'analytics': 'sn_dashboard_view.html',
     'settings': 'stocknest-settings-view.html',
   };
 
