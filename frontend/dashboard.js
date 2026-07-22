@@ -129,7 +129,7 @@
     list.innerHTML = bookings
       .map(
         (b) => `
-      <tr>
+      <tr onclick="window.location.href='room-booking.html'" style="cursor:pointer;">
         <td><strong>${b.room}</strong></td>
         <td>${b.time}</td>
         <td>${b.bookedBy}</td>
@@ -159,7 +159,7 @@
     list.innerHTML = floors
       .map(
         (f) => `
-      <div class="availability-item">
+      <div class="availability-item" onclick="window.location.href='room-booking.html'" style="cursor:pointer;">
         <span class="availability-item__floor">${f.floor}</span>
         <div class="availability-item__bar-wrap">
           <div class="availability-item__bar" style="width: ${f.percentage}%"></div>
@@ -188,14 +188,18 @@
 
     list.innerHTML = activities
       .map(
-        (a) => `
-      <div class="activity-item">
+        (a) => {
+          const isMaint = a.description.toLowerCase().includes('maintenance');
+          const url = isMaint ? 'maintainance.html' : 'room-booking.html';
+          return `
+      <div class="activity-item" onclick="window.location.href='${url}'" style="cursor:pointer;">
         <div class="activity-item__dot"></div>
         <div class="activity-item__content">
           <p class="activity-item__text">${a.description}</p>
           <span class="activity-item__time">${a.time}</span>
         </div>
-      </div>`
+      </div>`;
+        }
       )
       .join('');
   }
