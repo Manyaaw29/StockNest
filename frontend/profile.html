@@ -1,4 +1,4 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,6 +9,63 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css">
   <link rel="stylesheet" href="stocknest-settings-styles.css">
+  <style>
+    .status-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .status-active { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .status-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+    .status-suspended { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .status-inactive { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+
+    .status-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .status-card-btn {
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #ffffff;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .status-card-btn:hover {
+      border-color: #2563eb;
+      background: #f8fafc;
+      transform: translateY(-1px);
+    }
+    .status-card-btn.is-active-card {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      background: #eff6ff;
+    }
+    .status-card-btn h4 {
+      margin: 0 0 6px 0;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-card-btn p {
+      margin: 0;
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+  </style>
 </head>
 <body>
 
@@ -31,9 +88,6 @@
         <ul class="sidebar__nav-list">
           <li><button class="sidebar__nav-btn" onclick="window.location.href='dashboard.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button></li>
           <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Inventory Management</span></button></li>
-          <!-- Profile Active (Settings ke thik UPAR) -->
-          <li><button class="sidebar__nav-btn sidebar__nav-btn--active" onclick="window.location.href='profile.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></button></li>
-          <!-- Settings -->
           <li><button class="sidebar__nav-btn" onclick="window.location.href='stocknest-settings-view.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button></li>
         </ul>
       </nav>
@@ -48,7 +102,7 @@
         <div class="topbar__actions">
           <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
           <div class="topbar__dropdown-wrap">
-            <button class="topbar__avatar" id="mainHeaderAvatar" type="button" onclick="window.location.href='profile.html'">JD</button>
+            <button class="topbar__avatar global-header-avatar" type="button" onclick="window.location.href='profile.html'">JD</button>
           </div>
         </div>
       </header>
@@ -57,7 +111,7 @@
         <!-- Hero Header -->
         <div class="profile-hero-card">
           <div class="profile-hero__left">
-            <div class="profile-avatar-xl" id="avatarPreviewText">JD</div>
+            <div class="profile-avatar-xl global-header-avatar" id="avatarPreviewText">JD</div>
             <div>
               <div style="font-size:20px; font-weight:700;" id="heroNameText">Jane Doe</div>
               <div style="font-size:13px; color:#9ca3af;" id="heroEmailText">jane.doe@stocknest.io</div>
@@ -69,6 +123,7 @@
           </div>
         </div>
 
+        <!-- Personal Details -->
         <div class="sn-card">
           <h2 class="sn-card__title">Personal Profile Details</h2>
           <p class="sn-card__desc">Update your personal account information.</p>
@@ -98,21 +153,54 @@
           </form>
         </div>
 
-        <div class="sn-card">
-          <h2 class="sn-card__title">Password Security</h2>
-          <form id="proPasswordForm" style="margin-top:16px;">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-              <div class="form-group">
-                <label class="form-label">Current Password</label>
-                <input class="form-input" type="password" placeholder="••••••••" required>
+        <!-- Account Overview (Read-Only) -->
+        <div class="sn-card" style="margin-top:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h2 class="sn-card__title">Account Overview (Read-Only)</h2>
+              <p class="sn-card__desc">System generated account metrics and permission attributes.</p>
+            </div>
+            <span class="status-badge-pill status-active" id="currentAccountStatusBadge">
+              🟢 Active
+            </span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:20px; padding:16px; background:#f9fafb; border-radius:8px; border:1px solid #f3f4f6;">
+            <div>
+              <div style="font-size:12px; color:#6b7280; font-weight:500;">Member Since</div>
+              <div style="font-size:15px; font-weight:600; color:#111827; margin-top:4px;">Jan 15, 2024</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:#6b7280; font-weight:500;">Last Login</div>
+              <div style="font-size:15px; font-weight:600; color:#111827; margin-top:4px;" id="lastLoginTime">Today, 11:04 PM</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:#6b7280; font-weight:500;">Role Access Level</div>
+              <div style="font-size:15px; font-weight:600; color:#2563eb; margin-top:4px;">Workspace Administrator</div>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;">
+            <label class="form-label" style="margin-bottom:8px; display:block;">Select Status View to Test System State:</label>
+            <div class="status-legend-grid">
+              <div class="status-card-btn is-active-card" id="card-active" onclick="switchStatusState('active')">
+                <h4>🟢 Active</h4>
+                <p>Standard operational status. Full workspace access and system privileges enabled.</p>
               </div>
-              <div class="form-group">
-                <label class="form-label">New Password</label>
-                <input class="form-input" type="password" placeholder="••••••••" required>
+              <div class="status-card-btn" id="card-pending" onclick="switchStatusState('pending')">
+                <h4>🟡 Pending</h4>
+                <p>Invitation sent. Awaiting user email verification and initial onboarding completion.</p>
+              </div>
+              <div class="status-card-btn" id="card-suspended" onclick="switchStatusState('suspended')">
+                <h4>🔴 Suspended</h4>
+                <p>Account temporarily restricted by system administrator due to policy enforcement.</p>
+              </div>
+              <div class="status-card-btn" id="card-inactive" onclick="switchStatusState('inactive')">
+                <h4>⚫ Inactive</h4>
+                <p>Account permanently deactivated. User access revoked across all workspace services.</p>
               </div>
             </div>
-            <button class="btn btn--outline" type="submit" style="margin-top:12px;">Update Password</button>
-          </form>
+          </div>
         </div>
       </main>
     </div>
@@ -149,32 +237,82 @@
 
   <script src="sn_toast_module.js"></script>
   <script src="sn_common.js"></script>
+  <script src="global-nav.js"></script>
   <script>
+    function switchStatusState(statusType) {
+      const badge = document.getElementById('currentAccountStatusBadge');
+      document.querySelectorAll('.status-card-btn').forEach(card => card.classList.remove('is-active-card'));
+
+      if (statusType === 'active') {
+        badge.className = 'status-badge-pill status-active';
+        badge.innerHTML = '🟢 Active';
+        document.getElementById('card-active').classList.add('is-active-card');
+      } else if (statusType === 'pending') {
+        badge.className = 'status-badge-pill status-pending';
+        badge.innerHTML = '🟡 Pending';
+        document.getElementById('card-pending').classList.add('is-active-card');
+      } else if (statusType === 'suspended') {
+        badge.className = 'status-badge-pill status-suspended';
+        badge.innerHTML = '🔴 Suspended';
+        document.getElementById('card-suspended').classList.add('is-active-card');
+      } else if (statusType === 'inactive') {
+        badge.className = 'status-badge-pill status-inactive';
+        badge.innerHTML = '⚫ Inactive';
+        document.getElementById('card-inactive').classList.add('is-active-card');
+      }
+      
+      snToast(`Account state switched to ${statusType.toUpperCase()}`, { title: 'Status Switch', type: 'info' });
+    }
+
+    function updateAllAvatarsUI() {
+      const savedBg = localStorage.getItem('sn_user_avatar_bg');
+      const savedImg = localStorage.getItem('sn_user_avatar_img');
+      const savedText = localStorage.getItem('sn_user_avatar_text') || 'JD';
+
+      document.querySelectorAll('.global-header-avatar, .topbar__avatar').forEach(el => {
+        if (savedImg) {
+          el.style.backgroundImage = `url(${savedImg})`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.textContent = '';
+        } else if (savedBg) {
+          el.style.backgroundImage = '';
+          el.style.backgroundColor = savedBg;
+          el.textContent = savedText;
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Open Avatar Modal
+      updateAllAvatarsUI();
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const lastLoginEl = document.getElementById('lastLoginTime');
+      if(lastLoginEl) lastLoginEl.textContent = `Today, ${timeStr}`;
+
       document.getElementById('btnOpenAvatarModal')?.addEventListener('click', () => {
         openModal('avatarModalBackdrop');
       });
 
-      // Handle Image File Upload Preview
       const fileInput = document.getElementById('localAvatarUpload');
       fileInput?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function(evt) {
-            const avatarBox = document.getElementById('avatarPreviewText');
-            avatarBox.style.backgroundImage = `url(${evt.target.result})`;
-            avatarBox.textContent = '';
+            const dataUrl = evt.target.result;
+            localStorage.setItem('sn_user_avatar_img', dataUrl);
+            localStorage.removeItem('sn_user_avatar_bg');
             
+            updateAllAvatarsUI();
             closeModal('avatarModalBackdrop');
-            snToast('Custom profile picture uploaded!', { title: 'Photo Updated', type: 'success' });
+            snToast('Custom profile picture uploaded across all pages!', { title: 'Photo Updated', type: 'success' });
           };
           reader.readAsDataURL(file);
         }
       });
 
-      // Save Form
       document.getElementById('proProfileForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         const f = document.getElementById('profFirstName').value;
@@ -185,17 +323,10 @@
         document.getElementById('heroEmailText').textContent = email;
         const initials = `${f[0]}${l[0]}`.toUpperCase();
         
-        const avatarBox = document.getElementById('avatarPreviewText');
-        if (!avatarBox.style.backgroundImage) {
-          avatarBox.textContent = initials;
-        }
+        localStorage.setItem('sn_user_avatar_text', initials);
+        updateAllAvatarsUI();
 
         snToast('Profile details updated!', { title: 'Saved', type: 'success' });
-      });
-
-      document.getElementById('proPasswordForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        snToast('Password changed securely!', { title: 'Security Updated', type: 'success' });
       });
     });
 
@@ -203,10 +334,11 @@
       document.querySelectorAll('.avatar-preset-opt').forEach(el=>el.classList.remove('is-selected'));
       event.target.classList.add('is-selected');
 
-      const avatarBox = document.getElementById('avatarPreviewText');
-      avatarBox.style.backgroundImage = '';
-      avatarBox.style.backgroundColor = color;
-      avatarBox.textContent = initials;
+      localStorage.setItem('sn_user_avatar_bg', color);
+      localStorage.setItem('sn_user_avatar_text', initials);
+      localStorage.removeItem('sn_user_avatar_img');
+
+      updateAllAvatarsUI();
     }
 
     document.getElementById('btnSaveAvatarChoice')?.addEventListener('click', () => {
