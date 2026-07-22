@@ -38,7 +38,10 @@ CREATE TABLE room (
   org_id          INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
   room_name       VARCHAR(255) NOT NULL,
   capacity        INT NOT NULL,
+  type            VARCHAR(100) DEFAULT 'Meeting Room',
+  floor           VARCHAR(50),
   amenities       JSONB DEFAULT '[]',
+  assigned_assets JSONB DEFAULT '[]',
   utilization_pct DECIMAL(5,2) DEFAULT 0,
   status          room_status DEFAULT 'Available'
 );
@@ -52,7 +55,8 @@ CREATE TABLE booking (
   start_time      TIME NOT NULL,
   end_time        TIME NOT NULL,
   attendees       INT,
-  status          booking_status DEFAULT 'pending'
+  status          booking_status DEFAULT 'pending',
+  created_at      TIMESTAMP DEFAULT NOW()
 );
 
 -- ASSET
@@ -87,8 +91,8 @@ CREATE TABLE inventory (
 -- MAINTENANCE
 CREATE TABLE maintenance (
   request_id      SERIAL PRIMARY KEY,
-  asset_id        INT REFERENCES asset(asset_id),
   room_id         INT REFERENCES room(room_id),
+  inventory_id    INT REFERENCES inventory(inventory_id) ON DELETE SET NULL,
   assigned_to     INT REFERENCES users(user_id),
   status          maintenance_status DEFAULT 'Pending',
   priority        VARCHAR(20) DEFAULT 'Medium',

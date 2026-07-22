@@ -95,13 +95,13 @@ const getDashboard = async (req, res) => {
           SELECT
             CASE
               WHEN room.room_id IS NOT NULL THEN 'Maintenance request created for ' || room.room_name
-              WHEN asset.asset_id IS NOT NULL THEN 'Maintenance request created for ' || asset.name
+              WHEN inventory.inventory_id IS NOT NULL THEN 'Maintenance request created for ' || inventory.item_name
               ELSE 'Maintenance request created'
             END AS description,
             maintenance.created_at AS activity_time
           FROM maintenance
           LEFT JOIN room ON room.room_id = maintenance.room_id
-          LEFT JOIN asset ON asset.asset_id = maintenance.asset_id
+          LEFT JOIN inventory ON inventory.inventory_id = maintenance.inventory_id
         ) AS activities
         ORDER BY activity_time DESC
         LIMIT 10
