@@ -42,7 +42,6 @@
 
   const MODULE_ROUTES = {
     'setup-locations': 'organisation.html',
-    'asset-registry': 'asset_registry.html',
     'inventory-management': 'inventory.html',
     'maintenance': 'maintainance.html',
     'room-booking': 'room-booking.html',

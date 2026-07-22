@@ -157,8 +157,8 @@ function renderTable() {
   }
 
   tbody.innerHTML = pageItems.map(t => {
-    const assetName = t.asset_name || `Asset #${t.asset_id}`;
-    const assetCode = t.asset_id ? `AST-${String(t.asset_id).padStart(4, '0')}` : 'N/A';
+    const targetName = t.room_name || t.item_name || `Ticket #${t.request_id}`;
+    const targetType = t.room_id ? 'Space' : (t.inventory_id ? 'Consumable' : 'General');
     
     // Map status classes
     let statusClass = 'pending';
@@ -170,10 +170,10 @@ function renderTable() {
     return `
       <tr data-id="${t.request_id}">
         <td class="asset-cell">
-          <span class="asset-icon">🛠</span>
+          <span class="asset-icon">${t.room_id ? '🏢' : '📦'}</span>
           <div>
-            <div class="asset-id"><a href="asset_registry.html?view=${assetCode}" style="color:var(--accent-blue);text-decoration:none;font-weight:600;">${assetCode}</a></div>
-            <div class="asset-name"><a href="asset_registry.html?view=${assetCode}" style="color:inherit;text-decoration:none;">${assetName}</a></div>
+            <div class="asset-id" style="color:var(--accent-blue);font-weight:600;">${targetType}</div>
+            <div class="asset-name" style="color:inherit;">${targetName}</div>
           </div>
         </td>
         <td><strong>${t.priority}</strong></td>

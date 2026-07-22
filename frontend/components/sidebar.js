@@ -6,7 +6,6 @@
 const NAV_ROUTES = {
   'dashboard': 'dashboard.html',
   'setup-locations': 'organisation.html',
-  'asset-registry': 'asset_registry.html',
   'inventory-management': 'inventory.html',
   'maintenance': 'maintainance.html',
   'room-booking': 'room-booking.html',
@@ -25,11 +24,6 @@ const NAV_ITEMS = [
     id: 'setup-locations',
     label: 'Setup and locations',
     icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
-  },
-  {
-    id: 'asset-registry',
-    label: 'Asset Registry',
-    icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
   },
   {
     id: 'inventory-management',
@@ -69,7 +63,6 @@ export function detectActiveItem() {
   const map = {
     'dashboard.html': 'dashboard',
     'organisation.html': 'setup-locations',
-    'asset_registry.html': 'asset-registry',
     'inventory.html': 'inventory-management',
     'maintainance.html': 'maintenance',
     'room-booking.html': 'room-booking',
