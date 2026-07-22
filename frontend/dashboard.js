@@ -247,7 +247,11 @@
           ...chartDefaults,
           scales: {
             x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
-            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { color: '#9ca3af' } },
+            y: {
+              beginAtZero: true,
+              grid: { color: '#f3f4f6' },
+              ticks: { color: '#9ca3af', precision: 0, stepSize: 1 },
+            },
           },
         },
       });

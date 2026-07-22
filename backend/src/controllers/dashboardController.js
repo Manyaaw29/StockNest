@@ -25,19 +25,24 @@ const getDashboard = async (req, res) => {
       pool.query("SELECT COUNT(*) AS count FROM room WHERE status = 'Available'"),
       // Count bookings scheduled for today.
       pool.query('SELECT COUNT(*) AS count FROM booking WHERE booking_date = CURRENT_DATE'),
-      // Count bookings for each of the last seven days, including days with no bookings.
+      // Count bookings for each weekday from Monday to Sunday, including days with no bookings.
       pool.query(`
         SELECT
-          TO_CHAR(days.booking_date, 'FMDy') AS label,
+          wd.label,
           COUNT(booking.booking_id) AS count
-        FROM generate_series(
-          CURRENT_DATE - INTERVAL '6 days',
-          CURRENT_DATE,
-          INTERVAL '1 day'
-        ) AS days(booking_date)
-        LEFT JOIN booking ON booking.booking_date = days.booking_date::date
-        GROUP BY days.booking_date
-        ORDER BY days.booking_date ASC
+        FROM (
+          VALUES
+            (1, 'Monday'),
+            (2, 'Tuesday'),
+            (3, 'Wednesday'),
+            (4, 'Thursday'),
+            (5, 'Friday'),
+            (6, 'Saturday'),
+            (7, 'Sunday')
+        ) AS wd(dow, label)
+        LEFT JOIN booking ON EXTRACT(ISODOW FROM booking.booking_date) = wd.dow
+        GROUP BY wd.dow, wd.label
+        ORDER BY wd.dow ASC
       `),
       // Count rooms by every defined room status, including statuses with no rooms.
       pool.query(`
