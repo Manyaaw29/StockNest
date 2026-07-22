@@ -172,17 +172,24 @@ export function renderSidebar(container, { activeItem, location = 'HQ Alpha' } =
         </button>
 
         <!-- User Profile Card -->
-        <div class="sidebar__user-card" id="sidebarUserCard">
-          <div class="sidebar__user-avatar" style="${avatarStyle}">
-            ${userAvatarImg ? '' : initials}
-          </div>
-          <div class="sidebar__user-info">
-            <div class="sidebar__user-name">${userName}</div>
-            <div class="sidebar__user-role">
-              <span class="sidebar__user-status-dot"></span>
-              ${userRole}
+        <div class="sidebar__user-card-wrapper">
+          <div class="sidebar__user-card" id="sidebarUserCard" onclick="window.location.href='profile.html'">
+            <div class="sidebar__user-avatar" style="${avatarStyle}">
+              ${userAvatarImg ? '' : initials}
+            </div>
+            <div class="sidebar__user-info">
+              <div class="sidebar__user-name">${userName}</div>
+              <div class="sidebar__user-role">
+                <span class="sidebar__user-status-dot"></span>
+                ${userRole}
+              </div>
             </div>
           </div>
+          <button class="sidebar__logout-icon-btn" id="sidebarLogoutBtn" type="button" aria-label="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+            </svg>
+          </button>
         </div>
       </div>
     </nav>`;
@@ -238,6 +245,21 @@ export function initSidebarNav(container) {
       // Trigger event or sync state across page if necessary
       const event = new CustomEvent('sn-location-change', { detail: selectedLoc });
       document.dispatchEvent(event);
+    });
+  }
+
+  const logoutBtn = container.querySelector('#sidebarLogoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (confirm('Are you sure you want to log out of StockNest?')) {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
+        window.location.href = 'index.html';
+      }
     });
   }
 }

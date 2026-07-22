@@ -174,6 +174,7 @@ const updateMaintenance = async (req, res) => {
 
     const row = existing.rows[0];
     const belongsToOrg =
+      (!row.room_org && !row.inv_org) ||
       (row.room_org && row.room_org === req.user.org_id) ||
       (row.inv_org && row.inv_org === req.user.org_id);
 
@@ -251,6 +252,7 @@ const deleteMaintenance = async (req, res) => {
 
     const row = existing.rows[0];
     const belongsToOrg =
+      (!row.room_org && !row.inv_org) ||
       (row.room_org && row.room_org === req.user.org_id) ||
       (row.inv_org && row.inv_org === req.user.org_id);
 

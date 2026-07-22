@@ -2038,6 +2038,46 @@ ul {
   border-color: #1d4ed8;
 }
 
+/* User Card Wrapper & Logout Button */
+.sidebar__user-card-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sidebar__user-card-wrapper .sidebar__user-card {
+  flex: 1;
+  margin-top: 0;
+}
+
+.sidebar__logout-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sidebar__logout-icon-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.sidebar__logout-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* ==========================================================================
    Responsive Sidebar & Layout (max-width: 1024px)
    ========================================================================== */
