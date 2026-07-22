@@ -310,7 +310,7 @@ async function saveAssetFromForm(existingId = null) {
           status: dbStatus
         })
       });
-    } else {
+  } else {
       response = await fetch(`${BACKEND_URL}/assets`, {
         method: 'POST',
         headers: {

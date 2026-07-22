@@ -1,0 +1,221 @@
+=<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | StockNest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="stocknest-settings-styles.css">
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <a href="dashboard.html" class="sidebar__brand">
+          <div class="sidebar__logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="sidebar__brand-text">
+            <span class="sidebar__title">StockNest</span>
+            <span class="sidebar__subtitle">Workspace Inventory</span>
+          </div>
+        </a>
+      </div>
+      <nav class="sidebar__nav">
+        <ul class="sidebar__nav-list">
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='dashboard.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button></li>
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Inventory Management</span></button></li>
+          <!-- Profile Active (Settings ke thik UPAR) -->
+          <li><button class="sidebar__nav-btn sidebar__nav-btn--active" onclick="window.location.href='profile.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></button></li>
+          <!-- Settings -->
+          <li><button class="sidebar__nav-btn" onclick="window.location.href='stocknest-settings-view.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar__search">
+          <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" class="topbar__search-input" placeholder="Search profile...">
+        </div>
+        <div class="topbar__actions">
+          <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
+          <div class="topbar__dropdown-wrap">
+            <button class="topbar__avatar" id="mainHeaderAvatar" type="button" onclick="window.location.href='profile.html'">JD</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <!-- Hero Header -->
+        <div class="profile-hero-card">
+          <div class="profile-hero__left">
+            <div class="profile-avatar-xl" id="avatarPreviewText">JD</div>
+            <div>
+              <div style="font-size:20px; font-weight:700;" id="heroNameText">Jane Doe</div>
+              <div style="font-size:13px; color:#9ca3af;" id="heroEmailText">jane.doe@stocknest.io</div>
+              <div style="font-size:12px; color:#60a5fa; margin-top:4px;">Workspace Administrator</div>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn--primary btn--sm" id="btnOpenAvatarModal">📷 Change Avatar</button>
+          </div>
+        </div>
+
+        <div class="sn-card">
+          <h2 class="sn-card__title">Personal Profile Details</h2>
+          <p class="sn-card__desc">Update your personal account information.</p>
+
+          <form id="proProfileForm" style="margin-top:20px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input class="form-input" type="text" id="profFirstName" value="Jane" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input class="form-input" type="text" id="profLastName" value="Doe" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input class="form-input" type="email" id="profEmail" value="jane.doe@stocknest.io" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input class="form-input" type="text" value="+1 (555) 234-5678">
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <button class="btn btn--primary" type="submit">Save Details</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="sn-card">
+          <h2 class="sn-card__title">Password Security</h2>
+          <form id="proPasswordForm" style="margin-top:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input class="form-input" type="password" placeholder="••••••••" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input class="form-input" type="password" placeholder="••••••••" required>
+              </div>
+            </div>
+            <button class="btn btn--outline" type="submit" style="margin-top:12px;">Update Password</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- AVATAR CHANGE MODAL POPUP -->
+  <div class="sn-modal-backdrop" id="avatarModalBackdrop">
+    <div class="sn-modal-box">
+      <div class="sn-modal__head">
+        <h3 class="sn-modal__title">Update Profile Picture</h3>
+        <button class="sn-modal__close" onclick="closeModal('avatarModalBackdrop')">✕</button>
+      </div>
+      
+      <p style="font-size:13px; color:#6b7280;">Choose a color avatar preset or upload a custom image from your computer.</p>
+
+      <div class="avatar-preset-grid">
+        <div class="avatar-preset-opt is-selected" style="background:#2563eb;" onclick="selectPreset('#2563eb', 'JD')">JD</div>
+        <div class="avatar-preset-opt" style="background:#10b981;" onclick="selectPreset('#10b981', 'JD')">JD</div>
+        <div class="avatar-preset-opt" style="background:#8b5cf6;" onclick="selectPreset('#8b5cf6', 'JD')">JD</div>
+        <div class="avatar-preset-opt" style="background:#f59e0b;" onclick="selectPreset('#f59e0b', 'JD')">JD</div>
+      </div>
+
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #f3f4f6;">
+        <label class="form-label">Upload Custom Image</label>
+        <input type="file" id="localAvatarUpload" accept="image/*" class="form-input" style="padding:8px;">
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button class="btn btn--outline" onclick="closeModal('avatarModalBackdrop')">Cancel</button>
+        <button class="btn btn--primary" id="btnSaveAvatarChoice">Apply Avatar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sn_toast_module.js"></script>
+  <script src="sn_common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Open Avatar Modal
+      document.getElementById('btnOpenAvatarModal')?.addEventListener('click', () => {
+        openModal('avatarModalBackdrop');
+      });
+
+      // Handle Image File Upload Preview
+      const fileInput = document.getElementById('localAvatarUpload');
+      fileInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            const avatarBox = document.getElementById('avatarPreviewText');
+            avatarBox.style.backgroundImage = `url(${evt.target.result})`;
+            avatarBox.textContent = '';
+            
+            closeModal('avatarModalBackdrop');
+            snToast('Custom profile picture uploaded!', { title: 'Photo Updated', type: 'success' });
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Save Form
+      document.getElementById('proProfileForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const f = document.getElementById('profFirstName').value;
+        const l = document.getElementById('profLastName').value;
+        const email = document.getElementById('profEmail').value;
+
+        document.getElementById('heroNameText').textContent = `${f} ${l}`;
+        document.getElementById('heroEmailText').textContent = email;
+        const initials = `${f[0]}${l[0]}`.toUpperCase();
+        
+        const avatarBox = document.getElementById('avatarPreviewText');
+        if (!avatarBox.style.backgroundImage) {
+          avatarBox.textContent = initials;
+        }
+
+        snToast('Profile details updated!', { title: 'Saved', type: 'success' });
+      });
+
+      document.getElementById('proPasswordForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        snToast('Password changed securely!', { title: 'Security Updated', type: 'success' });
+      });
+    });
+
+    function selectPreset(color, initials) {
+      document.querySelectorAll('.avatar-preset-opt').forEach(el=>el.classList.remove('is-selected'));
+      event.target.classList.add('is-selected');
+
+      const avatarBox = document.getElementById('avatarPreviewText');
+      avatarBox.style.backgroundImage = '';
+      avatarBox.style.backgroundColor = color;
+      avatarBox.textContent = initials;
+    }
+
+    document.getElementById('btnSaveAvatarChoice')?.addEventListener('click', () => {
+      closeModal('avatarModalBackdrop');
+      snToast('Profile avatar updated!', { title: 'Success', type: 'success' });
+    });
+
+    function openModal(id) { document.getElementById(id)?.classList.add('is-open'); }
+    function closeModal(id) { document.getElementById(id)?.classList.remove('is-open'); }
+  </script>
+</body>
+</html>
