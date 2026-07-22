@@ -3,21 +3,19 @@
  * API-ready dashboard with empty-state UI. No dummy data.
  */
 
-(function () {
-  'use strict';
+import { renderSidebar, initSidebarNav } from './components/sidebar.js';
 
-  // Authentication Check
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-  if (!token) {
-    console.warn('No authentication token found. Redirecting to login...');
-    window.location.href = 'index.html';
-    return;
-  }
+// Authentication Check
+const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+if (!token) {
+  console.warn('No authentication token found. Redirecting to login...');
+  window.location.href = 'index.html';
+}
 
-  const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = 'http://localhost:5000/api';
 
-  /* --------------------------------------------------------------------------
-     API-ready data store (populated by fetchDashboardData later)
+/* --------------------------------------------------------------------------
+   API-ready data store (populated by fetchDashboardData later)
      -------------------------------------------------------------------------- */
 
   const DashboardData = {
@@ -497,6 +495,8 @@
      -------------------------------------------------------------------------- */
 
   function init() {
+    renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'dashboard' });
+    initSidebarNav(document.getElementById('sidebar-root'));
     renderNotifications();
     initSummaryCardAnimations();
     initCharts();
@@ -509,4 +509,3 @@
   } else {
     init();
   }
-})();

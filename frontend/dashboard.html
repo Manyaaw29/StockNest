@@ -18,85 +18,8 @@
 
   <div class="app-layout">
 
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <div class="sidebar__header">
-        <a href="dashboard.html" class="sidebar__brand" aria-label="StockNest home">
-          <div class="sidebar__logo" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-            </svg>
-          </div>
-          <div class="sidebar__brand-text">
-            <span class="sidebar__title">StockNest</span>
-            <span class="sidebar__subtitle">Workspace Inventory</span>
-          </div>
-        </a>
-        <button class="sidebar__close" id="sidebarClose" type="button" aria-label="Close navigation">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-
-      <nav class="sidebar__nav" aria-label="Module navigation">
-        <ul class="sidebar__nav-list" id="sidebarNav">
-          <li><button class="sidebar__nav-btn sidebar__nav-btn--active" onclick="window.location.href='dashboard.html'" data-module="dashboard" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            <span>Dashboard</span>
-          </button></li>
-          <li><button class="sidebar__nav-btn" data-module="setup-locations" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>Setup and Locations</span>
-          </button></li>
-
-          <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            <span>Inventory Management</span>
-          </button></li>
-          <li><button class="sidebar__nav-btn" data-module="maintenance" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            <span>Maintenance</span>
-          </button></li>
-          <li><button class="sidebar__nav-btn" onclick="window.location.href='room-booking.html'" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span>Room Booking</span>
-          </button></li>
-          <li><button class="sidebar__nav-btn" onclick="window.location.href='allocation.html'" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            <span>Room Allocation and Transfer</span>
-          </button></li>
-          <li><button class="sidebar__nav-btn" data-module="analytics" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <span>Analytics &amp; Reporting</span>
-          </button></li>
-          <!-- Profile (Settings ke thik UPAR) -->
-          <li><button class="sidebar__nav-btn" id="btnSidebarProfile" onclick="window.location.href='profile.html'" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Profile</span>
-          </button></li>
-          <!-- Settings -->
-          <li><button class="sidebar__nav-btn" id="btnSidebarSettings" onclick="window.location.href='stocknest-settings-view.html'" data-module="settings" type="button">
-            <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Settings</span>
-          </button></li>
-        </ul>
-      </nav>
-
-      <div class="sidebar__footer">
-        <button class="sidebar__location" id="locationBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
-          <span>Switch Location</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <ul class="sidebar__location-menu" id="locationMenu" role="listbox" hidden>
-          <li role="option" data-location="Floor 3 &amp; 4">Floor 3 &amp; 4</li>
-          <li role="option" data-location="East Wing">East Wing</li>
-          <li role="option" data-location="HQ Alpha">HQ Alpha</li>
-        </ul>
-        <button class="sidebar__help" type="button" id="helpCenterBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Help Center</span>
-        </button>
-      </div>
-    </aside>
+    <!-- Sidebar Navigation Target -->
+    <aside id="sidebar-root" class="app-layout__sidebar"></aside>
 
     <div class="main-wrapper">
 
