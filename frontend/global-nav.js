@@ -3,7 +3,25 @@
   function syncAvatarFromStorage() {
     const savedBg = localStorage.getItem('sn_user_avatar_bg');
     const savedImg = localStorage.getItem('sn_user_avatar_img');
-    const savedText = localStorage.getItem('sn_user_avatar_text') || 'JD';
+    
+    // Fetch user name and compute initials
+    let initials = 'U';
+    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.name) {
+          const parts = user.name.split(' ');
+          initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
+    // Fallback to explicit saved text if set
+    const savedText = localStorage.getItem('sn_user_avatar_text');
+    if (savedText) initials = savedText;
 
     document.querySelectorAll('.topbar__avatar, #profileBtn, #mainHeaderAvatar, .user-avatar-badge').forEach(el => {
       if (savedImg) {
@@ -11,10 +29,12 @@
         el.style.backgroundSize = 'cover';
         el.style.backgroundPosition = 'center';
         el.textContent = '';
-      } else if (savedBg) {
+      } else {
         el.style.backgroundImage = '';
-        el.style.backgroundColor = savedBg;
-        el.textContent = savedText;
+        if (savedBg) {
+          el.style.backgroundColor = savedBg;
+        }
+        el.textContent = initials;
       }
     });
   }
