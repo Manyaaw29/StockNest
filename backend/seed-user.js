@@ -8,6 +8,7 @@ const users = [
   { name: 'Aashish', email: 'aashish@stocknest.com', password: 'Aashish123', role: 'Manager' },
   { name: 'Neha', email: 'neha@stocknest.com', password: 'Neha123', role: 'Staff' },
   { name: 'Tanmay', email: 'tanmay@stocknest.com', password: 'Tanmay123', role: 'Admin' },
+  { name: 'Tanmay Kandwal', email: 'tanmaykandwal@gmail.com', password: 'Tanmay123', role: 'Admin' },
   { name: 'Samaira', email: 'samaira@stocknest.com', password: 'Samaira123', role: 'Manager' },
   { name: 'Manya', email: 'manya@stocknest.com', password: 'Manya123', role: 'Manager' },
   { name: 'Anya', email: 'anya@stocknest.com', password: 'Anya123', role: 'Admin' },
@@ -30,7 +31,11 @@ async function seedUsers() {
         console.log(`✅ Created user: ${user.email}`);
       } catch (err) {
         if (err.code === '23505') {
-          console.log(`⚠️  User already exists: ${user.email}`);
+          await pool.query(
+            'UPDATE users SET password_hash = $1, name = $2, role = $3 WHERE email = $4',
+            [hashedPassword, user.name, user.role, user.email]
+          );
+          console.log(`🔄 Updated password/profile for existing user: ${user.email}`);
         } else {
           throw err;
         }

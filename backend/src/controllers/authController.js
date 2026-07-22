@@ -153,6 +153,84 @@ const getMe = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────────
+// GET /api/users
+// Protected route - returns list of users in the same organization
+// Requires authMiddleware + checkRole
+// ─────────────────────────────────────────────
+const getUsers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT user_id, org_id, email, name, role, last_login, created_at FROM users WHERE org_id = $1 ORDER BY user_id ASC',
+      [req.orgId]
+    );
+    return res.status(200).json({ success: true, users: result.rows });
+  } catch (err) {
+    console.error('GetUsers error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error retrieving users.' });
+  }
+};
 
-module.exports = { register, login, getMe };
+// ─────────────────────────────────────────────
+// PUT /api/users/:id
+// Protected route - updates user information
+// Admins can update any user's name, email, or role.
+// Managers/Staff can only update their own profile and cannot change their role.
+// ─────────────────────────────────────────────
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, role } = req.body;
+
+  try {
+    const userCheck = await pool.query('SELECT * FROM users WHERE user_id = $1 AND org_id = $2', [id, req.orgId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found in your organization.' });
+    }
+
+    if (req.userRole !== 'Admin' && req.userId !== parseInt(id)) {
+      return res.status(403).json({ success: false, message: 'Access denied. You can only update your own profile.' });
+    }
+
+    let targetRole = userCheck.rows[0].role;
+    if (role && role !== userCheck.rows[0].role) {
+      if (req.userRole !== 'Admin') {
+        return res.status(403).json({ success: false, message: 'Access denied. Only Admins can change user roles.' });
+      }
+      const allowedRoles = ['Admin', 'Manager', 'Staff'];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({ success: false, message: `Invalid role. Must be one of: ${allowedRoles.join(', ')}` });
+      }
+      targetRole = role;
+    }
+
+    const updatedName = name !== undefined ? name : userCheck.rows[0].name;
+    const updatedEmail = email !== undefined ? email : userCheck.rows[0].email;
+
+    if (email && email !== userCheck.rows[0].email) {
+      const emailCheck = await pool.query('SELECT user_id FROM users WHERE email = $1 AND user_id != $2', [email, id]);
+      if (emailCheck.rows.length > 0) {
+        return res.status(409).json({ success: false, message: 'Email already registered.' });
+      }
+    }
+
+    const result = await pool.query(
+      `UPDATE users 
+       SET name = $1, email = $2, role = $3
+       WHERE user_id = $4 AND org_id = $5
+       RETURNING user_id, org_id, email, name, role, last_login, created_at`,
+      [updatedName, updatedEmail, targetRole, id, req.orgId]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'User updated successfully.',
+      user: result.rows[0],
+    });
+  } catch (err) {
+    console.error('UpdateUser error:', err.message);
+    return res.status(500).json({ success: false, message: 'Server error updating user.' });
+  }
+};
+
+module.exports = { register, login, getMe, getUsers, updateUser };
 

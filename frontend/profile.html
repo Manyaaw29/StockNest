@@ -208,7 +208,6 @@
         <label class="form-label">Upload Custom Image</label>
         <input type="file" id="localAvatarUpload" accept="image/*" class="form-input" style="padding:8px;">
       </div>
-
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
         <button class="btn btn--outline" onclick="closeModal('avatarModalBackdrop')">Cancel</button>
         <button class="btn btn--primary" id="btnSaveAvatarChoice">Apply Avatar</button>
@@ -270,18 +269,73 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Check Authentication & Load Profile from Backend
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      let userId = null;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/me', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const user = data.user;
+          userId = user.user_id;
+
+          // Split name into first and last name
+          const nameParts = user.name.split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+
+          // Populate DOM fields
+          document.getElementById('profFirstName').value = firstName;
+          document.getElementById('profLastName').value = lastName;
+          document.getElementById('profEmail').value = user.email;
+
+          // Populate Hero Elements
+          document.getElementById('heroNameText').textContent = user.name;
+          document.getElementById('heroEmailText').textContent = user.email;
+
+          // Update avatar initials
+          const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'U';
+          localStorage.setItem('sn_user_avatar_text', initials);
+
+          const avatarBox = document.getElementById('avatarPreviewText');
+          if (avatarBox) {
+            avatarBox.textContent = initials;
+          }
+        } else {
+          // Token expired or invalid
+          window.location.href = 'index.html';
+          return;
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        snToast('Failed to load profile from backend.', { title: 'Network Error', type: 'error' });
+      }
+
+      // Initialize UI elements
       updateAllAvatarsUI();
 
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const lastLoginEl = document.getElementById('lastLoginTime');
-      if(lastLoginEl) lastLoginEl.textContent = `Today, ${timeStr}`;
+      if (lastLoginEl) lastLoginEl.textContent = `Today, ${timeStr}`;
 
+      // Open Avatar Modal
       document.getElementById('btnOpenAvatarModal')?.addEventListener('click', () => {
         openModal('avatarModalBackdrop');
       });
 
+      // Handle custom file upload for profile avatar
       const fileInput = document.getElementById('localAvatarUpload');
       fileInput?.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -300,20 +354,56 @@
         }
       });
 
-      document.getElementById('proProfileForm')?.addEventListener('submit', (e) => {
+      // Save Form to Backend
+      document.getElementById('proProfileForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const f = document.getElementById('profFirstName').value;
-        const l = document.getElementById('profLastName').value;
-        const email = document.getElementById('profEmail').value;
+        const f = document.getElementById('profFirstName').value.trim();
+        const l = document.getElementById('profLastName').value.trim();
+        const email = document.getElementById('profEmail').value.trim();
+        const fullName = `${f} ${l}`.trim();
 
-        document.getElementById('heroNameText').textContent = `${f} ${l}`;
-        document.getElementById('heroEmailText').textContent = email;
-        const initials = `${f[0]}${l[0]}`.toUpperCase();
-        
-        localStorage.setItem('sn_user_avatar_text', initials);
-        updateAllAvatarsUI();
+        if (!userId) {
+          snToast('User context not found.', { title: 'Error', type: 'error' });
+          return;
+        }
 
-        snToast('Profile details updated!', { title: 'Saved', type: 'success' });
+        try {
+          const res = await fetch(`http://localhost:5000/api/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: fullName, email })
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            document.getElementById('heroNameText').textContent = fullName;
+            document.getElementById('heroEmailText').textContent = email;
+            
+            const initials = `${f[0] || ''}${l[0] || ''}`.toUpperCase() || 'U';
+            localStorage.setItem('sn_user_avatar_text', initials);
+            updateAllAvatarsUI();
+
+            // Sync localStorage cache
+            const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (userString) {
+              const cachedUser = JSON.parse(userString);
+              const updatedUser = { ...cachedUser, name: fullName, email };
+              if (localStorage.getItem('user')) localStorage.setItem('user', JSON.stringify(updatedUser));
+              if (sessionStorage.getItem('user')) sessionStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+
+            snToast('Profile details updated successfully!', { title: 'Saved', type: 'success' });
+          } else {
+            snToast(data.message || 'Failed to update profile.', { title: 'Save Failed', type: 'error' });
+          }
+        } catch (err) {
+          console.error('Error saving profile:', err);
+          snToast('Server error updating profile.', { title: 'Error', type: 'error' });
+        }
       });
     });
 
