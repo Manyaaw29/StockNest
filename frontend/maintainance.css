@@ -59,120 +59,7 @@ button {
   width: 100%;
 }
 
-/* ---------------- Sidebar ---------------- */
 
-.sidebar {
-  width: 256px;
-  flex-shrink: 0;
-  background: var(--sidebar-bg);
-  color: var(--sidebar-text);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 22px 16px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 6px 20px;
-}
-
-.brand-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: var(--accent-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.brand-text h1 {
-  font-size: 16px;
-  margin: 0;
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-}
-
-.brand-text span {
-  font-size: 11px;
-  color: var(--sidebar-text-dim);
-  letter-spacing: 0.4px;
-}
-
-.switch-location-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: var(--sidebar-bg-soft);
-  border: 1px solid var(--sidebar-border);
-  color: var(--sidebar-text);
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  margin-bottom: 18px;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.switch-location-btn:hover {
-  background: #232a48;
-  color: #fff;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13.5px;
-  color: var(--sidebar-text);
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.nav-item i {
-  width: 16px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.nav-item:hover {
-  background: var(--sidebar-bg-soft);
-  color: #fff;
-}
-
-.nav-item.active {
-  background: var(--accent-blue);
-  color: #fff;
-  font-weight: 600;
-}
-
-.sidebar-bottom {
-  border-top: 1px solid var(--sidebar-border);
-  padding-top: 14px;
-}
-
-.help-item {
-  color: var(--sidebar-text-dim);
-}
 
 /* ---------------- Main area ---------------- */
 
@@ -679,9 +566,6 @@ button {
 }
 
 @media (max-width: 720px) {
-  .sidebar {
-    display: none;
-  }
   .page-content {
     padding: 18px;
   }
