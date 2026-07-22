@@ -314,6 +314,16 @@
           if (avatarBox) {
             avatarBox.textContent = initials;
           }
+
+          // Update the colored preset options in the avatar modal
+          document.querySelectorAll('.avatar-preset-opt').forEach(el => {
+            el.textContent = initials;
+            const onclickAttr = el.getAttribute('onclick') || '';
+            const colorMatch = onclickAttr.match(/#(?:[0-9a-fA-F]{3,8})/);
+            if (colorMatch && colorMatch[0]) {
+              el.setAttribute('onclick', `selectPreset('${colorMatch[0]}', '${initials}')`);
+            }
+          });
         } else {
           // Token expired or invalid
           window.location.href = 'index.html';
