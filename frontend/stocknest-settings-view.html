@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="dashboard.css">
   <link rel="stylesheet" href="stocknest-settings-styles.css">
 </head>
@@ -15,30 +16,8 @@
   <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
   <div class="app-layout">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar__header">
-        <a href="dashboard.html" class="sidebar__brand">
-          <div class="sidebar__logo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          </div>
-          <div class="sidebar__brand-text">
-            <span class="sidebar__title">StockNest</span>
-            <span class="sidebar__subtitle">Workspace Inventory</span>
-          </div>
-        </a>
-      </div>
-      <nav class="sidebar__nav">
-        <ul class="sidebar__nav-list">
-          <li><button class="sidebar__nav-btn" onclick="window.location.href='dashboard.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button></li>
-          <li><button class="sidebar__nav-btn" onclick="window.location.href='inventory.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Inventory Management</span></button></li>
-          <!-- Profile (Settings ke thik UPAR) -->
-          <li><button class="sidebar__nav-btn" onclick="window.location.href='profile.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></button></li>
-          <!-- Settings Active -->
-          <li><button class="sidebar__nav-btn sidebar__nav-btn--active" onclick="window.location.href='stocknest-settings-view.html'"><svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></button></li>
-        </ul>
-      </nav>
-    </aside>
+    <!-- Sidebar Navigation Target -->
+    <aside id="sidebar-root" class="app-layout__sidebar"></aside>
 
     <div class="main-wrapper">
       <header class="topbar">
@@ -262,7 +241,13 @@
 
   <script src="sn_toast_module.js"></script>
   <script src="sn_common.js"></script>
-  <script>
+  <script type="module">
+    import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+    
+    // Render and initialize dynamic sidebar component
+    renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'settings' });
+    initSidebarNav(document.getElementById('sidebar-root'));
+
     let activeRowId = null;
     let activeMemberName = '';
     let memberCount = 3;
@@ -434,6 +419,11 @@
 
     function openModal(id) { document.getElementById(id)?.classList.add('is-open'); }
     function closeModal(id) { document.getElementById(id)?.classList.remove('is-open'); }
+
+    // Expose helpers globally for HTML inline handlers
+    window.openEditRoleModal = openEditRoleModal;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
   </script>
   <script src="global-nav.js"></script>
 </body>
