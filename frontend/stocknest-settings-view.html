@@ -133,11 +133,11 @@
                 <form id="formOrgSetup" style="margin-top:16px;">
                   <div class="form-group">
                     <label class="form-label">Branch / Building Name</label>
-                    <input class="form-input" type="text" value="HQ Tech Park — Floor 3 & 4" required>
+                    <input class="form-input" id="branchNameInput" type="text" value="HQ Tech Park — Floor 3 & 4" required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Location Address</label>
-                    <input class="form-input" type="text" value="120 Broadway, Suite 1000, New York" required>
+                    <input class="form-input" id="branchAddressInput" type="text" value="120 Broadway, Suite 1000, New York" required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Support Email</label>
@@ -165,10 +165,10 @@
 
                 <div class="form-group" style="margin-top:20px;">
                   <label class="form-label">Default Currency</label>
-                  <select class="form-select">
-                    <option>INR (₹)</option>
-                    <option selected>USD ($)</option>
-                    <option>EUR (€)</option>
+                  <select class="form-select" id="currencySelect">
+                    <option value="INR (₹)">INR (₹)</option>
+                    <option value="USD ($)" selected>USD ($)</option>
+                    <option value="EUR (€)">EUR (€)</option>
                   </select>
                 </div>
                 <button class="btn btn--primary" id="btnSaveConfig" style="margin-top:10px;">Save Preferences</button>
@@ -188,7 +188,7 @@
             </div>
           </div>
 
-          <!-- Right Column -->
+          <!-- Right Column (Dynamic Activity Log) -->
           <div>
             <div class="sn-card">
               <h2 class="sn-card__title">Recent Activity Log</h2>
@@ -264,7 +264,25 @@
   <script src="sn_common.js"></script>
   <script>
     let activeRowId = null;
+    let activeMemberName = '';
     let memberCount = 3;
+
+    // Helper function to append action to Recent Activity Log
+    function addActivityLog(text, icon = '⚙') {
+      const activityList = document.getElementById('activityList');
+      if (activityList) {
+        const newLogHtml = `
+          <div class="audit-item" style="animation: fadeIn 0.3s ease;">
+            <div class="audit-icon-circle">${icon}</div>
+            <div>
+              <div class="audit-text">${text}</div>
+              <div class="audit-time">Just now</div>
+            </div>
+          </div>
+        `;
+        activityList.insertAdjacentHTML('afterbegin', newLogHtml);
+      }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Tab Navigation
@@ -317,10 +335,14 @@
 
         closeModal('inviteModalBackdrop');
         snToast(`Member ${name} invited as ${role}!`, { title: 'Success', type: 'success' });
+        
+        // Dynamic Log Update
+        addActivityLog(`New member ${name} invited as ${role}.`, '＋');
+        
         document.getElementById('formInviteMember').reset();
       });
 
-      // 5. Submit Role Edit (Live Table Update)
+      // 5. Submit Role Edit (Live Table Update & Activity Log)
       document.getElementById('formEditRole')?.addEventListener('submit', (e) => {
         e.preventDefault();
         const newRole = document.getElementById('editRoleSelect').value;
@@ -338,9 +360,12 @@
 
         closeModal('editRoleModalBackdrop');
         snToast(`Member role updated to ${newRole}!`, { title: 'Role Updated', type: 'success' });
+
+        // Dynamic Log Update
+        addActivityLog(`${activeMemberName || 'Member'} role updated to ${newRole}.`, '⚙');
       });
 
-      // 6. CSV Export Download
+      // 6. CSV Export Download & Activity Log
       document.getElementById('btnExportCSV')?.addEventListener('click', () => {
         const csvContent = "data:text/csv;charset=utf-8,ID,Item Name,Category,Quantity,Status\n1,Ergonomic Chair,Furniture,45,In Stock\n2,Dell Monitor 27,Electronics,12,Low Stock\n3,USB-C Cables,Accessories,150,In Stock";
         const encodedUri = encodeURI(csvContent);
@@ -351,14 +376,17 @@
         link.click();
         document.body.removeChild(link);
         snToast('CSV file downloaded!', { title: 'Export Success', type: 'success' });
+
+        // Dynamic Log Update
+        addActivityLog('Inventory CSV report exported.', '✓');
       });
 
-      // 7. JSON Backup Download
+      // 7. JSON Backup Download & Activity Log
       document.getElementById('btnDownloadJSON')?.addEventListener('click', () => {
         const backupData = {
           workspace: "HQ Tech Park",
           exportDate: new Date().toISOString(),
-          usersCount: 3,
+          usersCount: memberCount,
           status: "Optimal"
         };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
@@ -369,21 +397,36 @@
         downloadAnchor.click();
         downloadAnchor.remove();
         snToast('JSON Backup downloaded!', { title: 'Backup Saved', type: 'success' });
+
+        // Dynamic Log Update
+        addActivityLog('Manual JSON data backup created.', '⚙');
       });
 
-      // Forms
+      // 8. Branch Profile Save & Activity Log
       document.getElementById('formOrgSetup')?.addEventListener('submit', (e) => {
         e.preventDefault();
+        const bName = document.getElementById('branchNameInput').value;
         snToast('Branch details saved!', { title: 'Saved', type: 'success' });
+
+        // Dynamic Log Update
+        addActivityLog(`Branch profile updated: ${bName}.`, '✓');
       });
 
+      // 9. Save Preferences (Threshold + Currency) & Activity Log
       document.getElementById('btnSaveConfig')?.addEventListener('click', () => {
+        const thresholdVal = document.getElementById('slideThreshold').value;
+        const currencyVal = document.getElementById('currencySelect').value;
+        
         snToast('Thresholds updated!', { title: 'Saved', type: 'success' });
+
+        // Dynamic Log Update
+        addActivityLog(`Low stock threshold set to ${thresholdVal} units (${currencyVal}).`, '⚙');
       });
     });
 
     function openEditRoleModal(rowId, name, currentRole) {
       activeRowId = rowId;
+      activeMemberName = name;
       document.getElementById('editRoleTitle').textContent = `Edit Role for ${name}`;
       document.getElementById('editRoleSelect').value = currentRole;
       openModal('editRoleModalBackdrop');
