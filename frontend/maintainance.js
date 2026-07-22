@@ -18,7 +18,9 @@ const BACKEND_URL = 'http://localhost:5000/api';
 
 // State
 let tickets = [];
-let assets = [];
+let rooms = [];
+let inventory = [];
+let currentCategory = 'Space';
 let activeTicketId = null;
 let activePriority = 'High';
 
@@ -45,28 +47,50 @@ function showToast(message, type = 'success') {
   setTimeout(() => toast.remove(), 3200);
 }
 
-// 1. Fetch Assets and Tickets from database
+// 1. Fetch Rooms, Inventory and Tickets from database
 async function loadData() {
   try {
-    // Fetch assets first (to resolve names/IDs in form submissions)
-    const assetsRes = await fetch(`${BACKEND_URL}/assets`, {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (assetsRes.ok) {
-      const assetsData = await assetsRes.json();
-      assets = assetsData.assets;
+    const [roomsRes, inventoryRes, ticketsRes] = await Promise.all([
+      fetch(`${BACKEND_URL}/rooms`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      }),
+      fetch(`${BACKEND_URL}/inventory`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      }),
+      fetch(`${BACKEND_URL}/maintenance`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+    ]);
+
+    if (roomsRes.ok) {
+      const roomsData = await roomsRes.json();
+      rooms = roomsData.rooms || [];
+      const spaceSelect = $('#reportSpaceSelect');
+      if (spaceSelect) {
+        spaceSelect.innerHTML = '<option value="">-- Choose Space --</option>' +
+          rooms.map(r => `<option value="${r.room_id}">${r.room_name} (${r.type} - Floor ${r.floor || 'N/A'})</option>`).join('');
+      }
     }
 
-    // Fetch maintenance tickets
-    const ticketsRes = await fetch(`${BACKEND_URL}/maintenance`, {
-      method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!ticketsRes.ok) throw new Error('Failed to load tickets from server.');
+    if (inventoryRes.ok) {
+      const invData = await inventoryRes.json();
+      inventory = invData.inventory || [];
+      const invSelect = $('#reportInventorySelect');
+      if (invSelect) {
+        invSelect.innerHTML = '<option value="">-- Choose Consumable --</option>' +
+          inventory.map(i => `<option value="${i.inventory_id}">${i.item_name} (Qty: ${i.quantity})</option>`).join('');
+      }
+    }
 
-    const ticketsData = await ticketsRes.json();
-    tickets = ticketsData.maintenance;
+    if (ticketsRes.ok) {
+      const ticketsData = await ticketsRes.json();
+      tickets = ticketsData.maintenance || [];
+    } else {
+      throw new Error('Failed to load tickets from server.');
+    }
 
     renderTable();
 
@@ -83,15 +107,15 @@ function getFilteredTickets() {
   if (ticketFilters.search) {
     const q = ticketFilters.search.toLowerCase();
     list = list.filter(t => {
-      const assetName = t.asset_name || '';
-      const assetCode = t.asset_id ? `AST-${String(t.asset_id).padStart(4, '0')}` : 'N/A';
-      const desc = t.description || '';
-      const priority = t.priority || '';
+      const targetName = (t.room_name || t.item_name || '').toLowerCase();
+      const desc = (t.description || '').toLowerCase();
+      const priority = (t.priority || '').toLowerCase();
+      const targetType = (t.room_id ? 'space' : (t.inventory_id ? 'consumable' : '')).toLowerCase();
       return (
-        assetName.toLowerCase().includes(q) ||
-        assetCode.toLowerCase().includes(q) ||
-        desc.toLowerCase().includes(q) ||
-        priority.toLowerCase().includes(q)
+        targetName.includes(q) ||
+        desc.includes(q) ||
+        priority.includes(q) ||
+        targetType.includes(q)
       );
     });
   }
@@ -110,8 +134,8 @@ function getFilteredTickets() {
   list.sort((a, b) => {
     let va, vb;
     if (sortKey === 'asset') {
-      va = a.asset_name || `Asset #${a.asset_id}`;
-      vb = b.asset_name || `Asset #${b.asset_id}`;
+      va = a.room_name || a.item_name || `Ticket #${a.request_id}`;
+      vb = b.room_name || b.item_name || `Ticket #${b.request_id}`;
     } else if (sortKey === 'priority') {
       const priorityWeight = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
       va = priorityWeight[a.priority] || 0;
@@ -121,7 +145,7 @@ function getFilteredTickets() {
       va = statusWeight[a.status] || 0;
       vb = statusWeight[b.status] || 0;
     } else {
-      // Default: deadline / date sorting
+      // Default: deadline sorting
       va = a.deadline ? new Date(a.deadline).getTime() : 0;
       vb = b.deadline ? new Date(b.deadline).getTime() : 0;
     }
@@ -137,7 +161,7 @@ function getFilteredTickets() {
   return list;
 }
 
-// 2. Render tickets to table
+// 2. Render tickets to table and update metrics
 function renderTable() {
   const tbody = $('#maintenanceTableBody');
   if (!tbody) return;
@@ -153,13 +177,14 @@ function renderTable() {
     tbody.innerHTML = `<tr><td colspan="5" class="text-muted" style="text-align:center;padding:32px">No matching maintenance tickets found.</td></tr>`;
     $('#paginationInfo').textContent = 'Showing 0 entries';
     renderPagination(totalPages);
+    updateOverviewStats();
     return;
   }
 
   tbody.innerHTML = pageItems.map(t => {
     const targetName = t.room_name || t.item_name || `Ticket #${t.request_id}`;
     const targetType = t.room_id ? 'Space' : (t.inventory_id ? 'Consumable' : 'General');
-    
+
     // Map status classes
     let statusClass = 'pending';
     if (t.status === 'In Progress') statusClass = 'scheduled';
@@ -200,12 +225,37 @@ function renderTable() {
       th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
     }
   });
+
+  updateOverviewStats();
+}
+
+function updateOverviewStats() {
+  const totalTickets = tickets.length;
+  const pendingTickets = tickets.filter(t => t.status === 'Pending' || t.status === 'In Progress').length;
+
+  let healthPct = 100;
+  if (rooms.length > 0) {
+    const roomsUnderMaint = tickets.filter(t => t.room_id && (t.status === 'Pending' || t.status === 'In Progress')).length;
+    healthPct = Math.max(0, 100 - Math.round((roomsUnderMaint / rooms.length) * 100));
+  } else if (pendingTickets > 0) {
+    healthPct = Math.max(0, 100 - pendingTickets * 10);
+  }
+
+  const elTotal = $('#statTotalTickets');
+  const elPending = $('#statPendingTickets');
+  const elPct = $('#healthPercentage');
+  const elFill = $('#healthBarFill');
+
+  if (elTotal) elTotal.textContent = totalTickets;
+  if (elPending) elPending.textContent = pendingTickets;
+  if (elPct) elPct.textContent = healthPct + '%';
+  if (elFill) elFill.style.width = healthPct + '%';
 }
 
 function renderPagination(totalPages) {
   const controls = $('#paginationControls');
   if (!controls) return;
-  
+
   let html = `<button type="button" class="page-btn" data-page="prev" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>`;
 
   for (let i = 1; i <= totalPages; i++) {
@@ -238,50 +288,61 @@ function initPrioritySelector() {
 
 // 4. Create Maintenance Ticket Form Submit
 async function submitTicket() {
-  const assetIdentifier = $('#reportAssetInput').value.trim();
   const description = $('#reportDescInput').value.trim();
 
-  if (!assetIdentifier || !description) {
-    showToast('Please fill in Asset ID/Name and Description', 'error');
+  if (!description) {
+    showToast('Please enter a description of the issue.', 'error');
     return;
   }
 
-  // Find matching asset
-  const matchedAsset = assets.find(a => 
-    a.name.toLowerCase().includes(assetIdentifier.toLowerCase()) ||
-    String(a.asset_id) === assetIdentifier ||
-    `AST-${String(a.asset_id).padStart(4, '0')}`.toLowerCase() === assetIdentifier.toLowerCase()
-  );
+  let body = {
+    priority: activePriority,
+    description: description
+  };
 
-  if (!matchedAsset) {
-    showToast(`Could not find an asset matching "${assetIdentifier}". Check the Asset Registry first.`, 'error');
-    return;
+  const deadlineDate = new Date();
+  if (activePriority === 'Critical') {
+    deadlineDate.setHours(deadlineDate.getHours() + 4);
+  } else if (activePriority === 'High') {
+    deadlineDate.setDate(deadlineDate.getDate() + 1);
+  } else {
+    deadlineDate.setDate(deadlineDate.getDate() + 5);
+  }
+  body.deadline = deadlineDate.toISOString().split('T')[0];
+
+  if (currentCategory === 'Space') {
+    const roomId = $('#reportSpaceSelect').value;
+    if (!roomId) {
+      showToast('Please select a space/room.', 'error');
+      return;
+    }
+    body.room_id = parseInt(roomId, 10);
+  } else {
+    const invId = $('#reportInventorySelect').value;
+    if (!invId) {
+      showToast('Please select a consumable item.', 'error');
+      return;
+    }
+    body.inventory_id = parseInt(invId, 10);
   }
 
   try {
-    const deadlineDate = new Date();
-    deadlineDate.setDate(deadlineDate.getDate() + 7); // 7 days deadline
-
     const response = await fetch(`${BACKEND_URL}/maintenance`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        asset_id: matchedAsset.asset_id,
-        priority: activePriority,
-        deadline: deadlineDate.toISOString().split('T')[0],
-        description: description
-      })
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to create ticket.');
 
-    showToast(`Ticket successfully submitted for ${matchedAsset.name}!`);
-    $('#reportAssetInput').value = '';
+    showToast(`Ticket successfully submitted!`);
     $('#reportDescInput').value = '';
+    if ($('#reportSpaceSelect')) $('#reportSpaceSelect').value = '';
+    if ($('#reportInventorySelect')) $('#reportInventorySelect').value = '';
     loadData(); // Refresh list
 
   } catch (err) {
@@ -396,18 +457,20 @@ function setupDropdownListeners() {
     if (!action) return;
 
     const lower = action.toLowerCase().trim();
+    const targetName = ticket.room_name || ticket.item_name || `Ticket #${ticket.request_id}`;
+
     if (lower === 'edit') {
-      $('#editAssetName').textContent = ticket.asset_name || `Asset #${ticket.asset_id}`;
+      $('#editAssetName').textContent = targetName;
       $('#editPriority').value = ticket.priority;
       $('#editStatus').value = ticket.status;
       $('#editDesc').value = ticket.description || '';
       openModal('editModal');
     } else if (lower === 'reschedule') {
-      $('#rescheduleAssetName').textContent = ticket.asset_name || `Asset #${ticket.asset_id}`;
+      $('#rescheduleAssetName').textContent = targetName;
       $('#rescheduleDate').value = ticket.deadline ? ticket.deadline.split('T')[0] : '';
       openModal('rescheduleModal');
     } else if (lower === 'delete') {
-      $('#deleteAssetName').textContent = ticket.asset_name || `Asset #${ticket.asset_id}`;
+      $('#deleteAssetName').textContent = targetName;
       openModal('deleteModal');
     } else {
       showToast('Invalid action selected.', 'error');
@@ -416,8 +479,9 @@ function setupDropdownListeners() {
 
   // Refresh Form Trigger
   $('#refreshBtn').addEventListener('click', () => {
-    $('#reportAssetInput').value = '';
     $('#reportDescInput').value = '';
+    if ($('#reportSpaceSelect')) $('#reportSpaceSelect').value = '';
+    if ($('#reportInventorySelect')) $('#reportInventorySelect').value = '';
     showToast('Form cleared.');
   });
 }
@@ -429,11 +493,11 @@ function exportToCSV() {
     return;
   }
 
-  const headers = ['Ticket ID', 'Asset ID', 'Asset Name', 'Priority', 'Deadline', 'Status', 'Created At'];
+  const headers = ['Ticket ID', 'Type', 'Target Name', 'Priority', 'Deadline', 'Status', 'Created At'];
   const rows = tickets.map(t => [
     t.request_id,
-    `AST-${String(t.asset_id).padStart(4, '0')}`,
-    t.asset_name || `Asset #${t.asset_id}`,
+    t.room_id ? 'Space' : 'Consumable',
+    t.room_name || t.item_name || 'N/A',
     t.priority,
     t.deadline ? new Date(t.deadline).toLocaleDateString() : 'N/A',
     t.status,
@@ -454,22 +518,6 @@ function exportToCSV() {
   document.body.removeChild(link);
 
   showToast('Maintenance log exported successfully (CSV)!');
-}
-
-function checkQueryParams() {
-  const params = new URLSearchParams(window.location.search);
-  const assetId = params.get('asset_id');
-  if (assetId) {
-    const reportAssetInput = $('#reportAssetInput');
-    if (reportAssetInput) {
-      reportAssetInput.value = assetId;
-      // Scroll to the report issue card
-      const section = $('.report-issue');
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }
 }
 
 function initQueryFilters() {
@@ -545,6 +593,29 @@ function initQueryFilters() {
   });
 }
 
+function initCategorySelectors() {
+  const btnSpace = $('#btnSelectSpace');
+  const btnInventory = $('#btnSelectInventory');
+  const groupSpace = $('#spaceSelectGroup');
+  const groupInventory = $('#inventorySelectGroup');
+
+  btnSpace?.addEventListener('click', () => {
+    btnSpace.classList.add('active');
+    btnInventory.classList.remove('active');
+    if (groupSpace) groupSpace.style.display = 'block';
+    if (groupInventory) groupInventory.style.display = 'none';
+    currentCategory = 'Space';
+  });
+
+  btnInventory?.addEventListener('click', () => {
+    btnInventory.classList.add('active');
+    btnSpace.classList.remove('active');
+    if (groupInventory) groupInventory.style.display = 'block';
+    if (groupSpace) groupSpace.style.display = 'none';
+    currentCategory = 'Consumable';
+  });
+}
+
 // Initialise App
 async function initApp() {
   renderSidebar($('#sidebar-root'), { activeItem: 'maintenance' });
@@ -552,6 +623,7 @@ async function initApp() {
   renderTopbar($('#topbar-root'), { searchPlaceholder: 'Search maintenance tickets...' });
   initTopbarEvents($('#topbar-root'));
 
+  initCategorySelectors();
   initPrioritySelector();
   setupModalEvents();
   setupDropdownListeners();
@@ -561,7 +633,6 @@ async function initApp() {
   $('#exportBtn').addEventListener('click', exportToCSV);
 
   await loadData();
-  checkQueryParams();
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

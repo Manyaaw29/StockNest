@@ -36,7 +36,6 @@
 
           <!-- Top Row split grid (Report Issue + Asset Health Overview) -->
           <div class="top-row-grid">
-
             <!-- Report Issue Card -->
             <section class="card report-issue">
               <div class="card-header">
@@ -44,8 +43,27 @@
                 <span class="refresh-icon" id="refreshBtn">🔄</span>
               </div>
 
-              <label class="field-label">Asset ID or Name</label>
-              <input type="text" class="text-input" id="reportAssetInput" placeholder="e.g. AST-0001 or Herman Miller">
+              <label class="field-label">Issue Category</label>
+              <div class="category-toggle-group">
+                <button type="button" class="toggle-btn active" id="btnSelectSpace" data-type="Space">🏢 Space (Room/Cabin)</button>
+                <button type="button" class="toggle-btn" id="btnSelectInventory" data-type="Consumable">📦 Consumable (Stock)</button>
+              </div>
+
+              <!-- Group for Space selection -->
+              <div id="spaceSelectGroup" class="selection-group">
+                <label class="field-label">Select Space / Room</label>
+                <select class="text-input" id="reportSpaceSelect">
+                  <option value="">-- Choose Space --</option>
+                </select>
+              </div>
+
+              <!-- Group for Inventory selection -->
+              <div id="inventorySelectGroup" class="selection-group" style="display: none;">
+                <label class="field-label">Select Consumable Item</label>
+                <select class="text-input" id="reportInventorySelect">
+                  <option value="">-- Choose Consumable --</option>
+                </select>
+              </div>
 
               <label class="field-label">Priority Level</label>
               <div class="priority-group" id="reportPriorityGroup">
@@ -61,47 +79,35 @@
               <button class="submit-btn" id="submitTicketBtn">▷ Submit Ticket</button>
             </section>
 
-            <!-- Asset Health Overview -->
+            <!-- Maintenance Health Overview -->
             <section class="card asset-health">
               <div class="card-header">
                 <div>
-                  <h2>Asset Health Overview</h2>
-                  <p class="subtext">Expected lifespan vs. current age across categories.</p>
+                  <h2>Maintenance Overview</h2>
+                  <p class="subtext">Real-time status metrics and statistics.</p>
                 </div>
               </div>
 
-              <div class="chart">
-                <div class="bar-wrap">
-                  <div class="bar">
-                    <div class="bar-fill blue" style="height:55%"></div>
-                    <div class="bar-fill blue-light" style="height:25%"></div>
-                  </div>
+              <div class="stats-container" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">
+                <div class="stat-box" style="background:rgba(47, 111, 237, 0.08);border-radius:12px;padding:16px;border:1px solid rgba(47, 111, 237, 0.15);text-align:center;">
+                  <div style="font-size:32px;font-weight:700;color:var(--accent-blue);" id="statTotalTickets">0</div>
+                  <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-top:4px;">Total Tickets</div>
                 </div>
-                <div class="bar-wrap">
-                  <div class="bar">
-                    <div class="bar-fill blue" style="height:20%"></div>
-                    <div class="bar-fill yellow" style="height:20%"></div>
-                  </div>
-                </div>
-                <div class="bar-wrap">
-                  <div class="bar">
-                    <div class="bar-fill blue" style="height:65%"></div>
-                    <div class="bar-fill blue-light" style="height:15%"></div>
-                  </div>
-                </div>
-                <div class="bar-wrap">
-                  <div class="bar">
-                    <div class="bar-fill pink" style="height:25%"></div>
-                  </div>
-                </div>
-                <div class="bar-wrap">
-                  <div class="bar">
-                    <div class="bar-fill blue" style="height:30%"></div>
-                    <div class="bar-fill blue-light" style="height:45%"></div>
-                  </div>
+                <div class="stat-box" style="background:rgba(239, 68, 68, 0.08);border-radius:12px;padding:16px;border:1px solid rgba(239, 68, 68, 0.15);text-align:center;">
+                  <div style="font-size:32px;font-weight:700;color:#ef4444;" id="statPendingTickets">0</div>
+                  <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-top:4px;">Pending / In Progress</div>
                 </div>
               </div>
-              <div class="chart-baseline"></div>
+              <div class="health-gauge" style="margin-top:28px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-main);">
+                  <span>Workspace Operational Health</span>
+                  <span id="healthPercentage" style="margin-left:auto;color:var(--accent-blue);">100%</span>
+                </div>
+                <div style="height:10px;background:#e5e7eb;border-radius:9999px;overflow:hidden;">
+                  <div id="healthBarFill" style="height:100%;width:100%;background:linear-gradient(90deg, #3b82f6, #10b981);border-radius:9999px;transition:width 0.4s ease-in-out;"></div>
+                </div>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Workspace is operational. Less than 20% spaces under maintenance.</p>
+              </div>
             </section>
 
           </div>

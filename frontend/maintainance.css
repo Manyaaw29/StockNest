@@ -997,3 +997,58 @@ th.sortable.sorted-desc .sort-indicator::after {
   cursor: not-allowed;
 }
 
+/* Category toggle selector buttons styling */
+.category-toggle-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.toggle-btn:hover {
+  background: var(--bg-page);
+  border-color: #cbd5e1;
+  color: var(--text-main);
+}
+
+.toggle-btn.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.2);
+}
+
+.selection-group {
+  margin-top: 10px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-box {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(20, 24, 43, 0.05);
+}
+
