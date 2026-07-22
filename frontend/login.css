@@ -106,6 +106,37 @@ button {
   margin-bottom: 0;
 }
 
+.login-card__logo-box {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card__logo-box::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(35deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  transform: rotate(45deg);
+}
+
+.login-card__logo-box svg {
+  width: 26px;
+  height: 26px;
+}
+
 .login-card__title {
   font-size: 48px;
   font-weight: 700;
