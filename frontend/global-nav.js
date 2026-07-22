@@ -41,5 +41,24 @@
         return;
       }
     }, true);
+
+    // Global Mobile Sidebar Toggle
+    const sidebarToggleBtn = document.getElementById('sidebarToggle') || document.querySelector('.topbar__menu-btn');
+    const sidebarRoot = document.getElementById('sidebar-root');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    if (sidebarToggleBtn && sidebarRoot) {
+      sidebarToggleBtn.addEventListener('click', () => {
+        sidebarRoot.classList.add('is-open');
+        if (sidebarOverlay) sidebarOverlay.classList.add('is-visible');
+      });
+    }
+
+    if (sidebarOverlay && sidebarRoot) {
+      sidebarOverlay.addEventListener('click', () => {
+        sidebarRoot.classList.remove('is-open');
+        sidebarOverlay.classList.remove('is-visible');
+      });
+    }
   });
 })();

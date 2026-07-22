@@ -741,14 +741,6 @@ a {
 }
 
 @media (max-width: 768px) {
-  .app-shell__main {
-    margin-left: 0;
-  }
-
-  .sidebar {
-    transform: translateX(-100%);
-  }
-
   .page-content {
     padding: 20px;
   }

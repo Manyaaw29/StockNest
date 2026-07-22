@@ -73,14 +73,6 @@ a:hover { text-decoration: underline; }
 
 
 
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 150;
-}
-
 /* ---- Topbar ---- */
 .topbar {
   position: sticky;
@@ -920,24 +912,6 @@ a:hover { text-decoration: underline; }
 }
 
 @media (max-width: 1024px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-
-  .sidebar.is-open {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay.is-visible {
-    display: block;
-  }
-
-  .sidebar__close { display: block; }
-
-  .main-wrapper { margin-left: 0; }
-
-  .topbar__menu-btn { display: block; }
-
   .topbar__search-kbd { display: none; }
 }
 

@@ -380,8 +380,6 @@ svg { display: block; }
 }
 
 @media (max-width: 860px) {
-  .app { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: relative; }
   .grid-top { grid-template-columns: 1fr; }
   .search { width: 200px; }
   #page-content { padding: 20px; }
