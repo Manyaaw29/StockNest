@@ -907,10 +907,28 @@ function showActionMenu(id, btn) {
     <button type="button" data-action="maintenance" style="color:#f59e0b;">Request Maintenance</button>
     ${isAdmin ? '<button type="button" data-action="delete" class="is-danger">Delete Item</button>' : ''}`;
 
-  const rect       = btn.getBoundingClientRect();
-  menu.style.top   = `${rect.bottom + window.scrollY + 4}px`;
-  menu.style.left  = `${Math.max(8, rect.left - 130)}px`;
-  menu.hidden      = false;
+  const rect = btn.getBoundingClientRect();
+
+  // Estimate menu height from button count (each ~36px + 12px padding)
+  const btnCount  = menu.querySelectorAll('button').length;
+  const menuH     = btnCount * 36 + 12;
+  const menuW     = 175;
+
+  // menu is position:fixed → use pure viewport coords (NO window.scrollY)
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  const top = (spaceBelow < menuH + 8 && spaceAbove >= menuH + 8)
+    ? rect.top - menuH - 4     // flip above
+    : rect.bottom + 4;         // open below (default)
+
+  // Clamp horizontally so it never goes off-screen right
+  const left = Math.max(8, Math.min(rect.right - menuW, window.innerWidth - menuW - 8));
+
+  menu.style.top        = `${top}px`;
+  menu.style.left       = `${left}px`;
+  menu.style.visibility = 'visible';
+  menu.hidden           = false;
 }
 
 // ─────────────────────────────────────────────
