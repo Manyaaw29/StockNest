@@ -1,22 +1,14 @@
 /**
- * StockNest — Inventory Management (Consumables) Page
+ * StockNest — Inventory Management (Consumables) Page (PostgreSQL Connected)
  */
 
 import { renderSidebar, initSidebarNav } from './components/sidebar.js';
 import { renderTopbar, initTopbarEvents } from './components/topbar.js';
 
 const PAGE_SIZE = 4;
-const CATEGORIES = ['Office Supplies', 'Stationery', 'Pantry', 'Cleaning'];
+const CATEGORIES = ['Office Supplies', 'Stationery', 'Pantry', 'Cleaning', 'General', 'Housekeeping', 'Kitchen'];
 
-let consumables = [
-  { id: 'PPR-A4-500', name: 'Premium Printer Paper, A4', category: 'Office Supplies', qty: 12, unit: 'Reams', minStock: 20, status: 'Low Stock', statusClass: 'status-pill--low', critical: false },
-  { id: 'WBM-BLK-004', name: 'Whiteboard Markers (Set of 4)', category: 'Stationery', qty: 45, unit: 'Boxes', minStock: 10, status: 'Healthy', statusClass: 'status-pill--healthy', critical: false },
-  { id: 'CFB-ESP-104', name: 'Coffee Beans (1kg)', category: 'Pantry', qty: 2, unit: 'kg', minStock: 5, status: 'Critical', statusClass: 'status-pill--critical', critical: true },
-  { id: 'TBG-HD-100', name: 'Trash Bags (Heavy Duty)', category: 'Cleaning', qty: 120, unit: 'Rolls', minStock: 50, status: 'Healthy', statusClass: 'status-pill--healthy', critical: false },
-  { id: 'INK-BLK-220', name: 'Printer Ink Cartridge (Black)', category: 'Office Supplies', qty: 8, unit: 'Units', minStock: 15, status: 'Low Stock', statusClass: 'status-pill--low', critical: false },
-  { id: 'NAP-2PLY-50', name: 'Napkins 2-Ply Pack', category: 'Pantry', qty: 65, unit: 'Packs', minStock: 30, status: 'Healthy', statusClass: 'status-pill--healthy', critical: false },
-];
-
+let consumables = [];
 let filters = { search: '', category: 'All', status: 'All' };
 let sortKey = 'name';
 let sortDir = 'asc';
@@ -33,19 +25,42 @@ function showToast(message, type = 'success') {
   setTimeout(() => toast.remove(), 3200);
 }
 
-function computeStatus(item) {
-  if (item.qty <= Math.floor(item.minStock * 0.5)) {
-    item.status = 'Critical';
-    item.statusClass = 'status-pill--critical';
-    item.critical = true;
-  } else if (item.qty < item.minStock) {
-    item.status = 'Low Stock';
-    item.statusClass = 'status-pill--low';
-    item.critical = false;
-  } else {
-    item.status = 'Healthy';
-    item.statusClass = 'status-pill--healthy';
-    item.critical = false;
+// ─────────────────────────────────────────────
+// Fetch inventory data from PostgreSQL
+// ─────────────────────────────────────────────
+async function loadData() {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  try {
+    const res = await fetch('http://localhost:5000/api/inventory', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const list = data.inventory || [];
+      consumables = list.map(item => {
+        let statusClass = 'status-pill--healthy';
+        if (item.status === 'Low Stock') statusClass = 'status-pill--low';
+        if (item.status === 'Out of Stock') statusClass = 'status-pill--critical';
+
+        return {
+          id: item.inventory_id, // Map database ID to id parameter
+          sku: item.sku,
+          name: item.item_name,
+          category: item.category,
+          qty: parseFloat(item.current_stock),
+          unit: item.unit || 'Units',
+          minStock: parseFloat(item.reorder_point),
+          status: item.status,
+          statusClass: statusClass,
+          critical: item.status === 'Out of Stock' || item.status === 'Low Stock'
+        };
+      });
+      renderTable();
+    } else {
+      showToast('Failed to load items from database.', 'error');
+    }
+  } catch (err) {
+    showToast('Connection error loading database.', 'error');
   }
 }
 
@@ -56,7 +71,7 @@ function getFilteredItems() {
     const q = filters.search.toLowerCase();
     list = list.filter((item) =>
       item.name.toLowerCase().includes(q) ||
-      item.id.toLowerCase().includes(q) ||
+      item.sku.toLowerCase().includes(q) ||
       item.category.toLowerCase().includes(q) ||
       item.status.toLowerCase().includes(q)
     );
@@ -84,7 +99,7 @@ function getFilteredItems() {
 
 function updateStatCards() {
   const active = consumables.length;
-  const low = consumables.filter((i) => i.status === 'Low Stock' || i.status === 'Critical').length;
+  const low = consumables.filter((i) => i.status === 'Low Stock' || i.status === 'Critical' || i.status === 'Out of Stock').length;
   const cards = document.querySelectorAll('.stat-card__value');
   if (cards[0]) cards[0].textContent = active;
   if (cards[3]) cards[3].textContent = low;
@@ -93,7 +108,7 @@ function updateStatCards() {
 function buildRow(item) {
   return `<tr class="${item.critical ? 'row--critical' : ''}" data-id="${item.id}">
     <td class="col-check"><input type="checkbox" class="row-check" data-id="${item.id}" /></td>
-    <td><div class="item-cell__name">${item.name}</div><div class="item-cell__sku">${item.id}</div></td>
+    <td><div class="item-cell__name">${item.name}</div><div class="item-cell__sku">${item.sku}</div></td>
     <td><span class="category-pill">${item.category}</span></td>
     <td><div class="stock-cell__qty">${item.qty} ${item.unit}</div><div class="stock-cell__min">Min: ${item.minStock}</div></td>
     <td><span class="status-pill ${item.statusClass}">${item.status}</span></td>
@@ -162,7 +177,7 @@ function closeModal() {
 function exportInventory() {
   const filtered = getFilteredItems();
   const headers = ['SKU', 'Name', 'Category', 'Quantity', 'Unit', 'Min Stock', 'Status'];
-  const rows = filtered.map((i) => [i.id, i.name, i.category, i.qty, i.unit, i.minStock, i.status]);
+  const rows = filtered.map((i) => [i.sku, i.name, i.category, i.qty, i.unit, i.minStock, i.status]);
   const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -181,23 +196,36 @@ function openImportModal() {
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="importConfirm">Import</button>`);
 
-  $('#importConfirm').addEventListener('click', () => {
+  $('#importConfirm').addEventListener('click', async () => {
     const lines = $('#importData').value.trim().split('\n').filter(Boolean);
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     let count = 0;
-    lines.forEach((line) => {
-      const [id, name, category, qty, unit, minStock] = line.split(',').map((s) => s.trim());
-      if (!id || !name || consumables.some((i) => i.id === id)) return;
-      const item = {
-        id, name, category: category || 'Office Supplies',
-        qty: parseInt(qty, 10) || 0, unit: unit || 'Units',
-        minStock: parseInt(minStock, 10) || 10, status: 'Healthy', statusClass: 'status-pill--healthy', critical: false,
-      };
-      computeStatus(item);
-      consumables.push(item);
-      count++;
-    });
+
+    for (const line of lines) {
+      const [sku, name, category, qty, unit, minStock] = line.split(',').map((s) => s.trim());
+      if (!sku || !name) continue;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/inventory', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            item_name: name,
+            sku,
+            category: category || 'General',
+            current_stock: parseInt(qty, 10) || 0,
+            reorder_point: parseInt(minStock, 10) || 10,
+            unit: unit || 'Units'
+          })
+        });
+        if (res.ok) count++;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     showToast(count ? `Imported ${count} item(s).` : 'No valid rows imported.', count ? 'success' : 'error');
-    renderTable();
+    await loadData();
     closeModal();
   });
 }
@@ -207,7 +235,7 @@ function openFilterModal() {
     <div class="modal-field"><label>Category</label>
       <select id="filterCategory"><option value="All">All</option>${CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('')}</select></div>
     <div class="modal-field"><label>Status</label>
-      <select id="filterStatus"><option value="All">All</option><option>Healthy</option><option>Low Stock</option><option>Critical</option></select></div>`,
+      <select id="filterStatus"><option value="All">All</option><option>In Stock</option><option>Low Stock</option><option>Out of Stock</option></select></div>`,
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--outline" id="resetFilterBtn">Reset</button>
      <button type="button" class="btn btn--primary" id="applyFilterBtn">Apply</button>`);
@@ -246,23 +274,44 @@ function openAddStockModal() {
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="saveStockBtn">Add Stock</button>`);
 
-  $('#saveStockBtn').addEventListener('click', () => {
+  $('#saveStockBtn').addEventListener('click', async () => {
     const name = $('#stockName').value.trim();
-    const id = $('#stockSku').value.trim();
-    if (!name || !id) { $('#stockError').textContent = 'Name and SKU are required.'; return; }
-    if (consumables.some((i) => i.id === id)) { $('#stockError').textContent = 'SKU already exists.'; return; }
-    const item = {
-      id, name, category: $('#stockCategory').value,
-      qty: parseInt($('#stockQty').value, 10) || 1,
-      unit: $('#stockUnit').value.trim() || 'Units',
-      minStock: parseInt($('#stockMin').value, 10) || 10,
-      status: 'Healthy', statusClass: 'status-pill--healthy', critical: false,
-    };
-    computeStatus(item);
-    consumables.unshift(item);
-    renderTable();
-    closeModal();
-    showToast(`Added stock: ${name}`);
+    const sku = $('#stockSku').value.trim();
+    const category = $('#stockCategory').value;
+    const qty = parseInt($('#stockQty').value, 10) || 1;
+    const unit = $('#stockUnit').value.trim() || 'Units';
+    const minStock = parseInt($('#stockMin').value, 10) || 10;
+    
+    if (!name || !sku) { $('#stockError').textContent = 'Name and SKU are required.'; return; }
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    try {
+      const res = await fetch('http://localhost:5000/api/inventory', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          item_name: name,
+          sku,
+          category,
+          current_stock: qty,
+          reorder_point: minStock,
+          unit
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Added stock: ${name}`);
+        closeModal();
+        await loadData();
+      } else {
+        $('#stockError').textContent = data.message || 'Failed to add item.';
+      }
+    } catch(err) {
+      $('#stockError').textContent = 'Connection error.';
+    }
   });
 }
 
@@ -272,7 +321,7 @@ function openAdjustModal(id, mode) {
   let adjustQty = 1;
 
   openModal(mode === 'remove' ? 'Remove Stock' : 'Adjust Stock', `
-    <p style="margin-bottom:12px;"><strong>${item.name}</strong> (${item.id})</p>
+    <p style="margin-bottom:12px;"><strong>${item.name}</strong> (${item.sku})</p>
     <p style="margin-bottom:12px;font-size:13px;color:#64748b;">Current: ${item.qty} ${item.unit}</p>
     <div class="qty-controls">
       <button type="button" id="qtyMinus">−</button>
@@ -287,16 +336,38 @@ function openAdjustModal(id, mode) {
   $('#qtyMinus').addEventListener('click', () => { if (adjustQty > 1) { adjustQty--; updateQty(); } });
   $('#qtyPlus').addEventListener('click', () => { adjustQty++; updateQty(); });
 
-  $('#confirmAdjust').addEventListener('click', () => {
+  $('#confirmAdjust').addEventListener('click', async () => {
     if (mode === 'remove' && item.qty - adjustQty < 0) {
       $('#adjustError').textContent = 'Cannot remove more than current stock.';
       return;
     }
-    item.qty = mode === 'remove' ? item.qty - adjustQty : item.qty + adjustQty;
-    computeStatus(item);
-    renderTable();
-    closeModal();
-    showToast(`${mode === 'remove' ? 'Removed' : 'Added'} ${adjustQty} ${item.unit} of ${item.name}.`);
+
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const adjustmentValue = mode === 'remove' ? -adjustQty : adjustQty;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/inventory/${id}/adjust`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          adjustment: adjustmentValue,
+          reason: mode === 'remove' ? 'Consumption' : 'Restock'
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`${mode === 'remove' ? 'Removed' : 'Added'} ${adjustQty} ${item.unit} of ${item.name}.`);
+        closeModal();
+        await loadData();
+      } else {
+        $('#adjustError').textContent = data.message || 'Failed to adjust stock.';
+      }
+    } catch(err) {
+      $('#adjustError').textContent = 'Connection error.';
+    }
   });
 }
 
@@ -311,14 +382,36 @@ function openEditModal(id) {
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="saveEditBtn">Save</button>`);
 
-  $('#saveEditBtn').addEventListener('click', () => {
-    item.name = $('#editName').value.trim() || item.name;
-    item.category = $('#editCategory').value;
-    item.minStock = parseInt($('#editMin').value, 10) || item.minStock;
-    computeStatus(item);
-    renderTable();
-    closeModal();
-    showToast(`Updated ${item.name}.`);
+  $('#saveEditBtn').addEventListener('click', async () => {
+    const name = $('#editName').value.trim();
+    const category = $('#editCategory').value;
+    const minStock = parseInt($('#editMin').value, 10);
+
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    try {
+      const res = await fetch(`http://localhost:5000/api/inventory/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          item_name: name || item.name,
+          category,
+          reorder_point: minStock !== undefined ? minStock : item.minStock
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Updated ${name || item.name}.`);
+        closeModal();
+        await loadData();
+      } else {
+        showToast(data.message || 'Failed to update item.', 'error');
+      }
+    } catch(err) {
+      showToast('Connection error.', 'error');
+    }
   });
 }
 
@@ -327,7 +420,7 @@ function openViewModal(id) {
   if (!item) return;
   openModal('Item Details', `
     <p><strong>Name:</strong> ${item.name}</p>
-    <p><strong>SKU:</strong> ${item.id}</p>
+    <p><strong>SKU:</strong> ${item.sku}</p>
     <p><strong>Category:</strong> ${item.category}</p>
     <p><strong>Stock:</strong> ${item.qty} ${item.unit}</p>
     <p><strong>Min Stock:</strong> ${item.minStock}</p>
@@ -338,14 +431,28 @@ function openViewModal(id) {
 function deleteItem(id) {
   const item = consumables.find((i) => i.id === id);
   if (!item) return;
-  openModal('Delete Item', `<p>Delete <strong>${item.name}</strong> (${item.id})?</p>`,
+  openModal('Delete Item', `<p>Delete <strong>${item.name}</strong> (${item.sku})?</p>`,
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="confirmDelete">Delete</button>`);
-  $('#confirmDelete').addEventListener('click', () => {
-    consumables = consumables.filter((i) => i.id !== id);
-    renderTable();
-    closeModal();
-    showToast(`Deleted ${item.name}.`, 'info');
+
+  $('#confirmDelete').addEventListener('click', async () => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    try {
+      const res = await fetch(`http://localhost:5000/api/inventory/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Deleted ${item.name}.`, 'info');
+        closeModal();
+        await loadData();
+      } else {
+        showToast(data.message || 'Failed to delete item.', 'error');
+      }
+    } catch(err) {
+      showToast('Connection error.', 'error');
+    }
   });
 }
 
@@ -414,7 +521,7 @@ function initEvents() {
     if (maintBtn) {
       e.stopPropagation();
       const itemId = maintBtn.dataset.id;
-      const item = consumables.find(c => c.id === itemId);
+      const item = consumables.find(c => c.id === parseInt(itemId, 10));
       if (item) {
         window.location.href = `maintainance.html?item_name=${encodeURIComponent(item.name)}`;
       }
@@ -424,7 +531,7 @@ function initEvents() {
     const btn = e.target.closest('[data-action-menu]');
     if (!btn) return;
     e.stopPropagation();
-    showActionMenu(btn.dataset.actionMenu, btn);
+    showActionMenu(parseInt(btn.dataset.actionMenu, 10), btn);
   });
 
   $('#actionMenu').addEventListener('click', (e) => {
@@ -440,7 +547,6 @@ function initEvents() {
     else if (action === 'maintenance') {
       const item = consumables.find(c => c.id === actionTargetId);
       if (item) {
-        // Route to maintenance page passing the item name to raise a query
         window.location.href = `maintainance.html?item_name=${encodeURIComponent(item.name)}`;
       }
     }
@@ -450,22 +556,44 @@ function initEvents() {
     showToast('Purchase order generated for Coffee Beans (CFB-ESP-104).');
   });
 
-  $('#registerForm').addEventListener('submit', (e) => {
+  // Register form database call
+  $('#registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('#itemName').value.trim();
     const category = $('#itemCategory').value;
     const minStock = parseInt($('#minStock').value, 10) || 10;
     if (!name) { showToast('Please enter an item name.', 'error'); return; }
-    const id = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
-    const item = {
-      id, name, category: category || 'Office Supplies', qty: minStock, unit: 'Units',
-      minStock, status: 'Healthy', statusClass: 'status-pill--healthy', critical: false,
-    };
-    computeStatus(item);
-    consumables.unshift(item);
-    renderTable();
-    e.target.reset();
-    showToast(`Registered: ${name}`);
+
+    const sku = 'SKU-' + Math.floor(1000 + Math.random() * 9000);
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    try {
+      const res = await fetch('http://localhost:5000/api/inventory', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          item_name: name,
+          sku,
+          category: category || 'General',
+          current_stock: minStock,
+          reorder_point: minStock,
+          unit: 'Units'
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Registered: ${name}`);
+        e.target.reset();
+        await loadData();
+      } else {
+        showToast(data.message || 'Failed to register consumable.', 'error');
+      }
+    } catch(err) {
+      showToast('Connection error.', 'error');
+    }
   });
 
   document.addEventListener('click', (e) => {
@@ -491,25 +619,24 @@ function initTopbarIntegration() {
 
   const quickAdd = topbarRoot?.querySelector('.topbar__quick-add');
   if (quickAdd) {
-    quickAdd.addEventListener('click', openAddStockModal);
-  }
-
-  const notifBtn = topbarRoot?.querySelector('.topbar__icon-btn--notifications');
-  if (notifBtn) {
-    notifBtn.addEventListener('click', () => {
-      showToast('14 low stock alerts require attention.', 'info');
+    // Redirection to the central modal
+    quickAdd.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.openQuickAddModal) window.openQuickAddModal();
+      else openAddStockModal();
     });
   }
 }
 
-function initApp() {
+async function initApp() {
   renderSidebar($('#sidebar-root'), { activeItem: 'inventory-management' });
   initSidebarNav($('#sidebar-root'));
   renderTopbar($('#topbar-root'), { searchPlaceholder: 'Search inventory, SKUs, or locations...' });
   initTopbarEvents($('#topbar-root'));
   initTopbarIntegration();
   initEvents();
-  renderTable();
+  
+  await loadData(); // Initial load from PostgreSQL
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
