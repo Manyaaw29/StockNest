@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
 const pool   = require('../config/db');
+const { sendWelcomeEmail, sendLoginAlertEmail } = require('../services/mailService');
 
 // ─────────────────────────────────────────────
 // Helper: generate JWT token
@@ -58,6 +59,9 @@ const register = async (req, res) => {
     const newUser = result.rows[0];
     const token   = generateToken(newUser);
 
+    // Trigger welcome email asynchronously
+    sendWelcomeEmail(newUser.email, newUser.name);
+
     return res.status(201).json({
       message: 'User registered successfully.',
       token,
@@ -109,6 +113,9 @@ const login = async (req, res) => {
     );
 
     const token = generateToken(user);
+
+    // Trigger security alert email on login
+    sendLoginAlertEmail(user.email, user.name);
 
     return res.status(200).json({
       message: 'Login successful.',
