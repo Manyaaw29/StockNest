@@ -51,18 +51,26 @@
 
               <!-- Group for Space selection -->
               <div id="spaceSelectGroup" class="selection-group">
-                <label class="field-label">Select Space / Room</label>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <label class="field-label" style="margin-bottom:0;">Select Space / Room</label>
+                  <button type="button" id="toggleSpaceInputMode" style="background:none; border:none; color:#3b82f6; font-size:11px; font-weight:700; cursor:pointer; outline:none; transition:all 0.2s; padding:0;">✍️ Type Custom Room</button>
+                </div>
                 <select class="text-input" id="reportSpaceSelect">
                   <option value="">-- Choose Space --</option>
                 </select>
+                <input type="text" class="text-input" id="reportSpaceCustomInput" placeholder="e.g. Server Room B" style="display: none; margin-bottom: 0;" />
               </div>
 
               <!-- Group for Inventory selection -->
               <div id="inventorySelectGroup" class="selection-group" style="display: none;">
-                <label class="field-label">Select Consumable Item</label>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <label class="field-label" style="margin-bottom:0;">Select Consumable Item</label>
+                  <button type="button" id="toggleInventoryInputMode" style="background:none; border:none; color:#3b82f6; font-size:11px; font-weight:700; cursor:pointer; outline:none; transition:all 0.2s; padding:0;">✍️ Type Custom Item</button>
+                </div>
                 <select class="text-input" id="reportInventorySelect">
                   <option value="">-- Choose Consumable --</option>
                 </select>
+                <input type="text" class="text-input" id="reportInventoryCustomInput" placeholder="e.g. Custom Printer Ink" style="display: none; margin-bottom: 0;" />
               </div>
 
               <label class="field-label">Priority Level</label>

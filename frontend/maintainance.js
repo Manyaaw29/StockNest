@@ -23,6 +23,8 @@ let inventory = [];
 let currentCategory = 'Space';
 let activeTicketId = null;
 let activePriority = 'High';
+let spaceInputMode = 'select'; // 'select' or 'custom'
+let inventoryInputMode = 'select'; // 'select' or 'custom'
 
 // Filters & Sorting & Pagination State
 let ticketFilters = { search: '', status: 'All', priority: 'All' };
@@ -182,8 +184,21 @@ function renderTable() {
   }
 
   tbody.innerHTML = pageItems.map(t => {
-    const targetName = t.room_name || t.item_name || `Ticket #${t.request_id}`;
-    const targetType = t.room_id ? 'Space' : (t.inventory_id ? 'Consumable' : 'General');
+    let targetName = t.room_name || t.item_name;
+    let targetType = t.room_id ? 'Space' : (t.inventory_id ? 'Consumable' : 'General');
+
+    if (!targetName && t.description) {
+      if (t.description.startsWith('[Custom Space: ')) {
+        targetType = 'Space (Custom)';
+        const endIdx = t.description.indexOf(']');
+        targetName = t.description.substring(15, endIdx);
+      } else if (t.description.startsWith('[Custom Item: ')) {
+        targetType = 'Consumable (Custom)';
+        const endIdx = t.description.indexOf(']');
+        targetName = t.description.substring(14, endIdx);
+      }
+    }
+    if (!targetName) targetName = `Ticket #${t.request_id}`;
 
     // Map status classes
     let statusClass = 'pending';
@@ -295,11 +310,10 @@ async function submitTicket() {
   }
 
   const issueType = $('#reportIssueType') ? $('#reportIssueType').value : 'General';
-  const description = `[${issueType}] ${rawDesc}`;
+  let description = `[${issueType}] ${rawDesc}`;
 
   let body = {
     priority: activePriority,
-    description: description
   };
 
   const deadlineDate = new Date();
@@ -313,20 +327,40 @@ async function submitTicket() {
   body.deadline = deadlineDate.toISOString().split('T')[0];
 
   if (currentCategory === 'Space') {
-    const roomId = $('#reportSpaceSelect').value;
-    if (!roomId) {
-      showToast('Please select a space/room.', 'error');
-      return;
+    if (spaceInputMode === 'select') {
+      const roomId = $('#reportSpaceSelect').value;
+      if (!roomId) {
+        showToast('Please select a space/room.', 'error');
+        return;
+      }
+      body.room_id = parseInt(roomId, 10);
+    } else {
+      const customRoom = $('#reportSpaceCustomInput').value.trim();
+      if (!customRoom) {
+        showToast('Please type a custom space name.', 'error');
+        return;
+      }
+      description = `[Custom Space: ${customRoom}] ${description}`;
     }
-    body.room_id = parseInt(roomId, 10);
   } else {
-    const invId = $('#reportInventorySelect').value;
-    if (!invId) {
-      showToast('Please select a consumable item.', 'error');
-      return;
+    if (inventoryInputMode === 'select') {
+      const invId = $('#reportInventorySelect').value;
+      if (!invId) {
+        showToast('Please select a consumable item.', 'error');
+        return;
+      }
+      body.inventory_id = parseInt(invId, 10);
+    } else {
+      const customItem = $('#reportInventoryCustomInput').value.trim();
+      if (!customItem) {
+        showToast('Please type a custom consumable item.', 'error');
+        return;
+      }
+      description = `[Custom Item: ${customItem}] ${description}`;
     }
-    body.inventory_id = parseInt(invId, 10);
   }
+
+  body.description = description;
 
   try {
     const response = await fetch(`${BACKEND_URL}/maintenance`, {
@@ -344,8 +378,12 @@ async function submitTicket() {
     showToast(`Ticket successfully submitted!`);
     $('#reportDescInput').value = '';
     if ($('#reportSpaceSelect')) $('#reportSpaceSelect').value = '';
+    if ($('#reportSpaceCustomInput')) $('#reportSpaceCustomInput').value = '';
     if ($('#reportInventorySelect')) $('#reportInventorySelect').value = '';
+    if ($('#reportInventoryCustomInput')) $('#reportInventoryCustomInput').value = '';
     if ($('#reportIssueType')) $('#reportIssueType').value = 'Hardware / Repair';
+    if (spaceInputMode === 'custom') $('#toggleSpaceInputMode').click();
+    if (inventoryInputMode === 'custom') $('#toggleInventoryInputMode').click();
     loadData(); // Refresh list
 
   } catch (err) {
@@ -634,6 +672,45 @@ async function initApp() {
 
   $('#submitTicketBtn').addEventListener('click', submitTicket);
   $('#exportBtn').addEventListener('click', exportToCSV);
+
+  // Toggle input modes between Select list and Custom writing
+  $('#toggleSpaceInputMode')?.addEventListener('click', () => {
+    const btn = $('#toggleSpaceInputMode');
+    const select = $('#reportSpaceSelect');
+    const customInput = $('#reportSpaceCustomInput');
+
+    if (spaceInputMode === 'select') {
+      spaceInputMode = 'custom';
+      btn.textContent = '📋 Choose from List';
+      select.style.display = 'none';
+      customInput.style.display = 'block';
+      customInput.focus();
+    } else {
+      spaceInputMode = 'select';
+      btn.textContent = '✍️ Type Custom Room';
+      select.style.display = 'block';
+      customInput.style.display = 'none';
+    }
+  });
+
+  $('#toggleInventoryInputMode')?.addEventListener('click', () => {
+    const btn = $('#toggleInventoryInputMode');
+    const select = $('#reportInventorySelect');
+    const customInput = $('#reportInventoryCustomInput');
+
+    if (inventoryInputMode === 'select') {
+      inventoryInputMode = 'custom';
+      btn.textContent = '📋 Choose from List';
+      select.style.display = 'none';
+      customInput.style.display = 'block';
+      customInput.focus();
+    } else {
+      inventoryInputMode = 'select';
+      btn.textContent = '✍️ Type Custom Item';
+      select.style.display = 'block';
+      customInput.style.display = 'none';
+    }
+  });
 
   await loadData();
 
