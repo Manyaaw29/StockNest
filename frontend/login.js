@@ -10,6 +10,9 @@
   const passwordInput   = document.getElementById('password');
   const passwordToggle  = document.getElementById('passwordToggle');
   const loginForm       = document.getElementById('loginForm');
+  const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5000'
+    : '';
 
   if (!passwordInput || !passwordToggle || !loginForm) {
     return;
@@ -68,7 +71,7 @@
       submitButton.disabled = true;
       submitButton.innerHTML = 'Logging in... <span class="btn-arrow" aria-hidden="true">→</span>';
 
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +79,12 @@
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        data = {};
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed. Please try again.');

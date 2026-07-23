@@ -12,47 +12,43 @@ const dbConfig = {
 };
 
 async function runSetup() {
+  const targetDb = process.env.DB_NAME || 'Stocknest';
+
   console.log('🔄 Connecting to PostgreSQL with config:', {
     host: dbConfig.host,
     port: dbConfig.port,
     user: dbConfig.user,
+    database: targetDb,
   });
 
-  // Step 1: Connect to default 'postgres' database to create the new database
-  const client = new Client({
+  const adminClient = new Client({
     ...dbConfig,
     database: 'postgres',
   });
 
   try {
-    await client.connect();
+    await adminClient.connect();
     console.log('✅ Connected to default PostgreSQL database.');
-  } catch (err) {
-    console.error('❌ Connection failed:', err.message);
-    console.log('\n💡 Please check if your PostgreSQL password is correct in the backend/.env file (DB_PASSWORD).');
-    process.exit(1);
-  }
 
-  const targetDb = process.env.DB_NAME || 'Stocknest';
+    const dbExistsResult = await adminClient.query(
+      `SELECT 1 FROM pg_database WHERE datname = $1`,
+      [targetDb]
+    );
 
-  try {
-    // Drop database if it exists to ensure a clean install
-    console.log(`🧹 Dropping existing database "${targetDb}" if it exists...`);
-    await client.query(`DROP DATABASE IF EXISTS "${targetDb}"`);
-
-    console.log(`🔨 Creating database "${targetDb}"...`);
-    await client.query(`CREATE DATABASE "${targetDb}"`);
-    console.log(`✅ Database "${targetDb}" created successfully.`);
+    if (dbExistsResult.rowCount === 0) {
+      console.log(`🔨 Creating database "${targetDb}"...`);
+      await adminClient.query(`CREATE DATABASE "${targetDb}"`);
+      console.log(`✅ Database "${targetDb}" created successfully.`);
+    } else {
+      console.log(`ℹ️ Database "${targetDb}" already exists. Using it.`);
+    }
   } catch (err) {
     console.error('❌ Error checking/creating database:', err.message);
-    await client.end();
     process.exit(1);
+  } finally {
+    await adminClient.end();
   }
 
-  await client.end();
-
-  // Step 2: Connect to the newly created database and run the schema
-  console.log(`🔄 Connecting to database "${targetDb}" to run schema...`);
   const dbClient = new Client({
     ...dbConfig,
     database: targetDb,
@@ -60,36 +56,63 @@ async function runSetup() {
 
   try {
     await dbClient.connect();
-    
-    // Read schema.sql
-    const schemaPath = path.join(__dirname, '../sql/schema.sql');
-    const sql = fs.readFileSync(schemaPath, 'utf8');
-    
-    console.log('🔨 Executing schema.sql queries...');
-    await dbClient.query(sql);
-    console.log('✅ Database tables and schema set up successfully!');
+    console.log(`🔄 Connected to database "${targetDb}".`);
 
-    console.log('🌱 Seeding database with initial data...');
-    // Insert organization
+    const schemaCheck = await dbClient.query(`
+      SELECT to_regclass('public.organization') AS organization_table,
+             to_regclass('public.users') AS users_table;
+    `);
+
+    const hasSchema = schemaCheck.rows[0].organization_table && schemaCheck.rows[0].users_table;
+
+    if (!hasSchema) {
+      const schemaPath = path.join(__dirname, '../sql/schema.sql');
+      const sql = fs.readFileSync(schemaPath, 'utf8');
+
+      console.log('🔨 Executing schema.sql queries...');
+      await dbClient.query(sql);
+      console.log('✅ Database tables and schema set up successfully!');
+    } else {
+      console.log('ℹ️ Schema already exists. Skipping initialization.');
+    }
+
+    console.log('🌱 Ensuring seed data exists...');
+
     const orgRes = await dbClient.query(
-      `INSERT INTO organization (name, subscription_tier) 
-       VALUES ('StockNest HQ', 'Premium') 
-       RETURNING org_id`
+      `SELECT org_id FROM organization ORDER BY org_id LIMIT 1`
     );
-    const orgId = orgRes.rows[0].org_id;
+    let orgId;
 
-    // Hash password for default admin
-    const passwordHash = await bcrypt.hash('admin123', 10);
-    
-    // Insert admin user
-    await dbClient.query(
-      `INSERT INTO users (org_id, email, password_hash, name, role) 
-       VALUES ($1, 'admin@stocknest.com', $2, 'Admin User', 'Admin')`,
-      [orgId, passwordHash]
+    if (orgRes.rows.length === 0) {
+      const insertOrg = await dbClient.query(
+        `INSERT INTO organization (name, subscription_tier)
+         VALUES ($1, $2)
+         RETURNING org_id`,
+        ['StockNest HQ', 'Premium']
+      );
+      orgId = insertOrg.rows[0].org_id;
+    } else {
+      orgId = orgRes.rows[0].org_id;
+    }
+
+    const adminUser = await dbClient.query(
+      `SELECT user_id FROM users WHERE email = $1`,
+      ['admin@stocknest.com']
     );
-    console.log('✅ Created default administrator:');
-    console.log('   - Email: admin@stocknest.com');
-    console.log('   - Password: admin123');
+
+    if (adminUser.rows.length === 0) {
+      const passwordHash = await bcrypt.hash('admin123', 10);
+      await dbClient.query(
+        `INSERT INTO users (org_id, email, password_hash, name, role)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [orgId, 'admin@stocknest.com', passwordHash, 'Admin User', 'Admin']
+      );
+      console.log('✅ Created default administrator:');
+      console.log('   - Email: admin@stocknest.com');
+      console.log('   - Password: admin123');
+    } else {
+      console.log('ℹ️ Default administrator already exists.');
+    }
   } catch (err) {
     console.error('❌ Error setting up database:', err.message);
   } finally {
