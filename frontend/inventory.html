@@ -183,7 +183,10 @@
                   </div>
 
                   <div class="register-form__field">
-                    <label for="itemCategory">Category</label>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                      <label for="itemCategory" style="margin-bottom:0;">Category</label>
+                      <button type="button" id="toggleCategoryInputMode" style="background:none; border:none; color:#3b82f6; font-size:11px; font-weight:700; cursor:pointer; outline:none; transition:all 0.2s; padding:0;">✍️ Type Custom</button>
+                    </div>
                     <select id="itemCategory">
                       <option value="">Select category</option>
                       <option value="Office Supplies">Office Supplies</option>
@@ -192,6 +195,7 @@
                       <option value="Cleaning">Cleaning</option>
                       <option value="Electronics">Electronics</option>
                     </select>
+                    <input type="text" class="text-input" id="itemCustomCategory" placeholder="e.g. Breakroom, Medical" style="display: none; width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; font-size: 13.5px; padding: 10px; outline: none;" />
                   </div>
 
                   <div class="register-form__field">

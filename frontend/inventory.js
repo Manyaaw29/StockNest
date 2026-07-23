@@ -23,6 +23,7 @@ let sortDir        = 'asc';
 let currentPage    = 1;
 let actionTargetId = null;
 let isLoading      = false;
+let categoryInputMode = 'select'; // 'select' or 'custom'
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
@@ -861,10 +862,18 @@ async function openAlertsModal() {
 async function submitRegisterForm(e) {
   e.preventDefault();
   const name     = $('#itemName').value.trim();
-  const category = $('#itemCategory').value;
+  
+  let category = '';
+  if (categoryInputMode === 'select') {
+    category = $('#itemCategory').value;
+  } else {
+    category = $('#itemCustomCategory').value.trim();
+  }
+
   const minStock = parseFloat($('#minStock').value) || 0;
 
   if (!name) { showToast('Please enter an item name.', 'error'); return; }
+  if (!category) { showToast('Please select or type a category.', 'error'); return; }
 
   const btn = e.target.querySelector('button[type="submit"]');
   const orig = btn.textContent;
@@ -874,12 +883,14 @@ async function submitRegisterForm(e) {
   try {
     await apiCreateItem({
       item_name:     name,
-      category:      category || 'General',
+      category:      category,
       reorder_point: minStock,
       unit:          'Units',
       current_stock: 0,
     });
     e.target.reset();
+    if (categoryInputMode === 'custom') $('#toggleCategoryInputMode').click();
+    $('#itemCustomCategory').value = '';
     showToast(`✅ Registered: "${name}"`);
     await apiFetchInventory();
   } catch (err) {
@@ -978,6 +989,25 @@ function initEvents() {
   $('#importBtn').addEventListener('click', openImportModal);
   $('#filterBtn').addEventListener('click', openFilterModal);
   $('#addStockBtn').addEventListener('click', openAddStockModal);
+
+  $('#toggleCategoryInputMode')?.addEventListener('click', () => {
+    const btn = $('#toggleCategoryInputMode');
+    const select = $('#itemCategory');
+    const customInput = $('#itemCustomCategory');
+
+    if (categoryInputMode === 'select') {
+      categoryInputMode = 'custom';
+      btn.textContent = '📋 Choose from List';
+      select.style.display = 'none';
+      customInput.style.display = 'block';
+      customInput.focus();
+    } else {
+      categoryInputMode = 'select';
+      btn.textContent = '✍️ Type Custom';
+      select.style.display = 'block';
+      customInput.style.display = 'none';
+    }
+  });
 
   // Notification bell → show alerts modal
   const notifBtn = document.querySelector('.topbar__icon-btn--notifications');
