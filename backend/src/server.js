@@ -50,7 +50,7 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'StockNest Backend is Running!' });
 });
 
-const PORT = process.env.SERVER_PORT || 5000;
+const PORT = process.env.PORT || process.env.SERVER_PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
 });
