@@ -425,7 +425,7 @@ const BACKEND_URL = 'http://localhost:5000/api';
     });
 
     $('#quickAddBtn')?.addEventListener('click', () => {
-      showToast('Quick Add will be available once booking API is connected.');
+      if (window.openQuickAddModal) window.openQuickAddModal();
     });
 
     $('#globalSearch')?.addEventListener('keydown', (e) => {

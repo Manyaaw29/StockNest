@@ -288,12 +288,14 @@ function initPrioritySelector() {
 
 // 4. Create Maintenance Ticket Form Submit
 async function submitTicket() {
-  const description = $('#reportDescInput').value.trim();
-
-  if (!description) {
+  const rawDesc = $('#reportDescInput').value.trim();
+  if (!rawDesc) {
     showToast('Please enter a description of the issue.', 'error');
     return;
   }
+
+  const issueType = $('#reportIssueType') ? $('#reportIssueType').value : 'General';
+  const description = `[${issueType}] ${rawDesc}`;
 
   let body = {
     priority: activePriority,
@@ -343,6 +345,7 @@ async function submitTicket() {
     $('#reportDescInput').value = '';
     if ($('#reportSpaceSelect')) $('#reportSpaceSelect').value = '';
     if ($('#reportInventorySelect')) $('#reportInventorySelect').value = '';
+    if ($('#reportIssueType')) $('#reportIssueType').value = 'Hardware / Repair';
     loadData(); // Refresh list
 
   } catch (err) {

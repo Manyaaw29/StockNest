@@ -282,7 +282,10 @@ window.SN = (function () {
       applyTypeUI("asset");
     }
 
-    trigger.addEventListener("click", openModal);
+    trigger.addEventListener("click", () => {
+      if (window.openQuickAddModal) window.openQuickAddModal();
+      else openModal();
+    });
     overlay.querySelector("#snQuickAddClose").addEventListener("click", closeModal);
     overlay.querySelector("#snQuickAddCancel").addEventListener("click", closeModal);
     overlay.addEventListener("click", (e) => {
