@@ -61,8 +61,8 @@ async function seedData() {
 
     for (const b of bookings) {
       await pool.query(
-        `INSERT INTO booking (user_id, room_id, booking_date, start_time, end_time, attendees, status, created_at)
-         VALUES ($1, $2, ${b[2]}, $3, $4, $5, $6, NOW() - INTERVAL '1 day')`,
+        `INSERT INTO booking (user_id, room_id, booking_date, start_time, end_time, attendees, status)
+         VALUES ($1, $2, ${b[2]}, $3, $4, $5, $6)`,
         [b[0], b[1], b[3], b[4], b[5], b[6]]
       );
     }
@@ -119,8 +119,8 @@ async function seedData() {
 
     for (const t of tickets) {
       await pool.query(
-        `INSERT INTO maintenance (asset_id, room_id, assigned_to, status, priority, cost, deadline, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, ${t[6]}, NOW() - INTERVAL '2 hours')`,
+        `INSERT INTO maintenance (asset_id, room_id, assigned_to, status, priority, cost, deadline)
+         VALUES ($1, $2, $3, $4, $5, $6, ${t[6]})`,
         [t[0], t[1], t[2], t[3], t[4], t[5]]
       );
     }

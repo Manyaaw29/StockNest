@@ -27,10 +27,29 @@ let isLoading      = false;
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
 // ─────────────────────────────────────────────
-// AUTH HELPER — get stored JWT
+// AUTH HELPER — get stored JWT + user
 // ─────────────────────────────────────────────
 function getToken() {
   return localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+}
+
+function getCurrentUser() {
+  try {
+    const raw = localStorage.getItem('user') || sessionStorage.getItem('user') || '{}';
+    return JSON.parse(raw);
+  } catch { return {}; }
+}
+
+function getUserRole() {
+  return getCurrentUser().role || 'Staff';
+}
+
+function canManageInventory() {
+  return ['Admin', 'Manager'].includes(getUserRole());
+}
+
+function canDeleteInventory() {
+  return getUserRole() === 'Admin';
 }
 
 function getAuthHeaders() {
@@ -41,9 +60,13 @@ function getAuthHeaders() {
 }
 
 function handleAuthError(status) {
-  if (status === 401 || status === 403) {
+  if (status === 401) {
     showToast('Session expired. Please log in again.', 'error');
     setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+    return true;
+  }
+  if (status === 403) {
+    showToast('⛔ Access denied. You need Admin or Manager permissions for this action.', 'error');
     return true;
   }
   return false;
@@ -873,13 +896,16 @@ async function submitRegisterForm(e) {
 function showActionMenu(id, btn) {
   actionTargetId = id;
   const menu = $('#actionMenu');
+  const isManager = canManageInventory();
+  const isAdmin   = canDeleteInventory();
+
   menu.innerHTML = `
     <button type="button" data-action="view">View Item</button>
-    <button type="button" data-action="edit">Edit Item</button>
-    <button type="button" data-action="add">Add Stock</button>
-    <button type="button" data-action="remove">Remove Stock</button>
+    ${isManager ? '<button type="button" data-action="edit">Edit Item</button>' : ''}
+    ${isManager ? '<button type="button" data-action="add">Add Stock</button>' : ''}
+    ${isManager ? '<button type="button" data-action="remove">Remove Stock</button>' : ''}
     <button type="button" data-action="maintenance" style="color:#f59e0b;">Request Maintenance</button>
-    <button type="button" data-action="delete" class="is-danger">Delete Item</button>`;
+    ${isAdmin ? '<button type="button" data-action="delete" class="is-danger">Delete Item</button>' : ''}`;
 
   const rect       = btn.getBoundingClientRect();
   menu.style.top   = `${rect.bottom + window.scrollY + 4}px`;
@@ -1079,6 +1105,42 @@ async function initApp() {
     setTimeout(() => { window.location.href = 'index.html'; }, 1500);
     return;
   }
+
+  // Role-based UI gating
+  const role = getUserRole();
+  const isManager = canManageInventory();
+
+  // Hide Add Stock button for Staff
+  const addBtn = $('#addStockBtn');
+  if (addBtn && !isManager) addBtn.style.display = 'none';
+
+  // Hide Import button for Staff
+  const importBtn = $('#importBtn');
+  if (importBtn && !isManager) importBtn.style.display = 'none';
+
+  // Hide Register form submit for Staff
+  const registerSubmit = document.querySelector('#registerForm button[type="submit"]');
+  if (registerSubmit && !isManager) {
+    registerSubmit.disabled = true;
+    registerSubmit.title    = 'Requires Admin or Manager role';
+    registerSubmit.style.opacity = '0.5';
+  }
+
+  // Show role badge in topbar area
+  const roleColors = { Admin: '#6366f1', Manager: '#f59e0b', Staff: '#22c55e' };
+  const roleBadge = document.createElement('span');
+  roleBadge.style.cssText = `
+    display:inline-flex;align-items:center;padding:3px 10px;
+    background:${roleColors[role] || '#64748b'}22;
+    color:${roleColors[role] || '#64748b'};
+    border:1px solid ${roleColors[role] || '#64748b'}44;
+    border-radius:20px;font-size:11px;font-weight:700;
+    margin-left:8px;letter-spacing:0.5px;
+  `;
+  roleBadge.textContent = role.toUpperCase();
+  const topbarRoot = $('#topbar-root');
+  const userAvatar = topbarRoot?.querySelector('.topbar__user, .topbar__avatar, [class*="topbar__user"]');
+  if (userAvatar) userAvatar.appendChild(roleBadge);
 
   // Load initial data
   showTableLoading();
