@@ -1,11 +1,23 @@
+const sgMail = require('@sendgrid/mail');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// Create transporter using Gmail credentials
-let transporter = null;
-const isConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+// ─────────────────────────────────────────────
+// 1. Initialize SendGrid if key is present
+// ─────────────────────────────────────────────
+let isSendGridConfigured = false;
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  isSendGridConfigured = true;
+  console.log('📧 SendGrid initialized successfully.');
+}
 
-if (isConfigured) {
+// ─────────────────────────────────────────────
+// 2. Initialize Nodemailer if credentials exist
+// ─────────────────────────────────────────────
+let transporter = null;
+const isNodemailerConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+if (isNodemailerConfigured) {
   transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE || 'gmail',
     auth: {
@@ -13,15 +25,18 @@ if (isConfigured) {
       pass: process.env.EMAIL_PASS
     }
   });
-  console.log('📧 Low Stock Alerts mailer initialized (Gmail SMTP).');
-} else {
-  console.warn('⚠️  Nodemailer: EMAIL_USER and EMAIL_PASS not set in .env. Outgoing low stock alerts will print to the console.');
+  console.log('📧 Nodemailer SMTP transporter active in low-stock alerts.');
+}
+
+if (!isSendGridConfigured && !isNodemailerConfigured) {
+  console.warn('⚠️  No active mail provider (SendGrid / Nodemailer) configured in .env. Alerts will print to console.');
 }
 
 /**
  * sendLowStockAlert
  * Sends a formatted HTML email when an inventory
  * item reaches Low Stock or Out of Stock status.
+ * Dynamically selects SendGrid or Nodemailer based on environment setup.
  */
 const sendLowStockAlert = async ({
   itemName,
@@ -109,22 +124,43 @@ const sendLowStockAlert = async ({
     </div>
   `;
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || '"StockNest Team" <no-reply@stocknest.io>',
-    to: toEmail,
-    subject: subject,
-    html: htmlBody,
-    text: `${subject}\n\nItem: ${itemName}${sku ? `\nSKU: ${sku}` : ''}\nCategory: ${category || 'General'}\nCurrent Stock: ${currentStock} ${unit || 'Units'}\nReorder Point: ${reorderPoint} ${unit || 'Units'}\nStatus: ${status}\n\nPlease initiate a purchase order immediately.\n\n— StockNest Automated Alerts`,
-  };
+  const textBody = `${subject}\n\nItem: ${itemName}${sku ? `\nSKU: ${sku}` : ''}\nCategory: ${category || 'General'}\nCurrent Stock: ${currentStock} ${unit || 'Units'}\nReorder Point: ${reorderPoint} ${unit || 'Units'}\nStatus: ${status}\n\nPlease initiate a purchase order immediately.\n\n— StockNest Automated Alerts`;
 
-  if (isConfigured && transporter) {
+  // 1. Try SendGrid first if configured
+  if (isSendGridConfigured) {
     try {
-      await transporter.sendMail(mailOptions);
-      console.log(`📧 Low stock alert email sent to ${toEmail} for item "${itemName}"`);
-    } catch (error) {
-      console.error('❌ Failed to send low stock alert email:', error.message);
+      const msg = {
+        to: toEmail,
+        from: process.env.SENDGRID_FROM_EMAIL || 'no-reply@stocknest.io',
+        subject,
+        html: htmlBody,
+        text: textBody
+      };
+      await sgMail.send(msg);
+      console.log(`📧 [SendGrid] Low stock alert email sent to ${toEmail} for item "${itemName}"`);
+      return;
+    } catch (err) {
+      console.error('❌ SendGrid failed, trying Nodemailer backup...', err.message);
     }
-  } else {
+  }
+
+  // 2. Fallback to Nodemailer if configured
+  if (isNodemailerConfigured && transporter) {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || '"StockNest Team" <no-reply@stocknest.io>',
+        to: toEmail,
+        subject,
+        html: htmlBody,
+        text: textBody
+      };
+      await transporter.sendMail(mailOptions);
+      console.log(`📧 [Nodemailer] Low stock alert email sent to ${toEmail} for item "${itemName}"`);
+    } catch (error) {
+      console.error('❌ Nodemailer failed to send low stock alert:', error.message);
+    }
+  } else if (!isSendGridConfigured) {
+    // 3. Fallback to console simulation
     console.log('\n--- 📧 SIMULATED LOW STOCK ALERT EMAIL ---');
     console.log(`To:      ${toEmail}`);
     console.log(`Subject: ${subject}`);
