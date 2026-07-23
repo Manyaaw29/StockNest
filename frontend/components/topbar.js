@@ -10,6 +10,36 @@
  * @param {{ userInitials?: string, userName?: string }} options
  */
 export function renderTopbar(container, { userInitials = 'NY', userName = 'Neha Yadav', searchPlaceholder = 'Search rooms, assets, or bookings (Cmd+K)' } = {}) {
+  // Fetch user initials and background styles dynamically from storage
+  const savedBg = localStorage.getItem('sn_user_avatar_bg');
+  const savedImg = localStorage.getItem('sn_user_avatar_img');
+  let initials = userInitials;
+
+  const savedText = localStorage.getItem('sn_user_avatar_text');
+  if (savedText) {
+    initials = savedText;
+  } else {
+    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.name) {
+          const parts = user.name.split(' ');
+          initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }
+
+  let avatarStyle = '';
+  if (savedImg) {
+    avatarStyle = `background-image: url(${savedImg}); background-size: cover; background-position: center;`;
+  } else if (savedBg) {
+    avatarStyle = `background-color: ${savedBg};`;
+  }
+
   container.innerHTML = `
     <header class="topbar" role="banner">
       <div class="topbar__search-wrap">
@@ -40,8 +70,8 @@ export function renderTopbar(container, { userInitials = 'NY', userName = 'Neha 
           Quick Add
         </button>
 
-        <button type="button" class="topbar__avatar" aria-label="User menu: ${userName}">
-          <span class="topbar__avatar-initials">${userInitials}</span>
+        <button type="button" class="topbar__avatar" style="${avatarStyle}" aria-label="User menu: ${userName}">
+          <span class="topbar__avatar-initials">${savedImg ? '' : initials}</span>
         </button>
       </div>
     </header>`;

@@ -28,13 +28,17 @@
         el.style.backgroundImage = `url(${savedImg})`;
         el.style.backgroundSize = 'cover';
         el.style.backgroundPosition = 'center';
-        el.textContent = '';
+        const initialsSpan = el.querySelector('.topbar__avatar-initials');
+        if (initialsSpan) initialsSpan.textContent = '';
+        else el.textContent = '';
       } else {
         el.style.backgroundImage = '';
         if (savedBg) {
           el.style.backgroundColor = savedBg;
         }
-        el.textContent = initials;
+        const initialsSpan = el.querySelector('.topbar__avatar-initials');
+        if (initialsSpan) initialsSpan.textContent = initials;
+        else el.textContent = initials;
       }
     });
   }
