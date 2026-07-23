@@ -126,6 +126,9 @@ const login = async (req, res) => {
         email:      user.email,
         role:       user.role,
         org_id:     user.org_id,
+        avatar_img: user.avatar_img,
+        avatar_bg:  user.avatar_bg,
+        avatar_text: user.avatar_text,
         last_login: user.last_login,
       },
     });
@@ -144,7 +147,7 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT user_id, name, email, role, org_id, last_login, created_at FROM users WHERE user_id = $1',
+      'SELECT user_id, name, email, role, org_id, avatar_img, avatar_bg, avatar_text, last_login, created_at FROM users WHERE user_id = $1',
     [req.userId]  // ✅ CORRECT - matches middleware
     );
     
@@ -168,7 +171,7 @@ const getMe = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT user_id, org_id, email, name, role, last_login, created_at FROM users WHERE org_id = $1 ORDER BY user_id ASC',
+      'SELECT user_id, org_id, email, name, role, avatar_img, avatar_bg, avatar_text, last_login, created_at FROM users WHERE org_id = $1 ORDER BY user_id ASC',
       [req.orgId]
     );
     return res.status(200).json({ success: true, users: result.rows });
@@ -186,7 +189,7 @@ const getUsers = async (req, res) => {
 // ─────────────────────────────────────────────
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, role } = req.body;
+  const { name, email, role, avatar_img, avatar_bg, avatar_text } = req.body;
 
   try {
     const userCheck = await pool.query('SELECT * FROM users WHERE user_id = $1 AND org_id = $2', [id, req.orgId]);
@@ -212,6 +215,9 @@ const updateUser = async (req, res) => {
 
     const updatedName = name !== undefined ? name : userCheck.rows[0].name;
     const updatedEmail = email !== undefined ? email : userCheck.rows[0].email;
+    const updatedAvatarImg = avatar_img !== undefined ? avatar_img : userCheck.rows[0].avatar_img;
+    const updatedAvatarBg = avatar_bg !== undefined ? avatar_bg : userCheck.rows[0].avatar_bg;
+    const updatedAvatarText = avatar_text !== undefined ? avatar_text : userCheck.rows[0].avatar_text;
 
     if (email && email !== userCheck.rows[0].email) {
       const emailCheck = await pool.query('SELECT user_id FROM users WHERE email = $1 AND user_id != $2', [email, id]);
@@ -222,10 +228,10 @@ const updateUser = async (req, res) => {
 
     const result = await pool.query(
       `UPDATE users 
-       SET name = $1, email = $2, role = $3
-       WHERE user_id = $4 AND org_id = $5
-       RETURNING user_id, org_id, email, name, role, last_login, created_at`,
-      [updatedName, updatedEmail, targetRole, id, req.orgId]
+       SET name = $1, email = $2, role = $3, avatar_img = $4, avatar_bg = $5, avatar_text = $6
+       WHERE user_id = $7 AND org_id = $8
+       RETURNING user_id, org_id, email, name, role, avatar_img, avatar_bg, avatar_text, last_login, created_at`,
+      [updatedName, updatedEmail, targetRole, updatedAvatarImg, updatedAvatarBg, updatedAvatarText, id, req.orgId]
     );
 
     return res.status(200).json({

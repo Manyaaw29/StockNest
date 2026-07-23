@@ -312,13 +312,29 @@
           document.getElementById('heroNameText').textContent = user.name;
           document.getElementById('heroEmailText').textContent = user.email;
 
-          // Update avatar initials
+          // Sync database avatar config into localStorage cache
           const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'U';
-          localStorage.setItem(`sn_user_avatar_text_${userId}`, initials);
+          if (user.avatar_img !== undefined && user.avatar_img !== null) {
+            localStorage.setItem(`sn_user_avatar_img_${userId}`, user.avatar_img);
+          } else {
+            localStorage.removeItem(`sn_user_avatar_img_${userId}`);
+          }
+
+          if (user.avatar_bg !== undefined && user.avatar_bg !== null) {
+            localStorage.setItem(`sn_user_avatar_bg_${userId}`, user.avatar_bg);
+          } else {
+            localStorage.removeItem(`sn_user_avatar_bg_${userId}`);
+          }
+
+          if (user.avatar_text !== undefined && user.avatar_text !== null) {
+            localStorage.setItem(`sn_user_avatar_text_${userId}`, user.avatar_text);
+          } else {
+            localStorage.setItem(`sn_user_avatar_text_${userId}`, initials);
+          }
 
           const avatarBox = document.getElementById('avatarPreviewText');
           if (avatarBox) {
-            avatarBox.textContent = initials;
+            avatarBox.textContent = user.avatar_text || initials;
           }
 
           // Update the colored preset options in the avatar modal
@@ -359,14 +375,27 @@
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function(evt) {
+          reader.onload = async function(evt) {
             const dataUrl = evt.target.result;
             localStorage.setItem(`sn_user_avatar_img_${userId}`, dataUrl);
             localStorage.removeItem(`sn_user_avatar_bg_${userId}`);
             
+            try {
+              await fetch(`http://localhost:5000/api/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ avatar_img: dataUrl, avatar_bg: null, avatar_text: null })
+              });
+            } catch(err) {
+              console.error('Failed to save avatar to PostgreSQL:', err);
+            }
+
             updateAllAvatarsUI();
             closeModal('avatarModalBackdrop');
-            snToast('Custom profile picture uploaded across all pages!', { title: 'Photo Updated', type: 'success' });
+            snToast('Custom profile picture uploaded and saved to database!', { title: 'Photo Updated', type: 'success' });
           };
           reader.readAsDataURL(file);
         }
@@ -425,7 +454,7 @@
       });
     });
 
-    function selectPreset(color, initials) {
+    async function selectPreset(color, initials) {
       document.querySelectorAll('.avatar-preset-opt').forEach(el=>el.classList.remove('is-selected'));
       event.target.classList.add('is-selected');
 
@@ -438,6 +467,19 @@
       localStorage.setItem(`sn_user_avatar_bg_${uId}`, color);
       localStorage.setItem(`sn_user_avatar_text_${uId}`, initials);
       localStorage.removeItem(`sn_user_avatar_img_${uId}`);
+
+      try {
+        await fetch(`http://localhost:5000/api/users/${uId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ avatar_img: null, avatar_bg: color, avatar_text: initials })
+        });
+      } catch(err) {
+        console.error('Failed to save preset selection to PostgreSQL:', err);
+      }
 
       updateAllAvatarsUI();
     }
