@@ -1021,7 +1021,7 @@ function initEvents() {
     const btn = e.target.closest('[data-action-menu]');
     if (!btn) return;
     e.stopPropagation();
-    showActionMenu(btn.dataset.actionMenu, btn);
+    showActionMenu(parseInt(btn.dataset.actionMenu, 10), btn);
   });
 
   // Action menu clicks
