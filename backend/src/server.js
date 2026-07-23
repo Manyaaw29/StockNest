@@ -26,6 +26,26 @@ app.use('/api/inventory',     inventoryRoutes);
 app.use('/api/rooms',         roomRoutes);
 app.use('/api/bookings',      bookingRoutes);
 
+app.get('/health', async (req, res) => {
+  const pool = require('./config/db');
+  try {
+    await pool.query('SELECT 1');
+    res.json({
+      status: 'UP',
+      database: 'CONNECTED',
+      server: 'HEALTHY',
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'DOWN',
+      database: 'DISCONNECTED',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 app.get('/api/test', (req, res) => {
     res.json({ message: 'StockNest Backend is Running!' });
 });
