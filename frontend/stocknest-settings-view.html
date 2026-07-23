@@ -28,7 +28,7 @@
         <div class="topbar__actions">
           <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
           <div class="topbar__dropdown-wrap">
-            <button class="topbar__avatar" type="button" onclick="window.location.href='profile.html'">JD</button>
+            <button class="topbar__avatar" type="button" onclick="window.location.href='profile.html'">NK</button>
           </div>
         </div>
       </header>
@@ -65,39 +65,7 @@
                       <tr><th>USER</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr>
                     </thead>
                     <tbody id="usersTbody">
-                      <tr id="user-row-0">
-                        <td>
-                          <div class="user-cell-wrap">
-                            <div class="user-avatar-badge" style="background:#2563eb;">JD</div>
-                            <div><strong>Jane Doe</strong><br><span style="color:#6b7280; font-size:12px;">jane.doe@stocknest.io</span></div>
-                          </div>
-                        </td>
-                        <td><span class="role-badge role-badge--admin" id="role-tag-0">Admin</span></td>
-                        <td><span class="status-dot-active">Active</span></td>
-                        <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-0', 'Jane Doe', 'Admin')">Edit</button></td>
-                      </tr>
-                      <tr id="user-row-1">
-                        <td>
-                          <div class="user-cell-wrap">
-                            <div class="user-avatar-badge" style="background:#eab308;">AS</div>
-                            <div><strong>Alex Smith</strong><br><span style="color:#6b7280; font-size:12px;">alex.smith@stocknest.io</span></div>
-                          </div>
-                        </td>
-                        <td><span class="role-badge role-badge--manager" id="role-tag-1">Manager</span></td>
-                        <td><span class="status-dot-active">Active</span></td>
-                        <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-1', 'Alex Smith', 'Manager')">Edit</button></td>
-                      </tr>
-                      <tr id="user-row-2">
-                        <td>
-                          <div class="user-cell-wrap">
-                            <div class="user-avatar-badge" style="background:#6b7280;">RJ</div>
-                            <div><strong>Robert Johnson</strong><br><span style="color:#6b7280; font-size:12px;">robert.j@stocknest.io</span></div>
-                          </div>
-                        </td>
-                        <td><span class="role-badge role-badge--staff" id="role-tag-2">Staff</span></td>
-                        <td><span class="status-dot-active">Active</span></td>
-                        <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-2', 'Robert Johnson', 'Staff')">Edit</button></td>
-                      </tr>
+                      <!-- Rendered dynamically via JavaScript below -->
                     </tbody>
                   </table>
                 </div>
@@ -112,15 +80,15 @@
                 <form id="formOrgSetup" style="margin-top:16px;">
                   <div class="form-group">
                     <label class="form-label">Branch / Building Name</label>
-                    <input class="form-input" id="branchNameInput" type="text" value="HQ Tech Park — Floor 3 & 4" required>
+                    <input class="form-input" id="branchNameInput" type="text" value="HQ Alpha — Floor 3 & 4" required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Location Address</label>
-                    <input class="form-input" id="branchAddressInput" type="text" value="120 Broadway, Suite 1000, New York" required>
+                    <input class="form-input" id="branchAddressInput" type="text" value="120 Tech Park Drive, Cyber City, India" required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Support Email</label>
-                    <input class="form-input" type="email" value="support@stocknest.io" required>
+                    <input class="form-input" type="email" value="support@stocknest.com" required>
                   </div>
                   <button class="btn btn--primary" type="submit" style="margin-top:10px;">Save Branch Details</button>
                 </form>
@@ -145,8 +113,8 @@
                 <div class="form-group" style="margin-top:20px;">
                   <label class="form-label">Default Currency</label>
                   <select class="form-select" id="currencySelect">
-                    <option value="INR (₹)">INR (₹)</option>
-                    <option value="USD ($)" selected>USD ($)</option>
+                    <option value="INR (₹)" selected>INR (₹)</option>
+                    <option value="USD ($)">USD ($)</option>
                     <option value="EUR (€)">EUR (€)</option>
                   </select>
                 </div>
@@ -172,9 +140,9 @@
             <div class="sn-card">
               <h2 class="sn-card__title">Recent Activity Log</h2>
               <div class="audit-list" id="activityList">
-                <div class="audit-item"><div class="audit-icon-circle">✓</div><div><div class="audit-text">Jane Doe updated branch address.</div><div class="audit-time">10 mins ago</div></div></div>
+                <div class="audit-item"><div class="audit-icon-circle">✓</div><div><div class="audit-text">Nikhil updated branch address.</div><div class="audit-time">10 mins ago</div></div></div>
                 <div class="audit-item"><div class="audit-icon-circle">⚙</div><div><div class="audit-text">Low stock threshold set to 15 units.</div><div class="audit-time">2 hours ago</div></div></div>
-                <div class="audit-item"><div class="audit-icon-circle">＋</div><div><div class="audit-text">New member Alex Smith invited.</div><div class="audit-time">Yesterday</div></div></div>
+                <div class="audit-item"><div class="audit-icon-circle">＋</div><div><div class="audit-text">New member Tanmay invited.</div><div class="audit-time">Yesterday</div></div></div>
               </div>
             </div>
           </div>
@@ -193,11 +161,11 @@
       <form id="formInviteMember">
         <div class="form-group">
           <label class="form-label">Member Full Name</label>
-          <input class="form-input" type="text" id="invName" placeholder="e.g. Nikhil Sharma" required>
+          <input class="form-input" type="text" id="invName" placeholder="e.g. Rahul Verma" required>
         </div>
         <div class="form-group">
           <label class="form-label">Email Address</label>
-          <input class="form-input" type="email" id="invEmail" placeholder="nikhil@stocknest.io" required>
+          <input class="form-input" type="email" id="invEmail" placeholder="rahul@stocknest.com" required>
         </div>
         <div class="form-group">
           <label class="form-label">Role</label>
@@ -248,9 +216,46 @@
     renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'settings' });
     initSidebarNav(document.getElementById('sidebar-root'));
 
+    // Real Users Array matching backend team members
+    const initialUsers = [
+      { name: 'Admin User', email: 'admin@stocknest.com', role: 'Admin', color: '#2563eb' },
+      { name: 'Anshika', email: 'anshikasehgal00@gmail.com', role: 'Admin', color: '#8b5cf6' },
+      { name: 'Angad', email: 'angad@stocknest.com', role: 'Manager', color: '#f59e0b' },
+      { name: 'Aashish', email: 'aashish@stocknest.com', role: 'Manager', color: '#06b6d4' },
+      { name: 'Neha', email: 'neha@stocknest.com', role: 'Staff', color: '#10b981' },
+      { name: 'Tanmay', email: 'tanmay@stocknest.com', role: 'Admin', color: '#ec4899' },
+      { name: 'Samaira', email: 'samaira@stocknest.com', role: 'Manager', color: '#6366f1' },
+      { name: 'Manya', email: 'manya@stocknest.com', role: 'Manager', color: '#f97316' },
+      { name: 'Anya', email: 'anya@stocknest.com', role: 'Admin', color: '#14b8a6' },
+      { name: 'Prashast', email: 'prashast@stocknest.com', role: 'Admin', color: '#84cc16' },
+      { name: 'Nikhil', email: 'nikhil@stocknest.com', role: 'Manager', color: '#2563eb' }
+    ];
+
     let activeRowId = null;
     let activeMemberName = '';
-    let memberCount = 3;
+    let memberCount = initialUsers.length;
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTbody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = initialUsers.map((u, idx) => {
+        const initials = u.name.split(' ').map(n=>n[0]).join('').toUpperCase();
+        return `
+          <tr id="user-row-${idx}">
+            <td>
+              <div class="user-cell-wrap">
+                <div class="user-avatar-badge" style="background:${u.color}; color:#fff; font-weight:600;">${initials}</div>
+                <div><strong>${u.name}</strong><br><span style="color:#6b7280; font-size:12px;">${u.email}</span></div>
+              </div>
+            </td>
+            <td><span class="role-badge role-badge--${u.role.toLowerCase()}">${u.role}</span></td>
+            <td><span class="status-dot-active">Active</span></td>
+            <td><button class="action-btn-trigger" onclick="openEditRoleModal('user-row-${idx}', '${u.name}', '${u.role}')">Edit</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
 
     // Helper function to append action to Recent Activity Log
     function addActivityLog(text, icon = '⚙') {
@@ -270,6 +275,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Render Table with Real Team Members
+      renderUsersTable();
+
       // 1. Tab Navigation
       const tabs = document.querySelectorAll('.sn-tab-pill');
       const sections = document.querySelectorAll('.tab-section');
@@ -303,17 +311,16 @@
 
         const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase() || 'NM';
         const newRowId = `user-row-${memberCount++}`;
-        const newRoleTagId = `role-tag-${memberCount}`;
 
         document.getElementById('usersTbody').innerHTML += `
           <tr id="${newRowId}">
             <td>
               <div class="user-cell-wrap">
-                <div class="user-avatar-badge" style="background:#10b981;">${initials}</div>
+                <div class="user-avatar-badge" style="background:#10b981; color:#fff; font-weight:600;">${initials}</div>
                 <div><strong>${name}</strong><br><span style="color:#6b7280; font-size:12px;">${email}</span></div>
               </div>
             </td>
-            <td><span class="role-badge role-badge--${role.toLowerCase()}" id="${newRoleTagId}">${role}</span></td>
+            <td><span class="role-badge role-badge--${role.toLowerCase()}">${role}</span></td>
             <td><span class="status-dot-active">Active</span></td>
             <td><button class="action-btn-trigger" onclick="openEditRoleModal('${newRowId}', '${name}', '${role}')">Edit</button></td>
           </tr>`;
@@ -369,7 +376,7 @@
       // 7. JSON Backup Download & Activity Log
       document.getElementById('btnDownloadJSON')?.addEventListener('click', () => {
         const backupData = {
-          workspace: "HQ Tech Park",
+          workspace: "HQ Alpha",
           exportDate: new Date().toISOString(),
           usersCount: memberCount,
           status: "Optimal"
