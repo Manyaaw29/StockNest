@@ -351,6 +351,7 @@ function showActionMenu(id, btn) {
     <button type="button" data-action="edit">Edit Item</button>
     <button type="button" data-action="add">Add Stock</button>
     <button type="button" data-action="remove">Remove Stock</button>
+    <button type="button" data-action="maintenance" style="color: #f59e0b;">Request Maintenance</button>
     <button type="button" data-action="delete" class="is-danger">Delete Item</button>`;
   const rect = btn.getBoundingClientRect();
   menu.style.top = `${rect.bottom + 4}px`;
@@ -419,6 +420,13 @@ function initEvents() {
     else if (action === 'add') openAdjustModal(actionTargetId, 'add');
     else if (action === 'remove') openAdjustModal(actionTargetId, 'remove');
     else if (action === 'delete') deleteItem(actionTargetId);
+    else if (action === 'maintenance') {
+      const item = consumables.find(c => c.id === actionTargetId);
+      if (item) {
+        // Route to maintenance page passing the item name to raise a query
+        window.location.href = `maintainance.html?item_name=${encodeURIComponent(item.name)}`;
+      }
+    }
   });
 
   $('#purchaseOrderBtn').addEventListener('click', () => {

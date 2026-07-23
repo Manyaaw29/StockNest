@@ -633,6 +633,42 @@ async function initApp() {
   $('#exportBtn').addEventListener('click', exportToCSV);
 
   await loadData();
+
+  // Check URL parameters for dynamic inventory pre-selection
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetItemName = urlParams.get('item_name');
+  if (targetItemName) {
+    // Switch select view to Consumables
+    const btnSpace = $('#btnSelectSpace');
+    const btnInventory = $('#btnSelectInventory');
+    const groupSpace = $('#spaceSelectGroup');
+    const groupInventory = $('#inventorySelectGroup');
+    
+    if (btnInventory && btnSpace) {
+      btnInventory.classList.add('active');
+      btnSpace.classList.remove('active');
+    }
+    if (groupInventory) groupInventory.style.display = 'block';
+    if (groupSpace) groupSpace.style.display = 'none';
+    currentCategory = 'Consumable';
+
+    // Select the matched option by substring match on item_name
+    const reportInventorySelect = $('#reportInventorySelect');
+    if (reportInventorySelect) {
+      const option = Array.from(reportInventorySelect.options).find(opt => 
+        opt.textContent.toLowerCase().includes(targetItemName.toLowerCase())
+      );
+      if (option) {
+        reportInventorySelect.value = option.value;
+      }
+    }
+    
+    // Smooth scroll down to the request ticket card
+    const ticketCard = document.querySelector('.raise-ticket');
+    if (ticketCard) {
+      ticketCard.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

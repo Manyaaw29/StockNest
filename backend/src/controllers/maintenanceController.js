@@ -2,12 +2,13 @@ const pool = require('../config/db');
 
 // ═══════════════════════════════════════════════════════
 // MAINTENANCE CONTROLLER
-// Handles maintenance tickets for rooms/spaces and inventory.
+// Handles CRUD operations for service requests. Integrates with
+// PostgreSQL to automate Space Status Sync and authorize Admin actions.
 // ═══════════════════════════════════════════════════════
 
 // ─────────────────────────────────────────────
 // GET /api/maintenance
-// Returns all maintenance requests for the user's org
+// Viva Tip: Retrieves all tickets belonging to the logged-in user's organization
 // ─────────────────────────────────────────────
 const getMaintenance = async (req, res) => {
   try {
@@ -87,7 +88,7 @@ const createMaintenance = async (req, res) => {
   }
 
   try {
-    // Validate room ownership
+    // Viva Tip: Verify the user owns the space before letting them submit a ticket
     if (room_id) {
       const roomCheck = await pool.query(
         'SELECT room_id FROM room WHERE room_id = $1 AND org_id = $2',
@@ -126,7 +127,7 @@ const createMaintenance = async (req, res) => {
 
     const ticket = result.rows[0];
 
-    // Status sync: set room status to 'Under Maintenance'
+    // Viva Tip [AUTOMATED TRIGGER]: Mark the space 'Under Maintenance' immediately in the database
     if (room_id) {
       await pool.query(
         `UPDATE room SET status = 'Under Maintenance' WHERE room_id = $1`,
@@ -262,7 +263,7 @@ const deleteMaintenance = async (req, res) => {
 
     await pool.query('DELETE FROM maintenance WHERE request_id = $1', [id]);
 
-    // Restore room status if no other open tickets remain
+    // Viva Tip [AUTOMATED TRIGGER]: When ticket is deleted, check if any other open tickets remain. If none, restore Space to 'Available'
     if (row.room_id) {
       const otherCheck = await pool.query(
         `SELECT request_id FROM maintenance 
