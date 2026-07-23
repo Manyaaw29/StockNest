@@ -119,9 +119,15 @@ export function renderSidebar(container, { activeItem, location = 'HQ Alpha' } =
   }
 
   // Load avatar styling variables if set in global-nav or profile
-  const savedBg = localStorage.getItem('sn_user_avatar_bg');
-  const savedImg = localStorage.getItem('sn_user_avatar_img');
-  const savedText = localStorage.getItem('sn_user_avatar_text');
+  let userId = 'default';
+  if (cachedUserStr) {
+    try {
+      userId = JSON.parse(cachedUserStr).user_id || 'default';
+    } catch(e) {}
+  }
+  const savedBg = localStorage.getItem(`sn_user_avatar_bg_${userId}`);
+  const savedImg = localStorage.getItem(`sn_user_avatar_img_${userId}`);
+  const savedText = localStorage.getItem(`sn_user_avatar_text_${userId}`);
   if (savedBg) userAvatarBg = savedBg;
   if (savedText) initials = savedText;
   if (savedImg) userAvatarImg = savedImg;

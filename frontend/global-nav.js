@@ -1,15 +1,14 @@
 // StockNest Global Avatar Sync & Nav Interceptor
 (function () {
   function syncAvatarFromStorage() {
-    const savedBg = localStorage.getItem('sn_user_avatar_bg');
-    const savedImg = localStorage.getItem('sn_user_avatar_img');
-    
     // Fetch user name and compute initials
     let initials = 'U';
+    let userId = 'default';
     const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
+        if (user.user_id) userId = user.user_id;
         if (user.name) {
           const parts = user.name.split(' ');
           initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
@@ -18,9 +17,12 @@
         console.error(e);
       }
     }
+
+    const savedBg = localStorage.getItem(`sn_user_avatar_bg_${userId}`);
+    const savedImg = localStorage.getItem(`sn_user_avatar_img_${userId}`);
     
     // Fallback to explicit saved text if set
-    const savedText = localStorage.getItem('sn_user_avatar_text');
+    const savedText = localStorage.getItem(`sn_user_avatar_text_${userId}`);
     if (savedText) initials = savedText;
 
     document.querySelectorAll('.topbar__avatar, #profileBtn, #mainHeaderAvatar, .user-avatar-badge').forEach(el => {

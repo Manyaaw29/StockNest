@@ -11,27 +11,27 @@
  */
 export function renderTopbar(container, { userInitials = 'NY', userName = 'Neha Yadav', searchPlaceholder = 'Search rooms, assets, or bookings (Cmd+K)' } = {}) {
   // Fetch user initials and background styles dynamically from storage
-  const savedBg = localStorage.getItem('sn_user_avatar_bg');
-  const savedImg = localStorage.getItem('sn_user_avatar_img');
   let initials = userInitials;
+  let userId = 'default';
 
-  const savedText = localStorage.getItem('sn_user_avatar_text');
-  if (savedText) {
-    initials = savedText;
-  } else {
-    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        if (user.name) {
-          const parts = user.name.split(' ');
-          initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
-        }
-      } catch (e) {
-        console.error(e);
+  const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user.user_id) userId = user.user_id;
+      if (user.name) {
+        const parts = user.name.split(' ');
+        initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
       }
+    } catch (e) {
+      console.error(e);
     }
   }
+
+  const savedBg = localStorage.getItem(`sn_user_avatar_bg_${userId}`);
+  const savedImg = localStorage.getItem(`sn_user_avatar_img_${userId}`);
+  const savedText = localStorage.getItem(`sn_user_avatar_text_${userId}`);
+  if (savedText) initials = savedText;
 
   let avatarStyle = '';
   if (savedImg) {

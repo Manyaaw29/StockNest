@@ -253,9 +253,15 @@
     }
 
     function updateAllAvatarsUI() {
-      const savedBg = localStorage.getItem('sn_user_avatar_bg');
-      const savedImg = localStorage.getItem('sn_user_avatar_img');
-      const savedText = localStorage.getItem('sn_user_avatar_text') || 'JD';
+      const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+      let uId = 'default';
+      if (userStr) {
+        try { uId = JSON.parse(userStr).user_id || 'default'; } catch(e) {}
+      }
+
+      const savedBg = localStorage.getItem(`sn_user_avatar_bg_${uId}`);
+      const savedImg = localStorage.getItem(`sn_user_avatar_img_${uId}`);
+      const savedText = localStorage.getItem(`sn_user_avatar_text_${uId}`) || 'JD';
 
       document.querySelectorAll('.global-header-avatar, .topbar__avatar').forEach(el => {
         if (savedImg) {
@@ -308,7 +314,7 @@
 
           // Update avatar initials
           const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'U';
-          localStorage.setItem('sn_user_avatar_text', initials);
+          localStorage.setItem(`sn_user_avatar_text_${userId}`, initials);
 
           const avatarBox = document.getElementById('avatarPreviewText');
           if (avatarBox) {
@@ -355,8 +361,8 @@
           const reader = new FileReader();
           reader.onload = function(evt) {
             const dataUrl = evt.target.result;
-            localStorage.setItem('sn_user_avatar_img', dataUrl);
-            localStorage.removeItem('sn_user_avatar_bg');
+            localStorage.setItem(`sn_user_avatar_img_${userId}`, dataUrl);
+            localStorage.removeItem(`sn_user_avatar_bg_${userId}`);
             
             updateAllAvatarsUI();
             closeModal('avatarModalBackdrop');
@@ -396,7 +402,7 @@
             document.getElementById('heroEmailText').textContent = email;
             
             const initials = `${f[0] || ''}${l[0] || ''}`.toUpperCase() || 'U';
-            localStorage.setItem('sn_user_avatar_text', initials);
+            localStorage.setItem(`sn_user_avatar_text_${userId}`, initials);
             updateAllAvatarsUI();
 
             // Sync localStorage cache
@@ -423,9 +429,15 @@
       document.querySelectorAll('.avatar-preset-opt').forEach(el=>el.classList.remove('is-selected'));
       event.target.classList.add('is-selected');
 
-      localStorage.setItem('sn_user_avatar_bg', color);
-      localStorage.setItem('sn_user_avatar_text', initials);
-      localStorage.removeItem('sn_user_avatar_img');
+      const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+      let uId = 'default';
+      if (userStr) {
+        try { uId = JSON.parse(userStr).user_id || 'default'; } catch(e) {}
+      }
+
+      localStorage.setItem(`sn_user_avatar_bg_${uId}`, color);
+      localStorage.setItem(`sn_user_avatar_text_${uId}`, initials);
+      localStorage.removeItem(`sn_user_avatar_img_${uId}`);
 
       updateAllAvatarsUI();
     }
