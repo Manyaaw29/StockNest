@@ -97,7 +97,13 @@ function buildRow(item) {
     <td><span class="category-pill">${item.category}</span></td>
     <td><div class="stock-cell__qty">${item.qty} ${item.unit}</div><div class="stock-cell__min">Min: ${item.minStock}</div></td>
     <td><span class="status-pill ${item.statusClass}">${item.status}</span></td>
-    <td class="col-actions"><button type="button" class="row-action-btn" data-action-menu="${item.id}" aria-label="Actions">⋮</button></td>
+    <td class="col-actions" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+      <button type="button" class="row-maintenance-direct-btn" data-id="${item.id}" title="Request Maintenance for ${item.name}" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.18);color:#d97706;padding:4px 8px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;transition:all 0.2s ease;outline:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;stroke-width:2.5;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Fix
+      </button>
+      <button type="button" class="row-action-btn" data-action-menu="${item.id}" aria-label="Actions" style="padding:4px 4px;">⋮</button>
+    </td>
   </tr>`;
 }
 
@@ -404,6 +410,17 @@ function initEvents() {
   });
 
   $('#consumablesBody').addEventListener('click', (e) => {
+    const maintBtn = e.target.closest('.row-maintenance-direct-btn');
+    if (maintBtn) {
+      e.stopPropagation();
+      const itemId = maintBtn.dataset.id;
+      const item = consumables.find(c => c.id === itemId);
+      if (item) {
+        window.location.href = `maintainance.html?item_name=${encodeURIComponent(item.name)}`;
+      }
+      return;
+    }
+
     const btn = e.target.closest('[data-action-menu]');
     if (!btn) return;
     e.stopPropagation();

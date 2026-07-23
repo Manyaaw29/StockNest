@@ -326,7 +326,7 @@
   margin-top: 4px;
 }
 
-.col-actions { width: 56px; text-align: center; }
+.col-actions { width: 110px; text-align: center; }
 
 .row-action-btn {
   color: var(--color-text-muted);
