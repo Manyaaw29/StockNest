@@ -6,7 +6,7 @@ import { renderSidebar, initSidebarNav } from './components/sidebar.js';
 import { renderTopbar, initTopbarEvents } from './components/topbar.js';
 
 const PAGE_SIZE = 4;
-const CATEGORIES = ['Office Supplies', 'Stationery', 'Pantry', 'Cleaning', 'General', 'Housekeeping', 'Kitchen'];
+const CATEGORIES = ['Office Supplies', 'Stationery', 'Pantry', 'Cleaning', 'General', 'Housekeeping', 'Kitchen', 'Electronics'];
 
 let consumables = [];
 let filters = { search: '', category: 'All', status: 'All' };
