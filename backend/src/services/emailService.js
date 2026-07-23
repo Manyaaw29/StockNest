@@ -1,31 +1,28 @@
-const sgMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// ─────────────────────────────────────────────
-// Initialize SendGrid with API key from .env
-// ─────────────────────────────────────────────
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('📧 SendGrid initialized successfully.');
+// Create transporter using Gmail credentials
+let transporter = null;
+const isConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+
+if (isConfigured) {
+  transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE || 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  console.log('📧 Low Stock Alerts mailer initialized (Gmail SMTP).');
 } else {
-  console.warn('⚠️  SENDGRID_API_KEY not set. Email alerts will be skipped.');
+  console.warn('⚠️  Nodemailer: EMAIL_USER and EMAIL_PASS not set in .env. Outgoing low stock alerts will print to the console.');
 }
 
-// ─────────────────────────────────────────────
-// sendLowStockAlert
-// Sends a formatted HTML email when an inventory
-// item reaches Low Stock or Out of Stock status.
-//
-// Params:
-//   itemName      - display name of the item
-//   sku           - SKU code (optional)
-//   category      - item category
-//   currentStock  - current quantity
-//   reorderPoint  - minimum threshold
-//   unit          - unit of measurement
-//   status        - 'Low Stock' | 'Out of Stock'
-//   supplierEmail - recipient override (falls back to ALERT_RECIPIENT_EMAIL)
-// ─────────────────────────────────────────────
+/**
+ * sendLowStockAlert
+ * Sends a formatted HTML email when an inventory
+ * item reaches Low Stock or Out of Stock status.
+ */
 const sendLowStockAlert = async ({
   itemName,
   sku,
@@ -36,17 +33,7 @@ const sendLowStockAlert = async ({
   status,
   supplierEmail,
 }) => {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn(`⚠️  Skipping email for "${itemName}" — SENDGRID_API_KEY not configured.`);
-    return;
-  }
-
-  const toEmail = supplierEmail || process.env.ALERT_RECIPIENT_EMAIL;
-  if (!toEmail) {
-    console.warn(`⚠️  No recipient email for "${itemName}" — set supplier_email or ALERT_RECIPIENT_EMAIL in .env.`);
-    return;
-  }
-
+  const toEmail = supplierEmail || process.env.ALERT_RECIPIENT_EMAIL || 'samaira.24cse@gmail.com';
   const isOutOfStock = status === 'Out of Stock';
   const accentColor  = isOutOfStock ? '#dc2626' : '#f59e0b';
   const subject      = isOutOfStock
@@ -55,7 +42,6 @@ const sendLowStockAlert = async ({
 
   const htmlBody = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.08);">
-
       <!-- Header -->
       <div style="background:${accentColor};padding:24px 28px;">
         <h1 style="color:#fff;margin:0;font-size:20px;letter-spacing:-.3px;">
@@ -123,15 +109,28 @@ const sendLowStockAlert = async ({
     </div>
   `;
 
-  const msg = {
-    to:      toEmail,
-    from:    process.env.SENDGRID_FROM_EMAIL,
-    subject,
-    html:    htmlBody,
-    text:    `${subject}\n\nItem: ${itemName}${sku ? `\nSKU: ${sku}` : ''}\nCategory: ${category || 'General'}\nCurrent Stock: ${currentStock} ${unit || 'Units'}\nReorder Point: ${reorderPoint} ${unit || 'Units'}\nStatus: ${status}\n\nPlease initiate a purchase order immediately.\n\n— StockNest Automated Alerts`,
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || '"StockNest Team" <no-reply@stocknest.io>',
+    to: toEmail,
+    subject: subject,
+    html: htmlBody,
+    text: `${subject}\n\nItem: ${itemName}${sku ? `\nSKU: ${sku}` : ''}\nCategory: ${category || 'General'}\nCurrent Stock: ${currentStock} ${unit || 'Units'}\nReorder Point: ${reorderPoint} ${unit || 'Units'}\nStatus: ${status}\n\nPlease initiate a purchase order immediately.\n\n— StockNest Automated Alerts`,
   };
 
-  await sgMail.send(msg);
+  if (isConfigured && transporter) {
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`📧 Low stock alert email sent to ${toEmail} for item "${itemName}"`);
+    } catch (error) {
+      console.error('❌ Failed to send low stock alert email:', error.message);
+    }
+  } else {
+    console.log('\n--- 📧 SIMULATED LOW STOCK ALERT EMAIL ---');
+    console.log(`To:      ${toEmail}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Body:    ${itemName} has status: ${status}`);
+    console.log('------------------------------------------\n');
+  }
 };
 
 module.exports = { sendLowStockAlert };
