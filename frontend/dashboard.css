@@ -465,7 +465,10 @@ a:hover { text-decoration: underline; }
   pointer-events: none;
 }
 
-.chart-empty.is-hidden { display: none; }
+.chart-empty.is-hidden,
+.chart-empty[hidden] { 
+  display: none !important; 
+}
 
 .chart-empty svg {
   width: 40px;
@@ -539,14 +542,29 @@ a:hover { text-decoration: underline; }
 .data-table tbody tr:hover { background: #fafbfc; }
 .data-table tbody tr:last-child td { border-bottom: none; }
 
-.status-badge {
+.badge {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 99px;
   font-size: 11px;
   font-weight: 600;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+  text-transform: capitalize;
+}
+
+.badge--confirmed {
+  background: var(--color-green-bg);
+  color: var(--color-green);
+}
+
+.badge--pending {
+  background: var(--color-yellow-bg);
+  color: #d97706; /* Darker yellow for text readability */
+}
+
+.badge--cancelled,
+.badge--no-show {
+  background: #fee2e2;
+  color: var(--color-red);
 }
 
 /* ---- Empty states ---- */
@@ -557,6 +575,10 @@ a:hover { text-decoration: underline; }
   justify-content: center;
   text-align: center;
   padding: 48px 24px;
+}
+
+.empty-state[hidden] {
+  display: none !important;
 }
 
 .empty-state__icon {

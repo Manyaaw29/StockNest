@@ -100,26 +100,28 @@ async function seedData() {
       ['ST-CBL-HDMI', 'HDMI Cable 3m', 'IT Infrastructure', 'Units', 2, 5, 1, '[]', 'Low Stock', 'cables@tech.com'],
     ];
 
+    const inventoryIds = [];
     for (const item of inventoryItems) {
-      await pool.query(
+      const res = await pool.query(
         `INSERT INTO inventory (org_id, sku, item_name, category, unit, current_stock, reorder_point, monthly_consumption, consumption_history, status, supplier_email)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING inventory_id`,
         [orgId, item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9]]
       );
+      inventoryIds.push(res.rows[0].inventory_id);
     }
     console.log('✅ Seeded inventory items.');
 
     // 6. Seed Maintenance
     console.log('🔧 Seeding maintenance tickets...');
     const tickets = [
-      [assetIds[2], null, primaryUser, 'Pending', 'High', 150.00, 'CURRENT_DATE + 3'],
-      [assetIds[4], null, secondaryUser, 'In Progress', 'Medium', 50.00, 'CURRENT_DATE + 5'],
+      [inventoryIds[0], null, primaryUser, 'Pending', 'High', 150.00, 'CURRENT_DATE + 3'],
+      [inventoryIds[1], null, secondaryUser, 'In Progress', 'Medium', 50.00, 'CURRENT_DATE + 5'],
       [null, roomIds[4], primaryUser, 'Pending', 'Medium', 0.00, 'CURRENT_DATE + 7'],
     ];
 
     for (const t of tickets) {
       await pool.query(
-        `INSERT INTO maintenance (asset_id, room_id, assigned_to, status, priority, cost, deadline)
+        `INSERT INTO maintenance (inventory_id, room_id, assigned_to, status, priority, cost, deadline)
          VALUES ($1, $2, $3, $4, $5, $6, ${t[6]})`,
         [t[0], t[1], t[2], t[3], t[4], t[5]]
       );

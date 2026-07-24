@@ -157,11 +157,13 @@ const BACKEND_URL = 'http://localhost:5000/api';
       .map(
         (f) => `
       <div class="availability-item" onclick="window.location.href='room-booking.html'" style="cursor:pointer;">
-        <span class="availability-item__floor">${f.floor}</span>
-        <div class="availability-item__bar-wrap">
-          <div class="availability-item__bar" style="width: ${f.percentage}%"></div>
+        <div class="availability-item__header">
+          <span>${f.floor || f.roomName || 'Room'}</span>
+          <span>${f.percentage}%</span>
         </div>
-        <span class="availability-item__pct">${f.percentage}%</span>
+        <div class="availability-item__track">
+          <div class="availability-item__fill" style="width: ${f.percentage}%"></div>
+        </div>
       </div>`
       )
       .join('');

@@ -28,6 +28,9 @@ CREATE TABLE users (
   name            VARCHAR(255) NOT NULL,
   role            user_role NOT NULL DEFAULT 'Staff',
   permissions     JSONB DEFAULT '[]',
+  avatar_img      TEXT,
+  avatar_bg       VARCHAR(50),
+  avatar_text     VARCHAR(10),
   last_login      TIMESTAMP,
   created_at      TIMESTAMP DEFAULT NOW()
 );
