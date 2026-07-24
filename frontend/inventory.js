@@ -3,8 +3,8 @@
  * Fully connected to /api/inventory backend.
  */
 
-import { renderSidebar, initSidebarNav } from './components/sidebar.js';
-import { renderTopbar, initTopbarEvents } from './components/topbar.js';
+import { renderSidebar, initSidebarNav } from './components/sidebar.js?v=2';
+import { renderTopbar, initTopbarEvents } from './components/topbar.js?v=2';
 
 // ─────────────────────────────────────────────
 // CONFIG
@@ -1187,8 +1187,8 @@ async function initApp() {
   `;
   roleBadge.textContent = role.toUpperCase();
   const topbarRoot = $('#topbar-root');
-  const userAvatar = topbarRoot?.querySelector('.topbar__user, .topbar__avatar, [class*="topbar__user"]');
-  if (userAvatar) userAvatar.appendChild(roleBadge);
+  const userAvatar = topbarRoot?.querySelector('.topbar__avatar');
+  if (userAvatar) userAvatar.insertAdjacentElement('beforebegin', roleBadge);
 
   // Load initial data
   showTableLoading();

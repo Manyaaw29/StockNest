@@ -129,7 +129,17 @@ export function renderSidebar(container, { activeItem, location = 'HQ Alpha' } =
   const savedImg = localStorage.getItem(`sn_user_avatar_img_${userId}`);
   const savedText = localStorage.getItem(`sn_user_avatar_text_${userId}`);
   if (savedBg) userAvatarBg = savedBg;
-  if (savedText) initials = savedText;
+  if (savedText && savedText.trim().length <= 2) {
+    initials = savedText.trim().toUpperCase();
+  } else if (cachedUserStr) {
+    try {
+      const user = JSON.parse(cachedUserStr);
+      if (user.name) {
+        const parts = user.name.trim().split(/\s+/);
+        initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
+      }
+    } catch(e) {}
+  }
   if (savedImg) userAvatarImg = savedImg;
 
   const avatarStyle = userAvatarImg 

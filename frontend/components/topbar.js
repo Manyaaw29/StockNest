@@ -26,7 +26,17 @@ export function renderTopbar(container, { userInitials = 'NY', userName = 'Neha 
   const savedBg = localStorage.getItem(`sn_user_avatar_bg_${userId}`);
   const savedImg = localStorage.getItem(`sn_user_avatar_img_${userId}`);
   const savedText = localStorage.getItem(`sn_user_avatar_text_${userId}`);
-  if (savedText) initials = savedText;
+  if (savedText && savedText.trim().length <= 2) {
+    initials = savedText.trim().toUpperCase();
+  } else if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      if (user.name) {
+        const parts = user.name.trim().split(/\s+/);
+        initials = `${parts[0] ? parts[0][0] : ''}${parts[1] ? parts[1][0] : ''}`.toUpperCase() || 'U';
+      }
+    } catch(e) {}
+  }
 
   let avatarStyle = '';
   if (savedImg) {
