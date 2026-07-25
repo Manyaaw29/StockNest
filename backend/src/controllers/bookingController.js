@@ -4,40 +4,54 @@ const pool = require('../config/db');
 // POST /api/bookings - Create booking
 // ─────────────────────────────────────────────
 const createBooking = async (req, res) => {
-  const { room_id, booking_date, start_time, end_time, attendees } = req.body;
-  
-  if (!room_id || !booking_date || !start_time || !end_time) {
-    return res.status(400).json({ message: 'room_id, booking_date, start_time, end_time are required.' });
+  const { room_id, booking_date, start_time, end_time, duration, attendees, purpose } = req.body;
+
+  // Compute end_time from duration (minutes) if not provided directly
+  let resolvedEndTime = end_time;
+  if (!resolvedEndTime && duration && start_time) {
+    const [h, m] = start_time.split(':').map(Number);
+    const totalMins = h * 60 + m + parseInt(duration, 10);
+    const endH = Math.floor(totalMins / 60) % 24;
+    const endM = totalMins % 60;
+    resolvedEndTime = `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
   }
-  
+
+  if (!room_id || !booking_date || !start_time || !resolvedEndTime) {
+    return res.status(400).json({ message: 'room_id, booking_date, start_time, and end_time (or duration) are required.' });
+  }
+
   try {
     // Check if room exists
     const roomCheck = await pool.query('SELECT * FROM room WHERE room_id = $1', [room_id]);
     if (roomCheck.rows.length === 0) {
       return res.status(404).json({ message: 'Room not found.' });
     }
-    
+
     // Check for conflicts
     const conflictCheck = await pool.query(
-      `SELECT * FROM booking 
-       WHERE room_id = $1 AND booking_date = $2 
-       AND start_time < $4 AND end_time > $3
-       AND status != 'cancelled'`,
-      [room_id, booking_date, start_time, end_time]
+      `SELECT * FROM booking
+       WHERE room_id = $1
+       AND status != 'cancelled'
+       AND (
+         (booking_date + start_time) < ($2::date + $4::time + CASE WHEN $4::time < $3::time THEN interval '1 day' ELSE interval '0 day' END)
+         AND
+         (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END) > ($2::date + $3::time)
+       )`,
+      [room_id, booking_date, start_time, resolvedEndTime]
     );
-    
+
     if (conflictCheck.rows.length > 0) {
-      return res.status(409).json({ message: 'Room is already booked for this time.' });
+      return res.status(409).json({ message: 'Room is already booked for this time slot.' });
     }
-    
+
     // Create booking
     const result = await pool.query(
-      `INSERT INTO booking (user_id, room_id, booking_date, start_time, end_time, attendees, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'confirmed')
+      `INSERT INTO booking (user_id, room_id, booking_date, start_time, end_time, attendees, purpose, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'confirmed')
        RETURNING *`,
-      [req.userId, room_id, booking_date, start_time, end_time, attendees || 1]
+      [req.userId, room_id, booking_date, start_time, resolvedEndTime, attendees || 1, purpose || null]
     );
-    
+
     return res.status(201).json({
       message: 'Booking created successfully.',
       booking: result.rows[0]
@@ -53,13 +67,21 @@ const createBooking = async (req, res) => {
 // ─────────────────────────────────────────────
 const getBookings = async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT b.*, r.room_name FROM booking b
-       JOIN room r ON b.room_id = r.room_id
-       WHERE b.user_id = $1
-       ORDER BY b.booking_date DESC`,
-      [req.userId]
-    );
+    let query, params;
+    if (req.userRole === 'Admin' || req.userRole === 'Manager') {
+      query = `SELECT b.*, r.room_name FROM booking b
+               JOIN room r ON b.room_id = r.room_id
+               ORDER BY b.booking_date DESC`;
+      params = [];
+    } else {
+      query = `SELECT b.*, r.room_name FROM booking b
+               JOIN room r ON b.room_id = r.room_id
+               WHERE b.user_id = $1
+               ORDER BY b.booking_date DESC`;
+      params = [req.userId];
+    }
+    
+    const result = await pool.query(query, params);
     
     return res.status(200).json({
       message: 'Bookings retrieved successfully.',

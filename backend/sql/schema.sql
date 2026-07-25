@@ -5,11 +5,12 @@
 
 -- ENUMS
 CREATE TYPE user_role AS ENUM ('Admin', 'Manager', 'Staff');
-CREATE TYPE room_status AS ENUM ('Available', 'Booked', 'Under Maintenance', 'Closed');
+CREATE TYPE room_status AS ENUM ('Available', 'Booked', 'Under Maintenance');
 CREATE TYPE booking_status AS ENUM ('confirmed', 'pending', 'cancelled', 'no-show');
 CREATE TYPE asset_status AS ENUM ('Active', 'In-Maintenance', 'Damaged', 'Retired', 'Lost');
 CREATE TYPE maintenance_status AS ENUM ('Pending', 'In Progress', 'Resolved', 'Closed');
 CREATE TYPE inventory_status AS ENUM ('In Stock', 'Low Stock', 'Out of Stock', 'Discontinued');
+CREATE TYPE room_category AS ENUM ('Executive Boardroom', 'Meeting Room', 'Conference Hall', 'Hot Desk Area', 'Focus Pod', 'Private Cabin');
 
 -- ORGANIZATION
 CREATE TABLE organization (
@@ -41,11 +42,10 @@ CREATE TABLE room (
   org_id          INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
   room_name       VARCHAR(255) NOT NULL,
   capacity        INT NOT NULL,
-  type            VARCHAR(100) DEFAULT 'Meeting Room',
+  category        room_category NOT NULL DEFAULT 'Meeting Room',
   floor           VARCHAR(50),
   amenities       JSONB DEFAULT '[]',
   assigned_assets JSONB DEFAULT '[]',
-  utilization_pct DECIMAL(5,2) DEFAULT 0,
   status          room_status DEFAULT 'Available'
 );
 

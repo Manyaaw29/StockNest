@@ -19,10 +19,27 @@ const getDashboard = async (req, res) => {
     ] = await Promise.all([
       // Count all rooms.
       pool.query('SELECT COUNT(*) AS count FROM room'),
-      // Count rooms currently marked as booked.
-      pool.query("SELECT COUNT(*) AS count FROM room WHERE status = 'Booked'"),
-      // Count rooms currently marked as available.
-      pool.query("SELECT COUNT(*) AS count FROM room WHERE status = 'Available'"),
+      // Count rooms currently marked as booked (dynamic based on being occupied AT THIS MOMENT).
+      pool.query(`
+        SELECT COUNT(DISTINCT room_id) AS count FROM booking 
+        WHERE status != 'cancelled' 
+        AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
+          (booking_date + start_time) 
+          AND 
+          (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+      `),
+      // Count rooms currently marked as available (dynamic).
+      pool.query(`
+        SELECT (SELECT COUNT(*) FROM room) 
+        - (SELECT COUNT(DISTINCT room_id) FROM booking 
+           WHERE status != 'cancelled' 
+           AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
+             (booking_date + start_time) 
+             AND 
+             (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+          ) 
+        - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
+      `),
       // Count bookings scheduled for today.
       pool.query('SELECT COUNT(*) AS count FROM booking WHERE booking_date = CURRENT_DATE'),
       // Count bookings for each weekday from Monday to Sunday, including days with no bookings.
@@ -41,27 +58,42 @@ const getDashboard = async (req, res) => {
             (7, 'Sunday')
         ) AS wd(dow, label)
         LEFT JOIN booking ON EXTRACT(ISODOW FROM booking.booking_date) = wd.dow
+          AND booking.booking_date >= date_trunc('week', CURRENT_DATE) 
+          AND booking.booking_date < date_trunc('week', CURRENT_DATE) + interval '1 week'
         GROUP BY wd.dow, wd.label
         ORDER BY wd.dow ASC
       `),
-      // Count rooms by every defined room status, including statuses with no rooms.
+      // Count rooms by status dynamically for right now.
       pool.query(`
-        SELECT
-          statuses.status::text AS label,
-          COUNT(room.room_id) AS count
-        FROM unnest(enum_range(NULL::room_status)) WITH ORDINALITY AS statuses(status, sort_order)
-        LEFT JOIN room ON room.status = statuses.status
-        GROUP BY statuses.status, statuses.sort_order
-        ORDER BY statuses.sort_order ASC
+        SELECT 'Booked' AS label, COUNT(DISTINCT room_id) AS count FROM booking 
+        WHERE status != 'cancelled'
+        AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
+          (booking_date + start_time) 
+          AND 
+          (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+        UNION ALL
+        SELECT 'Under Maintenance' AS label, COUNT(room_id) AS count FROM room WHERE status = 'Under Maintenance'
+        UNION ALL
+        SELECT 'Available' AS label, 
+          (SELECT COUNT(*) FROM room) 
+          - (SELECT COUNT(DISTINCT room_id) FROM booking 
+             WHERE status != 'cancelled' 
+             AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
+               (booking_date + start_time) 
+               AND 
+               (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+            ) 
+          - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
       `),
       // Fetch the next five upcoming bookings with their room and booking user details.
       pool.query(`
         SELECT
           room.room_name AS room,
-          TO_CHAR(booking.start_time, 'HH24:MI') || ' - ' || TO_CHAR(booking.end_time, 'HH24:MI') AS time,
+          TO_CHAR(booking.start_time, 'HH12:MI AM') || ' - ' || TO_CHAR(booking.end_time, 'HH12:MI AM') AS time,
           users.name AS "bookedBy",
-          '' AS purpose,
-          booking.status::text AS status
+          booking.status::text AS status,
+          booking.booking_date,
+          booking.end_time
         FROM booking
         JOIN room ON room.room_id = booking.room_id
         JOIN users ON users.user_id = booking.user_id
@@ -69,13 +101,20 @@ const getDashboard = async (req, res) => {
         ORDER BY booking.booking_date ASC, booking.start_time ASC
         LIMIT 5
       `),
-      // List room utilization percentages using room names as availability labels.
+      // Calculate real room utilization percentages grouped by category based on today's bookings (assuming 8 hour workday per room).
       pool.query(`
         SELECT
-          room_name AS floor,
-          utilization_pct::double precision AS percentage
-        FROM room
-        ORDER BY room_name ASC
+          r.category AS floor,
+          COALESCE(
+            SUM(EXTRACT(EPOCH FROM (b.end_time - b.start_time + CASE WHEN b.end_time < b.start_time THEN interval '1 day' ELSE interval '0 day' END))/3600) / (COUNT(DISTINCT r.room_id) * 8.0) * 100,
+            0
+          )::double precision AS percentage
+        FROM room r
+        LEFT JOIN booking b ON r.room_id = b.room_id 
+          AND b.booking_date = CURRENT_DATE 
+          AND b.status != 'cancelled'
+        GROUP BY r.category
+        ORDER BY r.category ASC
       `),
       // Combine recent booking and maintenance activity into one chronological feed.
       pool.query(`

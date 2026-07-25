@@ -123,14 +123,22 @@ const BACKEND_URL = 'http://localhost:5000/api';
     wrap.hidden = false;
     empty.hidden = true;
 
-    list.innerHTML = bookings
+    const now = new Date();
+    const futureBookings = bookings.filter(b => {
+      if (!b.booking_date || !b.end_time) return true;
+      const d = new Date(b.booking_date);
+      const [endH, endM] = b.end_time.split(':');
+      d.setHours(parseInt(endH, 10), parseInt(endM, 10), 0, 0);
+      return d >= now && b.status.toLowerCase() !== 'cancelled';
+    });
+
+    list.innerHTML = futureBookings
       .map(
         (b) => `
       <tr onclick="window.location.href='room-booking.html'" style="cursor:pointer;">
         <td><strong>${b.room}</strong></td>
         <td>${b.time}</td>
         <td>${b.bookedBy}</td>
-        <td>${b.purpose || '—'}</td>
         <td><span class="badge badge--${b.status.toLowerCase()}">${b.status}</span></td>
       </tr>`
       )

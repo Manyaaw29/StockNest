@@ -23,20 +23,58 @@ async function seedData() {
     // 2. Seed Rooms
     console.log('🚪 Seeding rooms...');
     const roomInserts = [
-      ['Boardroom Alpha', 16, '["TV", "Whiteboard", "Video Conference"]', 85.00, 'Available'],
-      ['Meeting Room 101', 6, '["Whiteboard", "Projector"]', 60.00, 'Available'],
-      ['Conference Hall C', 50, '["Sound System", "Stage", "Projector"]', 40.00, 'Booked'],
-      ['Hot Desk Area A', 30, '["Power Outlet", "Monitor"]', 92.50, 'Available'],
-      ['Focus Pod 4', 2, '["Acoustic Panels"]', 0.00, 'Under Maintenance'],
+      // Executive Boardrooms (4)
+      ['Executive Boardroom 1', 'Executive Boardroom', '["TV", "Video Conference"]', 'Available'],
+      ['Executive Boardroom 2', 'Executive Boardroom', '["TV", "Video Conference"]', 'Available'],
+      ['Executive Boardroom 3', 'Executive Boardroom', '["TV", "Video Conference"]', 'Available'],
+      ['Executive Boardroom 4', 'Executive Boardroom', '["TV", "Video Conference", "Whiteboard"]', 'Available'],
+      
+      // Meeting Rooms (8)
+      ['Meeting Room A', 'Meeting Room', '["Whiteboard", "Projector"]', 'Available'],
+      ['Meeting Room B', 'Meeting Room', '["Whiteboard", "Projector"]', 'Available'],
+      ['Meeting Room C', 'Meeting Room', '["Whiteboard"]', 'Available'],
+      ['Meeting Room D', 'Meeting Room', '["Whiteboard"]', 'Available'],
+      ['Meeting Room E', 'Meeting Room', '["Whiteboard", "TV"]', 'Available'],
+      ['Meeting Room F', 'Meeting Room', '["Whiteboard", "TV"]', 'Available'],
+      ['Meeting Room G', 'Meeting Room', '["Whiteboard"]', 'Available'],
+      ['Meeting Room H', 'Meeting Room', '["Whiteboard"]', 'Available'],
+      
+      // Conference Halls (2)
+      ['Conference Hall Alpha', 'Conference Hall', '["Sound System", "Stage", "Projector"]', 'Available'],
+      ['Conference Hall Beta', 'Conference Hall', '["Sound System", "Projector"]', 'Available'],
+      
+      // Hot Desk Areas (4)
+      ['Hot Desk Zone North', 'Hot Desk Area', '["Power Outlet", "Monitor"]', 'Available'],
+      ['Hot Desk Zone South', 'Hot Desk Area', '["Power Outlet", "Monitor"]', 'Available'],
+      ['Hot Desk Zone East', 'Hot Desk Area', '["Power Outlet"]', 'Available'],
+      ['Hot Desk Zone West', 'Hot Desk Area', '["Power Outlet"]', 'Available'],
+      
+      // Focus Pods (8)
+      ['Focus Pod 1', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 2', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 3', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 4', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 5', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 6', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 7', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 8', 'Focus Pod', '["Acoustic Panels"]', 'Under Maintenance'],
+      
+      // Private Cabins (6)
+      ['Private Cabin 101', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Private Cabin 102', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Private Cabin 103', 'Private Cabin', '["Executive Desk"]', 'Available'],
+      ['Private Cabin 104', 'Private Cabin', '["Executive Desk"]', 'Available'],
+      ['Private Cabin 105', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Private Cabin 106', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
     ];
 
     const roomIds = [];
     for (const room of roomInserts) {
       const res = await pool.query(
-        `INSERT INTO room (org_id, room_name, capacity, amenities, utilization_pct, status)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO room (org_id, room_name, category, amenities, status)
+         VALUES ($1, $2, $3, $4, $5)
          RETURNING room_id`,
-        [orgId, room[0], room[1], room[2], room[3], room[4]]
+        [orgId, room[0], room[1], room[2], room[3]]
       );
       roomIds.push(res.rows[0].room_id);
     }
@@ -44,20 +82,7 @@ async function seedData() {
 
     // 3. Seed Bookings
     console.log('📅 Seeding bookings...');
-    const bookings = [
-      // Today's Bookings
-      [primaryUser, roomIds[0], 'CURRENT_DATE', '09:00:00', '11:00:00', 10, 'confirmed'],
-      [secondaryUser, roomIds[1], 'CURRENT_DATE', '13:00:00', '14:30:00', 4, 'pending'],
-      // Upcoming Bookings
-      [primaryUser, roomIds[2], 'CURRENT_DATE + 1', '10:00:00', '12:00:00', 35, 'confirmed'],
-      [secondaryUser, roomIds[0], 'CURRENT_DATE + 2', '14:00:00', '16:00:00', 8, 'pending'],
-      // Historical Bookings (for trend chart)
-      [primaryUser, roomIds[1], 'CURRENT_DATE - 1', '10:00:00', '11:00:00', 5, 'confirmed'],
-      [secondaryUser, roomIds[3], 'CURRENT_DATE - 2', '09:00:00', '17:00:00', 1, 'confirmed'],
-      [primaryUser, roomIds[0], 'CURRENT_DATE - 3', '15:00:00', '16:30:00', 12, 'confirmed'],
-      [secondaryUser, roomIds[1], 'CURRENT_DATE - 4', '11:00:00', '12:00:00', 3, 'confirmed'],
-      [primaryUser, roomIds[2], 'CURRENT_DATE - 5', '13:00:00', '15:00:00', 25, 'confirmed'],
-    ];
+    const bookings = [];
 
     for (const b of bookings) {
       await pool.query(

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { createBooking, getBookings, getBookingById, updateBooking, deleteBooking } = require('../controllers/bookingController');
-const { authMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, checkRole } = require('../middleware/authMiddleware');
 
 // GET /api/bookings - Get user's bookings (any logged-in user)
 router.get('/', authMiddleware, getBookings);
