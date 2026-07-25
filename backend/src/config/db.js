@@ -7,6 +7,10 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   user:     process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  // SSL required for Supabase hosted PostgreSQL
+  ssl: process.env.DB_HOST && process.env.DB_HOST.includes('supabase.co')
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 // Test connection on startup
