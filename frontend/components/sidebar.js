@@ -169,19 +169,6 @@ export function renderSidebar(container, { activeItem, location = 'HQ Alpha' } =
       </div>
 
       <div class="sidebar__footer">
-        <div class="sidebar__location-wrapper">
-          <button class="sidebar__location" id="sidebarSwitchBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar__location-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span class="sidebar__location-label">${location}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar__location-chevron"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <ul class="sidebar__location-menu" id="sidebarLocationMenu" role="listbox" hidden>
-            <li role="option" data-location="Floor 3 &amp; 4">Floor 3 &amp; 4</li>
-            <li role="option" data-location="East Wing">East Wing</li>
-            <li role="option" data-location="HQ Alpha">HQ Alpha</li>
-          </ul>
-        </div>
-
         <button class="sidebar__help" type="button" id="sidebarHelpLink">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span>Help Center</span>
@@ -221,46 +208,6 @@ export function initSidebarNav(container) {
     helpLink.addEventListener('click', (e) => {
       e.preventDefault();
       alert('Help Center — contact admin@stocknest.io for support.');
-    });
-  }
-
-  const switchBtn = container.querySelector('#sidebarSwitchBtn');
-  const locationMenu = container.querySelector('#sidebarLocationMenu');
-  if (switchBtn && locationMenu) {
-    switchBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isHidden = locationMenu.hasAttribute('hidden');
-      if (isHidden) {
-        locationMenu.removeAttribute('hidden');
-        switchBtn.setAttribute('aria-expanded', 'true');
-      } else {
-        locationMenu.setAttribute('hidden', '');
-        switchBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', () => {
-      locationMenu.setAttribute('hidden', '');
-      switchBtn.setAttribute('aria-expanded', 'false');
-    });
-
-    // Handle selection
-    locationMenu.addEventListener('click', (e) => {
-      const item = e.target.closest('li');
-      if (!item) return;
-      const selectedLoc = item.dataset.location;
-      
-      // Update label in UI
-      const labelEl = container.querySelector('.sidebar__location-label');
-      if (labelEl) labelEl.textContent = selectedLoc;
-      
-      locationMenu.setAttribute('hidden', '');
-      switchBtn.setAttribute('aria-expanded', 'false');
-      
-      // Trigger event or sync state across page if necessary
-      const event = new CustomEvent('sn-location-change', { detail: selectedLoc });
-      document.dispatchEvent(event);
     });
   }
 

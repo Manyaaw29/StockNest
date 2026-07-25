@@ -255,8 +255,8 @@ button {
   background: var(--card-bg);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 20px;
+  box-shadow: 0 4px 24px rgba(20, 24, 43, 0.04);
+  padding: 26px;
 }
 
 .card-header {
@@ -296,10 +296,10 @@ button {
 
 .field-label {
   display: block;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-main);
-  margin: 14px 0 6px;
+  margin: 22px 0 8px;
 }
 
 .field-label:first-of-type {
@@ -308,90 +308,118 @@ button {
 
 .text-input {
   width: 100%;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 13.5px;
-  color: var(--text-main);
-  background: var(--card-bg);
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #1f2937;
+  background: #f9fafb;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: all 0.2s ease;
   font-family: inherit;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .text-input:focus {
   border-color: var(--accent-blue);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.15);
 }
 
 .textarea-input {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
+  line-height: 1.5;
 }
 
 .priority-toggle {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 .priority-btn {
   flex: 1;
-  padding: 9px 0;
-  border-radius: var(--radius-sm);
+  padding: 10px 0;
+  border-radius: 8px;
   border: 1px solid var(--border-light);
   background: #fff;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-muted);
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.priority-btn:hover {
+  background: #f8fafc;
+  color: var(--text-main);
 }
 
 .priority-btn.active.critical {
-  background: #fdeceb;
+  background: #fef2f2;
   border-color: var(--accent-red);
   color: var(--accent-red);
+  box-shadow: 0 4px 12px rgba(224, 86, 63, 0.15);
 }
 
 .priority-btn.active.high {
   background: var(--accent-orange-bg);
   border-color: var(--accent-orange);
-  color: var(--accent-orange);
+  color: #d97706;
+  box-shadow: 0 4px 12px rgba(242, 153, 74, 0.15);
+}
+
+.priority-btn.active.medium {
+  background: rgba(47, 111, 237, 0.05);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.15);
 }
 
 .priority-btn.active.low {
-  background: #eaf9f2;
+  background: #f0fdf4;
   border-color: var(--accent-green);
-  color: #1f9d68;
+  color: #16a34a;
+  box-shadow: 0 4px 12px rgba(52, 201, 138, 0.15);
 }
 
 .sla-note {
-  margin: 8px 0 0;
-  font-size: 12px;
+  margin: 10px 0 0;
+  font-size: 12.5px;
   color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
 }
 
 .sla-note strong {
   color: var(--text-main);
+  font-weight: 700;
 }
 
 .submit-btn {
   width: 100%;
-  margin-top: 20px;
-  background: var(--accent-blue);
+  margin-top: 28px;
+  background: linear-gradient(135deg, var(--accent-blue), #1e40af);
   color: #fff;
   border: none;
-  padding: 12px 0;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
+  padding: 14px 0;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background 0.15s ease;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(47, 111, 237, 0.3);
+  cursor: pointer;
 }
 
 .submit-btn:hover {
-  background: var(--accent-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 111, 237, 0.4);
 }
 
 /* ---------------- Upcoming service table ---------------- */
@@ -705,10 +733,10 @@ button {
 
 .top-row-grid {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 20px;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 24px;
   align-items: start;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 @media (max-width: 1024px) {
@@ -884,28 +912,29 @@ th.sortable.sorted-desc .sort-indicator::after {
 /* Category toggle selector buttons styling */
 .category-toggle-group {
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .toggle-btn {
   flex: 1;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  border-radius: 10px;
   border: 1px solid var(--border-light);
   background: #fff;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-muted);
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  cursor: pointer;
 }
 
 .toggle-btn:hover {
-  background: var(--bg-page);
+  background: #f8fafc;
   border-color: #cbd5e1;
   color: var(--text-main);
 }
@@ -914,7 +943,7 @@ th.sortable.sorted-desc .sort-indicator::after {
   background: var(--accent-blue);
   border-color: var(--accent-blue);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.2);
+  box-shadow: 0 4px 14px rgba(47, 111, 237, 0.3);
 }
 
 .selection-group {

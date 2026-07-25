@@ -23,7 +23,7 @@ let sortDir        = 'asc';
 let currentPage    = 1;
 let actionTargetId = null;
 let isLoading      = false;
-let categoryInputMode = 'select'; // 'select' or 'custom'
+// Custom category input removed
 
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
@@ -863,12 +863,7 @@ async function submitRegisterForm(e) {
   e.preventDefault();
   const name     = $('#itemName').value.trim();
   
-  let category = '';
-  if (categoryInputMode === 'select') {
-    category = $('#itemCategory').value;
-  } else {
-    category = $('#itemCustomCategory').value.trim();
-  }
+  const category = $('#itemCategory').value;
 
   const minStock = parseFloat($('#minStock').value) || 0;
 
@@ -889,8 +884,6 @@ async function submitRegisterForm(e) {
       current_stock: 0,
     });
     e.target.reset();
-    if (categoryInputMode === 'custom') $('#toggleCategoryInputMode').click();
-    $('#itemCustomCategory').value = '';
     showToast(`✅ Registered: "${name}"`);
     await apiFetchInventory();
   } catch (err) {
@@ -990,24 +983,7 @@ function initEvents() {
   $('#filterBtn').addEventListener('click', openFilterModal);
   $('#addStockBtn').addEventListener('click', openAddStockModal);
 
-  $('#toggleCategoryInputMode')?.addEventListener('click', () => {
-    const btn = $('#toggleCategoryInputMode');
-    const select = $('#itemCategory');
-    const customInput = $('#itemCustomCategory');
 
-    if (categoryInputMode === 'select') {
-      categoryInputMode = 'custom';
-      btn.textContent = '📋 Choose from List';
-      select.style.display = 'none';
-      customInput.style.display = 'block';
-      customInput.focus();
-    } else {
-      categoryInputMode = 'select';
-      btn.textContent = '✍️ Type Custom';
-      select.style.display = 'block';
-      customInput.style.display = 'none';
-    }
-  });
 
   // Notification bell → show alerts modal
   const notifBtn = document.querySelector('.topbar__icon-btn--notifications');

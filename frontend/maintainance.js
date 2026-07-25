@@ -23,8 +23,6 @@ let inventory = [];
 let currentCategory = 'Space';
 let activeTicketId = null;
 let activePriority = 'High';
-let spaceInputMode = 'select'; // 'select' or 'custom'
-let inventoryInputMode = 'select'; // 'select' or 'custom'
 
 // Filters & Sorting & Pagination State
 let ticketFilters = { search: '', status: 'All', priority: 'All' };
@@ -73,7 +71,7 @@ async function loadData() {
       const spaceSelect = $('#reportSpaceSelect');
       if (spaceSelect) {
         spaceSelect.innerHTML = '<option value="">-- Choose Space --</option>' +
-          rooms.map(r => `<option value="${r.room_id}">${r.room_name} (${r.type} - Floor ${r.floor || 'N/A'})</option>`).join('');
+          rooms.map(r => `<option value="${r.room_id}">${r.room_name} (${r.floor || 'N/A'})</option>`).join('');
       }
     }
 
@@ -83,7 +81,7 @@ async function loadData() {
       const invSelect = $('#reportInventorySelect');
       if (invSelect) {
         invSelect.innerHTML = '<option value="">-- Choose Consumable --</option>' +
-          inventory.map(i => `<option value="${i.inventory_id}">${i.item_name} (Qty: ${i.quantity})</option>`).join('');
+          inventory.map(i => `<option value="${i.inventory_id}">${i.item_name}</option>`).join('');
       }
     }
 
@@ -104,23 +102,6 @@ async function loadData() {
 
 function getFilteredTickets() {
   let list = [...tickets];
-
-  // 1. Search Query
-  if (ticketFilters.search) {
-    const q = ticketFilters.search.toLowerCase();
-    list = list.filter(t => {
-      const targetName = (t.room_name || t.item_name || '').toLowerCase();
-      const desc = (t.description || '').toLowerCase();
-      const priority = (t.priority || '').toLowerCase();
-      const targetType = (t.room_id ? 'space' : (t.inventory_id ? 'consumable' : '')).toLowerCase();
-      return (
-        targetName.includes(q) ||
-        desc.includes(q) ||
-        priority.includes(q) ||
-        targetType.includes(q)
-      );
-    });
-  }
 
   // 2. Status Filter
   if (ticketFilters.status !== 'All') {
@@ -176,7 +157,7 @@ function renderTable() {
   const pageItems = filtered.slice(start, start + PAGE_SIZE);
 
   if (pageItems.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-muted" style="text-align:center;padding:32px">No matching maintenance tickets found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align:center;padding:32px">No matching maintenance tickets found.</td></tr>`;
     $('#paginationInfo').textContent = 'Showing 0 entries';
     renderPagination(totalPages);
     updateOverviewStats();
@@ -207,20 +188,54 @@ function renderTable() {
 
     const formattedDate = t.deadline ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'No Deadline';
 
+    // Map Priority Colors
+    let priorityColor = '#16a34a'; // Low (Green)
+    if (t.priority === 'Critical') priorityColor = '#ef4444'; // Red
+    else if (t.priority === 'High') priorityColor = '#f59e0b'; // Orange
+    else if (t.priority === 'Medium') priorityColor = 'var(--accent-blue)'; // Blue
+
+    // Clean Description
+    let cleanDesc = t.description || '-';
+    if (cleanDesc.startsWith('[')) {
+      const closingBracket = cleanDesc.indexOf(']');
+      if (closingBracket !== -1) {
+        cleanDesc = cleanDesc.substring(closingBracket + 1).trim();
+      }
+    }
+
     return `
       <tr data-id="${t.request_id}">
         <td class="asset-cell">
           <span class="asset-icon">${t.room_id ? '🏢' : '📦'}</span>
           <div>
-            <div class="asset-id" style="color:var(--accent-blue);font-weight:600;">${targetType}</div>
-            <div class="asset-name" style="color:inherit;">${targetName}</div>
+            <div class="asset-name" style="color:var(--text-main);font-weight:600;">${targetName}</div>
+            <div class="asset-id" style="color:var(--text-muted);font-size:12px;">${targetType}</div>
           </div>
         </td>
-        <td><strong>${t.priority}</strong></td>
+        <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${cleanDesc}">
+          ${cleanDesc}
+        </td>
+        <td style="color:${priorityColor}; font-weight:600;">${t.priority}</td>
         <td>${formattedDate}</td>
-        <td><span class="status ${statusClass}">${t.status}</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+            <span class="status ${statusClass}" style="white-space: nowrap;">${t.status}</span>
+            ${t.status !== 'Closed' 
+              ? `<select class="status-dropdown text-input" data-id="${t.request_id}" style="-webkit-appearance: none; -moz-appearance: none; appearance: none; padding: 0 4px; border: none; font-size: 11px; background: transparent; cursor: pointer; color: var(--text-muted); outline: none;" title="Change Status">
+                   <option value="" disabled selected>▼</option>
+                   ${t.status !== 'Pending' ? '<option value="Pending">Pending</option>' : ''}
+                   ${t.status !== 'In Progress' ? '<option value="In Progress">In Progress</option>' : ''}
+                   ${t.status !== 'Resolved' ? '<option value="Resolved">Resolved</option>' : ''}
+                   <option value="Closed">Closed</option>
+                 </select>`
+              : ''
+            }
+          </div>
+        </td>
         <td class="action-cell">
-          <button type="button" class="row-options-btn" data-id="${t.request_id}" style="background:none;border:none;font-size:16px;cursor:pointer;color:#9298a9;padding:6px 12px;">⋮</button>
+          <button type="button" class="delete-ticket-btn" data-id="${t.request_id}" style="background:none;border:none;cursor:pointer;color:#64748b;padding:4px 8px;display:flex;align-items:center;transition:color 0.15s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#64748b'" title="Delete Ticket">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
         </td>
       </tr>
     `;
@@ -247,24 +262,38 @@ function renderTable() {
 function updateOverviewStats() {
   const totalTickets = tickets.length;
   const pendingTickets = tickets.filter(t => t.status === 'Pending' || t.status === 'In Progress').length;
+  const criticalTickets = tickets.filter(t => (t.priority === 'Critical' || t.priority === 'High') && (t.status === 'Pending' || t.status === 'In Progress')).length;
 
   let healthPct = 100;
-  if (rooms.length > 0) {
-    const roomsUnderMaint = tickets.filter(t => t.room_id && (t.status === 'Pending' || t.status === 'In Progress')).length;
-    healthPct = Math.max(0, 100 - Math.round((roomsUnderMaint / rooms.length) * 100));
-  } else if (pendingTickets > 0) {
-    healthPct = Math.max(0, 100 - pendingTickets * 10);
+  if (pendingTickets > 0) {
+    const openCritical = tickets.filter(t => t.priority === 'Critical' && (t.status === 'Pending' || t.status === 'In Progress')).length;
+    const openHigh = tickets.filter(t => t.priority === 'High' && (t.status === 'Pending' || t.status === 'In Progress')).length;
+    const openMed = tickets.filter(t => t.priority === 'Medium' && (t.status === 'Pending' || t.status === 'In Progress')).length;
+    const openLow = tickets.filter(t => t.priority === 'Low' && (t.status === 'Pending' || t.status === 'In Progress')).length;
+    
+    // Each critical ticket drops health by 1%, High by 0.75%, Medium by 0.5%, Low by 0.25%
+    let penalty = (openCritical * 1) + (openHigh * 0.75) + (openMed * 0.5) + (openLow * 0.25);
+    healthPct = Math.max(0, Math.round(100 - penalty));
   }
 
   const elTotal = $('#statTotalTickets');
   const elPending = $('#statPendingTickets');
+  const elCritical = $('#statCriticalTickets');
   const elPct = $('#healthPercentage');
   const elFill = $('#healthBarFill');
 
   if (elTotal) elTotal.textContent = totalTickets;
   if (elPending) elPending.textContent = pendingTickets;
+  if (elCritical) elCritical.textContent = criticalTickets;
   if (elPct) elPct.textContent = healthPct + '%';
-  if (elFill) elFill.style.width = healthPct + '%';
+  if (elFill) {
+    if (elFill.tagName.toLowerCase() === 'path') {
+      elFill.style.strokeDasharray = `${healthPct}, 100`;
+      elFill.style.stroke = healthPct < 50 ? '#ef4444' : (healthPct < 80 ? '#f59e0b' : '#10b981');
+    } else {
+      elFill.style.width = healthPct + '%';
+    }
+  }
 }
 
 function renderPagination(totalPages) {
@@ -295,6 +324,7 @@ function initPrioritySelector() {
       if (sla) {
         if (activePriority === 'Critical') sla.textContent = '4 Hours';
         else if (activePriority === 'High') sla.textContent = '24 Hours';
+        else if (activePriority === 'Medium') sla.textContent = '48 Hours';
         else sla.textContent = '3 - 5 Days';
       }
     });
@@ -303,14 +333,8 @@ function initPrioritySelector() {
 
 // 4. Create Maintenance Ticket Form Submit
 async function submitTicket() {
-  const rawDesc = $('#reportDescInput').value.trim();
-  if (!rawDesc) {
-    showToast('Please enter a description of the issue.', 'error');
-    return;
-  }
-
   const issueType = $('#reportIssueType') ? $('#reportIssueType').value : 'General';
-  let description = `[${issueType}] ${rawDesc}`;
+  let description = issueType;
 
   let body = {
     priority: activePriority,
@@ -327,37 +351,19 @@ async function submitTicket() {
   body.deadline = deadlineDate.toISOString().split('T')[0];
 
   if (currentCategory === 'Space') {
-    if (spaceInputMode === 'select') {
-      const roomId = $('#reportSpaceSelect').value;
-      if (!roomId) {
-        showToast('Please select a space/room.', 'error');
-        return;
-      }
-      body.room_id = parseInt(roomId, 10);
-    } else {
-      const customRoom = $('#reportSpaceCustomInput').value.trim();
-      if (!customRoom) {
-        showToast('Please type a custom space name.', 'error');
-        return;
-      }
-      description = `[Custom Space: ${customRoom}] ${description}`;
+    const roomId = $('#reportSpaceSelect').value;
+    if (!roomId) {
+      showToast('Please select a space/room.', 'error');
+      return;
     }
+    body.room_id = parseInt(roomId, 10);
   } else {
-    if (inventoryInputMode === 'select') {
-      const invId = $('#reportInventorySelect').value;
-      if (!invId) {
-        showToast('Please select a consumable item.', 'error');
-        return;
-      }
-      body.inventory_id = parseInt(invId, 10);
-    } else {
-      const customItem = $('#reportInventoryCustomInput').value.trim();
-      if (!customItem) {
-        showToast('Please type a custom consumable item.', 'error');
-        return;
-      }
-      description = `[Custom Item: ${customItem}] ${description}`;
+    const invId = $('#reportInventorySelect').value;
+    if (!invId) {
+      showToast('Please select a consumable item.', 'error');
+      return;
     }
+    body.inventory_id = parseInt(invId, 10);
   }
 
   body.description = description;
@@ -376,14 +382,9 @@ async function submitTicket() {
     if (!response.ok) throw new Error(data.message || 'Failed to create ticket.');
 
     showToast(`Ticket successfully submitted!`);
-    $('#reportDescInput').value = '';
     if ($('#reportSpaceSelect')) $('#reportSpaceSelect').value = '';
-    if ($('#reportSpaceCustomInput')) $('#reportSpaceCustomInput').value = '';
     if ($('#reportInventorySelect')) $('#reportInventorySelect').value = '';
-    if ($('#reportInventoryCustomInput')) $('#reportInventoryCustomInput').value = '';
     if ($('#reportIssueType')) $('#reportIssueType').value = 'Hardware / Repair';
-    if (spaceInputMode === 'custom') $('#toggleSpaceInputMode').click();
-    if (inventoryInputMode === 'custom') $('#toggleInventoryInputMode').click();
     loadData(); // Refresh list
 
   } catch (err) {
@@ -485,45 +486,63 @@ function setupModalEvents() {
 
 // 6. Action Menu & Dropdowns Delegated Click Handlers
 function setupDropdownListeners() {
-  // Table options (⋮) click
-  $('#maintenanceTableBody').addEventListener('click', (e) => {
-    const btn = e.target.closest('.row-options-btn');
-    if (!btn) return;
-
-    activeTicketId = parseInt(btn.dataset.id, 10);
-    const ticket = tickets.find(t => t.request_id === activeTicketId);
-    if (!ticket) return;
-
-    const action = prompt('Choose action: "edit", "reschedule", or "delete":');
-    if (!action) return;
-
-    const lower = action.toLowerCase().trim();
-    const targetName = ticket.room_name || ticket.item_name || `Ticket #${ticket.request_id}`;
-
-    if (lower === 'edit') {
-      $('#editAssetName').textContent = targetName;
-      $('#editPriority').value = ticket.priority;
-      $('#editStatus').value = ticket.status;
-      $('#editDesc').value = ticket.description || '';
-      openModal('editModal');
-    } else if (lower === 'reschedule') {
-      $('#rescheduleAssetName').textContent = targetName;
-      $('#rescheduleDate').value = ticket.deadline ? ticket.deadline.split('T')[0] : '';
-      openModal('rescheduleModal');
-    } else if (lower === 'delete') {
-      $('#deleteAssetName').textContent = targetName;
-      openModal('deleteModal');
-    } else {
-      showToast('Invalid action selected.', 'error');
+  // Inline Status Change Dropdown
+  $('#maintenanceTableBody').addEventListener('change', async (e) => {
+    if (e.target.classList.contains('status-dropdown')) {
+      const ticketId = parseInt(e.target.dataset.id, 10);
+      const newStatus = e.target.value;
+      const ticket = tickets.find(t => t.request_id === ticketId);
+      if (!ticket) return;
+      
+      try {
+        const response = await fetch(`${BACKEND_URL}/maintenance/${ticketId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (!response.ok) throw new Error('Failed to update status');
+        showToast('Status updated successfully!');
+        loadData();
+      } catch (err) {
+        showToast(err.message, 'error');
+        e.target.value = ticket.status; // Revert on failure
+      }
     }
   });
 
-  // Refresh Form Trigger
-  $('#refreshBtn').addEventListener('click', () => {
-    $('#reportDescInput').value = '';
-    if ($('#reportSpaceSelect')) $('#reportSpaceSelect').value = '';
-    if ($('#reportInventorySelect')) $('#reportInventorySelect').value = '';
-    showToast('Form cleared.');
+  // Table delete click
+  $('#maintenanceTableBody').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.delete-ticket-btn');
+    if (!btn) return;
+
+    const ticketId = parseInt(btn.dataset.id, 10);
+    const ticket = tickets.find(t => t.request_id === ticketId);
+    if (!ticket) return;
+
+    if (!confirm(`Are you sure you want to permanently delete this maintenance log for ${ticket.room_name || ticket.item_name || 'Ticket #' + ticket.request_id}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/maintenance/${ticketId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(()=>({}));
+        throw new Error(errData.message || 'Failed to delete ticket.');
+      }
+      
+      showToast('Maintenance log permanently deleted.');
+      loadData();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
   });
 }
 
@@ -562,22 +581,6 @@ function exportToCSV() {
 }
 
 function initQueryFilters() {
-  // Search
-  $('#ticketSearchInput')?.addEventListener('input', (e) => {
-    ticketFilters.search = e.target.value.trim();
-    currentPage = 1;
-    renderTable();
-  });
-
-  $('#clearTicketSearch')?.addEventListener('click', () => {
-    const input = $('#ticketSearchInput');
-    if (input) input.value = '';
-    ticketFilters.search = '';
-    currentPage = 1;
-    renderTable();
-    showToast('Search query cleared.', 'info');
-  });
-
   // Status select
   $('#statusFilter')?.addEventListener('change', (e) => {
     ticketFilters.status = e.target.value;
@@ -590,21 +593,6 @@ function initQueryFilters() {
     ticketFilters.priority = e.target.value;
     currentPage = 1;
     renderTable();
-  });
-
-  // Reset button
-  $('#resetTicketFilters')?.addEventListener('click', () => {
-    const sInput = $('#ticketSearchInput');
-    if (sInput) sInput.value = '';
-    const statusSel = $('#statusFilter');
-    if (statusSel) statusSel.value = 'All';
-    const prioritySel = $('#priorityFilter');
-    if (prioritySel) prioritySel.value = 'All';
-
-    ticketFilters = { search: '', status: 'All', priority: 'All' };
-    currentPage = 1;
-    renderTable();
-    showToast('Ticket filters reset.', 'info');
   });
 
   // Pagination controls delegated click
@@ -639,12 +627,28 @@ function initCategorySelectors() {
   const btnInventory = $('#btnSelectInventory');
   const groupSpace = $('#spaceSelectGroup');
   const groupInventory = $('#inventorySelectGroup');
+  const reportIssueType = $('#reportIssueType');
+
+  const spaceOptions = `
+    <option value="Hardware / Repair">🔧 Hardware / Repair</option>
+    <option value="Cleaning / Housekeeping">🧹 Cleaning</option>
+    <option value="IT / Network Support">💻 IT / Network</option>
+    <option value="General Checkup">📋 General Checkup</option>
+  `;
+
+  const inventoryOptions = `
+    <option value="Restock Required">📦 Restock Required</option>
+    <option value="Item Damaged">⚠️ Item Damaged</option>
+    <option value="Quality Issue">📉 Quality Issue</option>
+    <option value="General Inquiry">💬 General Inquiry</option>
+  `;
 
   btnSpace?.addEventListener('click', () => {
     btnSpace.classList.add('active');
     btnInventory.classList.remove('active');
     if (groupSpace) groupSpace.style.display = 'block';
     if (groupInventory) groupInventory.style.display = 'none';
+    if (reportIssueType) reportIssueType.innerHTML = spaceOptions;
     currentCategory = 'Space';
   });
 
@@ -653,6 +657,7 @@ function initCategorySelectors() {
     btnSpace.classList.remove('active');
     if (groupInventory) groupInventory.style.display = 'block';
     if (groupSpace) groupSpace.style.display = 'none';
+    if (reportIssueType) reportIssueType.innerHTML = inventoryOptions;
     currentCategory = 'Consumable';
   });
 }
@@ -672,45 +677,6 @@ async function initApp() {
 
   $('#submitTicketBtn').addEventListener('click', submitTicket);
   $('#exportBtn').addEventListener('click', exportToCSV);
-
-  // Toggle input modes between Select list and Custom writing
-  $('#toggleSpaceInputMode')?.addEventListener('click', () => {
-    const btn = $('#toggleSpaceInputMode');
-    const select = $('#reportSpaceSelect');
-    const customInput = $('#reportSpaceCustomInput');
-
-    if (spaceInputMode === 'select') {
-      spaceInputMode = 'custom';
-      btn.textContent = '📋 Choose from List';
-      select.style.display = 'none';
-      customInput.style.display = 'block';
-      customInput.focus();
-    } else {
-      spaceInputMode = 'select';
-      btn.textContent = '✍️ Type Custom Room';
-      select.style.display = 'block';
-      customInput.style.display = 'none';
-    }
-  });
-
-  $('#toggleInventoryInputMode')?.addEventListener('click', () => {
-    const btn = $('#toggleInventoryInputMode');
-    const select = $('#reportInventorySelect');
-    const customInput = $('#reportInventoryCustomInput');
-
-    if (inventoryInputMode === 'select') {
-      inventoryInputMode = 'custom';
-      btn.textContent = '📋 Choose from List';
-      select.style.display = 'none';
-      customInput.style.display = 'block';
-      customInput.focus();
-    } else {
-      inventoryInputMode = 'select';
-      btn.textContent = '✍️ Type Custom Item';
-      select.style.display = 'block';
-      customInput.style.display = 'none';
-    }
-  });
 
   await loadData();
 

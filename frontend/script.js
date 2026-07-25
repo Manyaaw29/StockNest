@@ -233,12 +233,37 @@ function createRoomCardHTML(room) {
       <img src="${imageUrl}" alt="${room.category}" style="width:90px;height:90px;object-fit:cover;object-position:center;flex-shrink:0;border-radius:10px;align-self:center;" onerror="this.style.display='none'" />
       <div style="display:flex;flex-direction:column;flex:1;gap:4px;min-width:0;justify-content:center;">
         <h4 style="margin:0;font-size:15px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${room.room_name}</h4>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:2px;">
+          ${room.floor ? `<span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${room.floor}</span>` : ''}
+          ${room.capacity ? `<span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Fits ${room.capacity}</span>` : ''}
+        </div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${amenityTags}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;flex-shrink:0;min-height:80px;">
-        <span class="room-card__badge">
-          <span class="room-card__badge-dot">●</span> ${room.status}
-        </span>
+        ${(() => {
+          let badgeBg = 'var(--color-success-bg)';
+          let badgeColor = 'var(--color-success)';
+          let dotColor = 'var(--color-success)';
+          let displayStatus = room.status;
+
+          if (displayStatus === 'Booked') {
+            badgeBg = '#fef3c7';
+            badgeColor = '#d97706';
+            dotColor = '#d97706';
+          } else if (displayStatus === 'Under Maintenance') {
+            badgeBg = 'var(--color-danger-bg)';
+            badgeColor = 'var(--color-danger)';
+            dotColor = 'var(--color-danger)';
+          } else {
+            displayStatus = 'Available';
+          }
+
+          return `
+            <span class="room-card__badge" style="background:${badgeBg}; color:${badgeColor};">
+              <span class="room-card__badge-dot" style="color:${dotColor};">●</span> ${displayStatus}
+            </span>
+          `;
+        })()}
         <button type="button" class="room-card__book-btn" data-room-id="${room.room_id}" data-room-name="${room.room_name}" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;white-space:nowrap;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
           Book Now
         </button>
