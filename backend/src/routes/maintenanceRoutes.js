@@ -18,6 +18,6 @@ router.get('/',    getMaintenance);                                       // GET
 router.get('/:id', getMaintenanceById);                                   // GET    /api/maintenance/:id
 router.post('/',   checkRole('Admin', 'Manager'), createMaintenance);     // POST   /api/maintenance
 router.put('/:id', checkRole('Admin', 'Manager'), updateMaintenance);     // PUT    /api/maintenance/:id
-router.delete('/:id', checkRole('Admin'),         deleteMaintenance);     // DELETE /api/maintenance/:id
+router.delete('/:id', checkRole('Admin', 'Manager'), deleteMaintenance);     // DELETE /api/maintenance/:id
 
 module.exports = router;

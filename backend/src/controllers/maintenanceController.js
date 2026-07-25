@@ -267,7 +267,8 @@ const deleteMaintenance = async (req, res) => {
     if (row.room_id) {
       const otherCheck = await pool.query(
         `SELECT request_id FROM maintenance 
-         WHERE room_id = $1 AND status IN ('Pending', 'In Progress')`
+         WHERE room_id = $1 AND status IN ('Pending', 'In Progress')`,
+        [row.room_id]
       );
       if (otherCheck.rows.length === 0) {
         await pool.query(
