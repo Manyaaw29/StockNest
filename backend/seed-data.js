@@ -23,58 +23,54 @@ async function seedData() {
     // 2. Seed Rooms
     console.log('🚪 Seeding rooms...');
     const roomInserts = [
-      // Executive Boardrooms (4)
-      ['Executive Boardroom 1', 'Executive Boardroom', '["TV", "Video Conference"]', 'Available'],
-      ['Executive Boardroom 2', 'Executive Boardroom', '["TV", "Video Conference"]', 'Available'],
-      ['Executive Boardroom 3', 'Executive Boardroom', '["TV", "Video Conference"]', 'Available'],
-      ['Executive Boardroom 4', 'Executive Boardroom', '["TV", "Video Conference", "Whiteboard"]', 'Available'],
+      // 2nd Floor - East Wing (8)
+      ['Executive Boardroom 1', 15, 'Executive Boardroom', 'East Wing - 2nd Floor', '["TV", "Video Conference"]', 'Available'],
+      ['Executive Boardroom 2', 15, 'Executive Boardroom', 'East Wing - 2nd Floor', '["TV", "Video Conference"]', 'Available'],
+      ['Conference Hall Alpha', 25, 'Conference Hall', 'East Wing - 2nd Floor', '["Sound System", "Stage", "Projector"]', 'Available'],
+      ['Private Cabin 101', 3, 'Private Cabin', 'East Wing - 2nd Floor', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Private Cabin 102', 3, 'Private Cabin', 'East Wing - 2nd Floor', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Private Cabin 103', 2, 'Private Cabin', 'East Wing - 2nd Floor', '["Executive Desk"]', 'Available'],
+      ['Focus Pod 1', 2, 'Focus Pod', 'East Wing - 2nd Floor', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 2', 2, 'Focus Pod', 'East Wing - 2nd Floor', '["Acoustic Panels"]', 'Available'],
       
-      // Meeting Rooms (8)
-      ['Meeting Room A', 'Meeting Room', '["Whiteboard", "Projector"]', 'Available'],
-      ['Meeting Room B', 'Meeting Room', '["Whiteboard", "Projector"]', 'Available'],
-      ['Meeting Room C', 'Meeting Room', '["Whiteboard"]', 'Available'],
-      ['Meeting Room D', 'Meeting Room', '["Whiteboard"]', 'Available'],
-      ['Meeting Room E', 'Meeting Room', '["Whiteboard", "TV"]', 'Available'],
-      ['Meeting Room F', 'Meeting Room', '["Whiteboard", "TV"]', 'Available'],
-      ['Meeting Room G', 'Meeting Room', '["Whiteboard"]', 'Available'],
-      ['Meeting Room H', 'Meeting Room', '["Whiteboard"]', 'Available'],
+      // 2nd Floor - West Wing (8)
+      ['Executive Boardroom 3', 20, 'Executive Boardroom', 'West Wing - 2nd Floor', '["TV", "Video Conference"]', 'Available'],
+      ['Executive Boardroom 4', 20, 'Executive Boardroom', 'West Wing - 2nd Floor', '["TV", "Video Conference", "Whiteboard"]', 'Available'],
+      ['Conference Hall Beta', 30, 'Conference Hall', 'West Wing - 2nd Floor', '["Sound System", "Projector"]', 'Available'],
+      ['Private Cabin 104', 2, 'Private Cabin', 'West Wing - 2nd Floor', '["Executive Desk"]', 'Available'],
+      ['Private Cabin 105', 4, 'Private Cabin', 'West Wing - 2nd Floor', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Private Cabin 106', 4, 'Private Cabin', 'West Wing - 2nd Floor', '["Executive Desk", "Whiteboard"]', 'Available'],
+      ['Focus Pod 3', 2, 'Focus Pod', 'West Wing - 2nd Floor', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 4', 2, 'Focus Pod', 'West Wing - 2nd Floor', '["Acoustic Panels"]', 'Available'],
+
+      // 1st Floor - East Wing (8)
+      ['Meeting Room A', 8, 'Meeting Room', 'East Wing - 1st Floor', '["Whiteboard", "Projector"]', 'Available'],
+      ['Meeting Room B', 8, 'Meeting Room', 'East Wing - 1st Floor', '["Whiteboard", "Projector"]', 'Available'],
+      ['Meeting Room C', 6, 'Meeting Room', 'East Wing - 1st Floor', '["Whiteboard"]', 'Available'],
+      ['Meeting Room D', 6, 'Meeting Room', 'East Wing - 1st Floor', '["Whiteboard"]', 'Available'],
+      ['Hot Desk Zone North', 1, 'Hot Desk Area', 'East Wing - 1st Floor', '["Power Outlet", "Monitor"]', 'Available'],
+      ['Hot Desk Zone South', 1, 'Hot Desk Area', 'East Wing - 1st Floor', '["Power Outlet", "Monitor"]', 'Available'],
+      ['Focus Pod 5', 2, 'Focus Pod', 'East Wing - 1st Floor', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 6', 2, 'Focus Pod', 'East Wing - 1st Floor', '["Acoustic Panels"]', 'Available'],
       
-      // Conference Halls (2)
-      ['Conference Hall Alpha', 'Conference Hall', '["Sound System", "Stage", "Projector"]', 'Available'],
-      ['Conference Hall Beta', 'Conference Hall', '["Sound System", "Projector"]', 'Available'],
-      
-      // Hot Desk Areas (4)
-      ['Hot Desk Zone North', 'Hot Desk Area', '["Power Outlet", "Monitor"]', 'Available'],
-      ['Hot Desk Zone South', 'Hot Desk Area', '["Power Outlet", "Monitor"]', 'Available'],
-      ['Hot Desk Zone East', 'Hot Desk Area', '["Power Outlet"]', 'Available'],
-      ['Hot Desk Zone West', 'Hot Desk Area', '["Power Outlet"]', 'Available'],
-      
-      // Focus Pods (8)
-      ['Focus Pod 1', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 2', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 3', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 4', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 5', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 6', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 7', 'Focus Pod', '["Acoustic Panels"]', 'Available'],
-      ['Focus Pod 8', 'Focus Pod', '["Acoustic Panels"]', 'Under Maintenance'],
-      
-      // Private Cabins (6)
-      ['Private Cabin 101', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
-      ['Private Cabin 102', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
-      ['Private Cabin 103', 'Private Cabin', '["Executive Desk"]', 'Available'],
-      ['Private Cabin 104', 'Private Cabin', '["Executive Desk"]', 'Available'],
-      ['Private Cabin 105', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
-      ['Private Cabin 106', 'Private Cabin', '["Executive Desk", "Whiteboard"]', 'Available'],
+      // 1st Floor - West Wing (8)
+      ['Meeting Room E', 10, 'Meeting Room', 'West Wing - 1st Floor', '["Whiteboard", "TV"]', 'Available'],
+      ['Meeting Room F', 10, 'Meeting Room', 'West Wing - 1st Floor', '["Whiteboard", "TV"]', 'Available'],
+      ['Meeting Room G', 6, 'Meeting Room', 'West Wing - 1st Floor', '["Whiteboard"]', 'Available'],
+      ['Meeting Room H', 6, 'Meeting Room', 'West Wing - 1st Floor', '["Whiteboard"]', 'Available'],
+      ['Hot Desk Zone East', 1, 'Hot Desk Area', 'West Wing - 1st Floor', '["Power Outlet"]', 'Available'],
+      ['Hot Desk Zone West', 1, 'Hot Desk Area', 'West Wing - 1st Floor', '["Power Outlet"]', 'Available'],
+      ['Focus Pod 7', 2, 'Focus Pod', 'West Wing - 1st Floor', '["Acoustic Panels"]', 'Available'],
+      ['Focus Pod 8', 2, 'Focus Pod', 'West Wing - 1st Floor', '["Acoustic Panels"]', 'Under Maintenance']
     ];
 
     const roomIds = [];
     for (const room of roomInserts) {
       const res = await pool.query(
-        `INSERT INTO room (org_id, room_name, category, amenities, status)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO room (org_id, room_name, capacity, category, floor, amenities, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING room_id`,
-        [orgId, room[0], room[1], room[2], room[3]]
+        [orgId, room[0], room[1], room[2], room[3], room[4], room[5]]
       );
       roomIds.push(res.rows[0].room_id);
     }
