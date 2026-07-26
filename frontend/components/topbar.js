@@ -301,7 +301,7 @@ export function openQuickAddModal() {
   const itemSelect = overlay.querySelector('#qa-ticket-item-select');
 
   // Fetch Rooms
-  fetch('http://localhost:5000/api/rooms', { headers: { 'Authorization': `Bearer ${token}` } })
+  fetch('https://stocknest-rpcw.onrender.com/api/rooms', { headers: { 'Authorization': `Bearer ${token}` } })
     .then(r => r.json())
     .then(data => {
       const list = data.rooms || [];
@@ -310,7 +310,7 @@ export function openQuickAddModal() {
     .catch(() => { roomSelect.innerHTML = `<option value="">Failed to load spaces</option>`; });
 
   // Fetch Inventory
-  fetch('http://localhost:5000/api/inventory', { headers: { 'Authorization': `Bearer ${token}` } })
+  fetch('https://stocknest-rpcw.onrender.com/api/inventory', { headers: { 'Authorization': `Bearer ${token}` } })
     .then(r => r.json())
     .then(data => {
       const list = data.inventory || [];
@@ -335,7 +335,7 @@ export function openQuickAddModal() {
     const floor = overlay.querySelector('#qa-room-floor').value.trim();
 
     try {
-      const res = await fetch('http://localhost:5000/api/rooms', {
+      const res = await fetch('https://stocknest-rpcw.onrender.com/api/rooms', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ room_name: name, type, capacity, floor })
@@ -363,7 +363,7 @@ export function openQuickAddModal() {
     const reorder = parseFloat(overlay.querySelector('#qa-inv-reorder').value);
 
     try {
-      const res = await fetch('http://localhost:5000/api/inventory', {
+      const res = await fetch('https://stocknest-rpcw.onrender.com/api/inventory', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ item_name: name, sku, category, current_stock: qty, reorder_point: reorder })
@@ -413,7 +413,7 @@ export function openQuickAddModal() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/maintenance', {
+      const res = await fetch('https://stocknest-rpcw.onrender.com/api/maintenance', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(postBody)
@@ -486,7 +486,7 @@ export function initTopbarEvents(container) {
         // Fetch logs dynamically from Dashboard activity feed
         try {
           const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-          const res = await fetch('http://localhost:5000/api/dashboard', {
+          const res = await fetch('https://stocknest-rpcw.onrender.com/api/dashboard', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (res.ok) {

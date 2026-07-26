@@ -100,7 +100,7 @@
     submitBtn.innerHTML = 'Creating Account...';
 
     try {
-      var response = await fetch('http://localhost:5000/api/auth/register', {
+      var response = await fetch('https://stocknest-rpcw.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -10,7 +10,7 @@ import { renderTopbar, initTopbarEvents } from './components/topbar.js';
    Config & Auth
    -------------------------------------------------------------------------- */
 
-const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
 const currentUser = userStr ? JSON.parse(userStr) : null;

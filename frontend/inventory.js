@@ -9,7 +9,7 @@ import { renderTopbar, initTopbarEvents } from './components/topbar.js?v=2';
 // ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
-const API_BASE   = 'http://localhost:5000/api';
+const API_BASE   = 'https://stocknest-rpcw.onrender.com/api';
 const PAGE_SIZE  = 8;
 const CATEGORIES = ['Office Supplies', 'Stationery', 'Pantry', 'Cleaning', 'General'];
 

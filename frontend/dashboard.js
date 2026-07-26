@@ -12,7 +12,7 @@ if (!token) {
   window.location.href = 'index.html';
 }
 
-const BACKEND_URL = 'http://localhost:5000/api';
+const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
 
 /* --------------------------------------------------------------------------
    API-ready data store (populated by fetchDashboardData later)

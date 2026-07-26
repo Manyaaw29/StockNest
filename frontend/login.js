@@ -10,9 +10,7 @@
   const passwordInput   = document.getElementById('password');
   const passwordToggle  = document.getElementById('passwordToggle');
   const loginForm       = document.getElementById('loginForm');
-  const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:5000'
-    : '';
+  const API_BASE_URL = 'https://stocknest-rpcw.onrender.com';
 
   if (!passwordInput || !passwordToggle || !loginForm) {
     return;
