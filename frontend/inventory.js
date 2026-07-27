@@ -533,33 +533,67 @@ function openFilterModal() {
 // ─────────────────────────────────────────────
 function openAddStockModal() {
   openModal('Add New Inventory Item',
-    `<div class="modal-field"><label>Item Name *</label>
-       <input type="text" id="stockName" placeholder="e.g. Printer Paper" required>
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+       <div class="modal-field" style="grid-column:1/-1;">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Item Name <span style="color:#ef4444;">*</span></label>
+         <input type="text" id="stockName" placeholder="e.g. Printer Paper" required
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
+       <div class="modal-field">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">SKU / Code</label>
+         <input type="text" id="stockSku" placeholder="e.g. PPR-A4-001"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
+       <div class="modal-field">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Category</label>
+         <select id="stockCategory"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;">
+           ${CATEGORIES.map((c) => `<option>${c}</option>`).join('')}
+         </select>
+       </div>
+
+       <div class="modal-field">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Current Stock</label>
+         <input type="number" id="stockQty" min="0" value="0" step="0.01"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
+       <div class="modal-field">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Unit</label>
+         <input type="text" id="stockUnit" value="Units"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
+       <div class="modal-field">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Reorder Point (Min Stock)</label>
+         <input type="number" id="stockMin" min="0" value="10" step="0.01"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
+       <div class="modal-field">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Monthly Consumption</label>
+         <input type="number" id="stockMonthly" min="0" value="0" step="0.01"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
+       <div class="modal-field" style="grid-column:1/-1;">
+         <label style="font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Supplier Email</label>
+         <input type="email" id="stockSupplier" placeholder="supplier@example.com"
+           style="width:100%;padding:10px 12px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;color:#1e293b;outline:none;transition:border 0.2s;"
+           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" />
+       </div>
+
      </div>
-     <div class="modal-field"><label>SKU / Code</label>
-       <input type="text" id="stockSku" placeholder="e.g. PPR-A4-001">
-     </div>
-     <div class="modal-field"><label>Category</label>
-       <select id="stockCategory">
-         ${CATEGORIES.map((c) => `<option>${c}</option>`).join('')}
-       </select>
-     </div>
-     <div class="modal-field"><label>Current Stock Quantity</label>
-       <input type="number" id="stockQty" min="0" value="0" step="0.01">
-     </div>
-     <div class="modal-field"><label>Unit</label>
-       <input type="text" id="stockUnit" value="Units">
-     </div>
-     <div class="modal-field"><label>Reorder Point (Min Stock)</label>
-       <input type="number" id="stockMin" min="0" value="10" step="0.01">
-     </div>
-     <div class="modal-field"><label>Monthly Consumption</label>
-       <input type="number" id="stockMonthly" min="0" value="0" step="0.01">
-     </div>
-     <div class="modal-field"><label>Supplier Email</label>
-       <input type="email" id="stockSupplier" placeholder="supplier@example.com">
-     </div>
-     <p class="modal-error" id="stockError"></p>`,
+     <p class="modal-error" id="stockError" style="margin-top:10px;"></p>`,
     `<button type="button" class="btn btn--outline" data-close-modal>Cancel</button>
      <button type="button" class="btn btn--primary" id="saveStockBtn" data-orig-text="Add Item">Add Item</button>`);
 
@@ -1065,11 +1099,11 @@ function initEvents() {
     }
   });
 
-  // Purchase order (stockout predictor button)
-  $('#purchaseOrderBtn').addEventListener('click', generatePurchaseOrder);
+  // Purchase order (stockout predictor button) - optional since widget may be removed
+  $('#purchaseOrderBtn')?.addEventListener('click', generatePurchaseOrder);
 
-  // Register form (sidebar quick-add)
-  $('#registerForm').addEventListener('submit', submitRegisterForm);
+  // Register form (sidebar quick-add) - optional since widget may be removed
+  $('#registerForm')?.addEventListener('submit', submitRegisterForm);
 
   // Close modal on backdrop / data-close-modal
   document.addEventListener('click', (e) => {

@@ -4,6 +4,7 @@
  */
 
 import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+import { openQuickAddModal } from './components/topbar.js';
 
 // Authentication Check
 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -358,10 +359,29 @@ const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
     }
   }
 
-  function renderNotifications() {
+  async function renderNotifications() {
     const list = $('#notifList');
     if (!list) return;
-    list.innerHTML = '<li class="dropdown-panel__empty">No notifications available.</li>';
+    list.innerHTML = '<li class="dropdown-panel__empty">Loading...</li>';
+    try {
+      const res = await fetch(`${BACKEND_URL}/dashboard`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const activities = data.recentActivity || [];
+      if (!activities.length) {
+        list.innerHTML = '<li class="dropdown-panel__empty">No recent activity.</li>';
+      } else {
+        list.innerHTML = activities.slice(0, 8).map(a => `
+          <li style="border-bottom:1px solid rgba(0,0,0,0.06);padding:8px 0;">
+            <div style="font-size:13px;color:#1e293b;line-height:1.4;">${a.description}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px;">${a.time}</div>
+          </li>`).join('');
+      }
+    } catch {
+      list.innerHTML = '<li class="dropdown-panel__empty" style="color:#ef4444;">Failed to load.</li>';
+    }
   }
 
   function initSummaryCardAnimations() {
@@ -408,9 +428,12 @@ const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
 
     const notifBtn = $('#notifBtn');
     const notifPanel = $('#notifPanel');
-    notifBtn?.addEventListener('click', (e) => {
+    notifBtn?.addEventListener('click', async (e) => {
       e.stopPropagation();
+      const wasHidden = notifPanel.hidden;
       toggleDropdown(notifBtn, notifPanel);
+      // Fetch live activity when opening the panel
+      if (wasHidden) await renderNotifications();
     });
 
     const profileBtn = $('#profileBtn');
@@ -434,8 +457,9 @@ const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
       });
     });
 
-    $('#quickAddBtn')?.addEventListener('click', () => {
-      if (window.openQuickAddModal) window.openQuickAddModal();
+    $('#quickAddBtn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openQuickAddModal();
     });
 
     $('#globalSearch')?.addEventListener('keydown', (e) => {
@@ -506,7 +530,8 @@ const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
   function init() {
     renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'dashboard' });
     initSidebarNav(document.getElementById('sidebar-root'));
-    renderNotifications();
+    // expose for legacy callers
+    window.openQuickAddModal = openQuickAddModal;
     initSummaryCardAnimations();
     initCharts();
     bindEvents();
