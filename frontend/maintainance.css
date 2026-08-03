@@ -965,3 +965,125 @@ th.sortable.sorted-desc .sort-indicator::after {
   box-shadow: 0 4px 12px rgba(20, 24, 43, 0.05);
 }
 
+/* ── Modal Overlay ──────────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.maintenance-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 32px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
+  position: relative;
+}
+
+.maintenance-modal h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.maintenance-modal .modal-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px;
+}
+
+.maintenance-modal .field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 6px;
+}
+
+.maintenance-modal .text-input,
+.maintenance-modal .text-area {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.maintenance-modal .text-input:focus,
+.maintenance-modal .text-area:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
+}
+
+.maintenance-modal .text-area {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-primary {
+  background: var(--accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover { background: var(--accent-blue-dark); }
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover { background: #e2e8f0; }
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover { background: #dc2626; }

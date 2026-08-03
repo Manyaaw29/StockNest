@@ -10,6 +10,8 @@ const maintenanceRoutes                 = require('./routes/maintenanceRoutes');
 const inventoryRoutes                   = require('./routes/inventoryRoutes');
 const roomRoutes                        = require('./routes/roomRoutes');
 const bookingRoutes                     = require('./routes/bookingRoutes');
+const assetRoutes                       = require('./routes/assetRoutes');
+const clientRoutes                      = require('./routes/clientRoutes');
 
 const app = express();
 
@@ -25,6 +27,8 @@ app.use('/api/maintenance',   maintenanceRoutes);
 app.use('/api/inventory',     inventoryRoutes);
 app.use('/api/rooms',         roomRoutes);
 app.use('/api/bookings',      bookingRoutes);
+app.use('/api/assets',        assetRoutes);
+app.use('/api/clients',       clientRoutes);
 
 app.get('/health', async (req, res) => {
   const pool = require('./config/db');

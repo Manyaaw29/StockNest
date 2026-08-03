@@ -85,15 +85,15 @@
 
               <label class="field-label" style="margin-top:0;">Issue Category</label>
               <div class="category-toggle-group">
-                <button type="button" class="toggle-btn active" id="btnSelectSpace" data-type="Space">🏢 Space</button>
-                <button type="button" class="toggle-btn" id="btnSelectInventory" data-type="Consumable">📦 Item</button>
+                <button type="button" class="toggle-btn active" id="btnSelectSpace" data-type="Space">Space</button>
+                <button type="button" class="toggle-btn" id="btnSelectInventory" data-type="Consumable">Item</button>
               </div>
 
               <!-- Group for Space selection -->
               <div id="spaceSelectGroup" class="selection-group">
                 <label class="field-label">Select Space / Room</label>
                 <select class="text-input" id="reportSpaceSelect">
-                  <option value="">-- Choose Space --</option>
+                  <option value="">Choose Space</option>
                 </select>
               </div>
 
@@ -101,7 +101,7 @@
               <div id="inventorySelectGroup" class="selection-group" style="display: none;">
                 <label class="field-label">Select Consumable</label>
                 <select class="text-input" id="reportInventorySelect">
-                  <option value="">-- Choose Consumable --</option>
+                  <option value="">Choose Consumable</option>
                 </select>
               </div>
 
@@ -115,12 +115,16 @@
               <div class="sla-note">Est. SLA: <strong id="slaEstimate">24 Hours</strong></div>
 
               <label class="field-label">Issue Type / Action Needed</label>
-              <select class="text-input" id="reportIssueType">
-                <option value="Hardware / Repair">🔧 Hardware / Repair</option>
-                <option value="Cleaning / Housekeeping">🧹 Cleaning</option>
-                <option value="IT / Network Support">💻 IT / Network</option>
-                <option value="General Checkup">📋 General Checkup</option>
+              <select class="text-input" id="reportIssueType" style="margin-bottom: 12px;">
+                <option value="Hardware / Repair">Hardware / Repair</option>
+                <option value="Cleaning / Housekeeping">Cleaning</option>
+                <option value="IT / Network Support">IT / Network</option>
+                <option value="General Checkup">General Checkup</option>
               </select>
+
+              <label class="field-label">Detailed Description</label>
+              <textarea class="text-input" id="reportDesc" placeholder="Describe the issue in detail..." style="resize: vertical; min-height: 80px;"></textarea>
+
 
               <button class="submit-btn" id="submitTicketBtn" style="width: 100%; margin-top: 16px;">▷ Submit Ticket</button>
             </section>
@@ -165,7 +169,7 @@
                     <th class="sortable" data-sort="priority">Priority <span class="sort-indicator"></span></th>
                     <th class="sortable" data-sort="deadline">Scheduled Date <span class="sort-indicator"></span></th>
                     <th class="sortable" data-sort="status">Status <span class="sort-indicator"></span></th>
-                    <th>Delete</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="maintenanceTableBody">

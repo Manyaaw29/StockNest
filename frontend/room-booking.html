@@ -157,6 +157,21 @@
     <div class="modal__content">
       <h4 id="modal-title" class="modal__title">Confirm Booking</h4>
       <p class="modal__message" id="modal-message">You are about to book this room.</p>
+            <div style="margin-top: 14px; display: flex; gap: 12px;">
+        <div style="flex: 1;">
+          <label for="booking-type" style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Booking Type</label>
+          <select id="booking-type" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; font-family:inherit; outline:none;">
+            <option value="internal">Internal Staff / Manager</option>
+            <option value="client">External Client</option>
+          </select>
+        </div>
+        <div style="flex: 1;">
+          <label for="booking-person" style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Select Person</label>
+          <select id="booking-person" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; font-family:inherit; outline:none;">
+            <option value="">-- Myself --</option>
+          </select>
+        </div>
+      </div>
       <div style="margin-top: 14px;">
         <label for="booking-purpose" style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Purpose <span style="color:#ef4444;">*</span></label>
         <textarea id="booking-purpose" placeholder="e.g. Team standup, Client meeting, Interview..." rows="3" style="width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; font-family:inherit; resize:none; outline:none; box-sizing:border-box; transition:border-color 0.15s;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#d1d5db'"></textarea>

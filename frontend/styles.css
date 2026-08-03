@@ -1239,6 +1239,28 @@ ul {
   color: #94a3b8;
 }
 
+.summary-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.45s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.summary-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.summary-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
 .btn--outline {
   display: inline-flex;
   align-items: center;

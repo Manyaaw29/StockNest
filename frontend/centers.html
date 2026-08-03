@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockNest — Centers</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Centers Page Specific Styles to match the screenshot */
+    .sage-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding-top: 10px;
+    }
+    .sage-page-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 6px 0;
+    }
+    .sage-page-title p {
+      font-size: 14px;
+      color: #6b7280;
+      margin: 0;
+    }
+    .sage-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sage-btn-primary {
+      background: #3b82f6;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sage-btn-primary:hover {
+      background: #2563eb;
+    }
+    .sage-btn-outline {
+      background: #ffffff;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .sage-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+      border: 1px solid #f3f4f6;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    .sage-card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .sage-card-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0;
+    }
+    
+    .sage-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .sage-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .sage-table th {
+      padding: 12px 24px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #e5e7eb;
+      background: #fafafa;
+    }
+    .sage-table td {
+      padding: 16px 24px;
+      font-size: 13px;
+      color: #374151;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+    }
+    .sage-table tbody tr:hover {
+      background: #f9fafb;
+    }
+    .sage-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Specific Column Formatting */
+    .col-name strong {
+      display: block;
+      color: #111827;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .col-name span {
+      color: #6b7280;
+      font-size: 12px;
+    }
+    .col-inventory strong {
+      display: block;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    .col-inventory span {
+      color: #9ca3af;
+      font-size: 12px;
+    }
+    .col-occupancy strong {
+      display: block;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+    .col-occupancy span {
+      color: #9ca3af;
+      font-size: 12px;
+    }
+    
+    .sage-action-group {
+      display: flex;
+      gap: 8px;
+    }
+    .sage-btn-action {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .sage-btn-action.danger {
+      color: #ef4444;
+    }
+    .sage-btn-action:hover {
+      background: #f9fafb;
+    }
+  
+    /* Modal Styles */
+    .sage-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(17, 24, 39, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .sage-modal-overlay.is-open {
+      display: flex;
+    }
+    .sage-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .sage-modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sage-modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .sage-modal-close {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    .sage-modal-body {
+      padding: 24px;
+    }
+    .sage-form-field {
+      margin-bottom: 16px;
+    }
+    .sage-form-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .sage-form-field input, .sage-form-field select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .sage-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #f9fafb;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="app-shell">
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+
+    <div class="app-shell__main">
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <main class="page-content" style="padding: 32px 40px; background-color: #f9fafb; min-height: 100vh;">
+        
+        <div class="sage-page-header">
+          <div class="sage-page-title">
+            <h1>Centers</h1>
+            <p>Manage coworking locations, managers, and inventory mix.</p>
+          </div>
+          <div class="sage-header-actions">
+            <span style="font-size: 12px; color: #9ca3af; margin-right: 8px;">Connected to StockNest</span>
+            <button class="sage-btn-primary" onclick="openModal('addCenterModal')">Add Center</button>
+          </div>
+        </div>
+
+        <div class="sage-card">
+          <div class="sage-card-header">
+            <h2>Centers</h2>
+          </div>
+          <div class="sage-table-container">
+            <table class="sage-table">
+              <thead>
+                <tr>
+                  <th>Center</th>
+                  
+                  <th>Support Contact</th>
+                  <th>Created On</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="centersTbody">
+                <!-- Data will be loaded here dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  
+  
+  <!-- Edit Center Modal -->
+  <div class="sage-modal-overlay" id="editCenterModal">
+    <div class="sage-modal">
+      <div class="sage-modal-header">
+        <h3>Edit Center</h3>
+        <button class="sage-modal-close" onclick="closeModal('editCenterModal')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <form id="formEditCenter">
+        <input type="hidden" id="editCenterId">
+        <div class="sage-modal-body">
+          <div class="sage-form-field">
+            <label>Center Name</label>
+            <input type="text" id="editCenterName" required>
+          </div>
+          <div class="sage-form-field">
+            <label>Address</label>
+            <input type="text" id="editCenterAddress">
+          </div>
+          <div class="sage-form-field">
+            <label>Support Email</label>
+            <input type="email" id="editCenterEmail">
+          </div>
+        </div>
+        <div class="sage-modal-footer">
+          <button type="button" class="sage-btn-outline" onclick="closeModal('editCenterModal')">Cancel</button>
+          <button type="submit" class="sage-btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Center Modal -->
+  <div class="sage-modal-overlay" id="addCenterModal">
+    <div class="sage-modal">
+      <div class="sage-modal-header">
+        <h3>Add New Center</h3>
+        <button class="sage-modal-close" onclick="closeModal('addCenterModal')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <form id="formAddCenter">
+        <div class="sage-modal-body">
+          <div class="sage-form-field">
+            <label>Center Name</label>
+            <input type="text" id="centerName" required placeholder="e.g. VTX-Sector 67">
+          </div>
+          <div class="sage-form-field">
+            <label>Address</label>
+            <input type="text" id="centerAddress" required placeholder="Full location address">
+          </div>
+          <div class="sage-form-field">
+            <label>Support Email</label>
+            <input type="email" id="centerEmail" placeholder="support@example.com">
+          </div>
+          
+        </div>
+        <div class="sage-modal-footer">
+          <button type="button" class="sage-btn-outline" onclick="closeModal('addCenterModal')">Cancel</button>
+          <button type="submit" class="sage-btn-primary">Save Center</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="sn_toast_module.js"></script>
+  <script type="module">
+
+    import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+    import { renderTopbar, initTopbarEvents } from './components/topbar.js';
+    
+    // Initialize Sidebar
+    renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'centers' });
+    initSidebarNav(document.getElementById('sidebar-root'));
+
+    renderTopbar(document.getElementById('topbar-root'), { searchPlaceholder: 'Search...' });
+    initTopbarEvents(document.getElementById('topbar-root'));
+
+    // API Setup
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000' 
+        : 'https://stocknest-rpcw.onrender.com';
+        
+    function getToken() {
+      return localStorage.getItem('token') || sessionStorage.getItem('token');
+    }
+    function getUserData() {
+      const u = localStorage.getItem('user') || sessionStorage.getItem('user');
+      return u ? JSON.parse(u) : null;
+    }
+
+    async function loadCenters() {
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE_URL}/api/organizations`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch orgs');
+        const orgs = await res.json();
+        
+        const tbody = document.getElementById('centersTbody');
+        
+        if (orgs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">No centers found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = orgs.map(org => {
+            const date = new Date(org.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            return `
+              <tr>
+                <td class="col-name">
+                  <strong>${org.name || '-'}</strong>
+                  ${org.address ? `<span>${org.address}</span>` : ''}
+                </td>
+                <td>${org.support_email || '-'}</td>
+                <td>${date}</td>
+                <td>
+                  <div class="sage-action-group">
+                    <button class="sage-btn-action" onclick="openEditCenterModal(${org.org_id}, '${org.name ? org.name.replace(/'/g, "\'") : ''}', '${org.address ? org.address.replace(/'/g, "\'") : ''}', '${org.support_email ? org.support_email.replace(/'/g, "\'") : ''}')">Edit</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+        }).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById('formAddCenter')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('centerName').value;
+      const address = document.getElementById('centerAddress').value;
+      const support_email = document.getElementById('centerEmail').value;
+      
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const oldText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE_URL}/api/organizations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ name, address, support_email })
+        });
+        if (!res.ok) throw new Error('Failed to add center');
+        
+        closeModal('addCenterModal');
+        e.target.reset();
+        snToast('Center added successfully!', { type: 'success' });
+        loadCenters();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = oldText;
+      }
+    });
+
+
+
+    window.openModal = (id) => document.getElementById(id).classList.add('is-open');
+    window.closeModal = (id) => document.getElementById(id).classList.remove('is-open');
+
+    
+    window.openEditCenterModal = (id, name, address, email) => {
+      document.getElementById('editCenterId').value = id;
+      document.getElementById('editCenterName').value = name;
+      document.getElementById('editCenterAddress').value = address;
+      document.getElementById('editCenterEmail').value = email;
+      openModal('editCenterModal');
+    };
+
+    document.getElementById('formEditCenter')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editCenterId').value;
+      const name = document.getElementById('editCenterName').value;
+      const address = document.getElementById('editCenterAddress').value;
+      const support_email = document.getElementById('editCenterEmail').value;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const oldText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      try {
+        const token = getToken();
+        const res = await fetch(`${API_BASE_URL}/api/organizations/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ name, address, support_email })
+        });
+        if (!res.ok) throw new Error('Failed to update center');
+        
+        closeModal('editCenterModal');
+        snToast('Center updated successfully!', { type: 'success' });
+        loadCenters();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = oldText;
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadCenters);
+  </script>
+</body>
+</html>

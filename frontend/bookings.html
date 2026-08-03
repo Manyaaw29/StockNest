@@ -125,7 +125,8 @@
               <thead>
                 <tr>
                   <th>Booking ID</th>
-                  <th>User</th>
+                  <th>Booked By</th>
+                  <th>Client</th>
                   <th>Space</th>
                   <th>Date</th>
                   <th>Start Time</th>
@@ -157,8 +158,10 @@
 
       <form id="booking-form" class="modal__form">
         <div class="form-field">
-          <label class="form-field__label" for="field-user">User Name</label>
-          <input type="text" id="field-user" class="form-field__input" placeholder="Enter user name" required />
+          <label class="form-field__label" for="field-client">Client (Optional)</label>
+          <select id="field-client" class="form-field__input form-field__select">
+            <option value="">-- Internal Booking (No Client) --</option>
+          </select>
         </div>
 
         <div class="form-field">
@@ -184,8 +187,16 @@
             <input type="time" id="field-start" class="form-field__input" required />
           </div>
           <div class="form-field">
-            <label class="form-field__label" for="field-end">End Time</label>
-            <input type="time" id="field-end" class="form-field__input" required />
+            <label class="form-field__label" for="field-duration">Duration</label>
+            <select id="field-duration" class="form-field__input form-field__select" required>
+              <option value="30">30 Minutes</option>
+              <option value="60" selected>1 Hour</option>
+              <option value="90">1.5 Hours</option>
+              <option value="120">2 Hours</option>
+              <option value="180">3 Hours</option>
+              <option value="240">Half Day (4 Hrs)</option>
+              <option value="480">Full Day (8 Hrs)</option>
+            </select>
           </div>
         </div>
 

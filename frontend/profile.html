@@ -4,253 +4,307 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Profile | StockNest</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="dashboard.css">
-  <link rel="stylesheet" href="stocknest-settings-styles.css">
+  
   <style>
-    .status-badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.2s ease;
+    /* Reusing Sage layout styles from Centers/Clients */
+    .sage-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding-top: 10px;
     }
-    .status-active { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .status-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
-    .status-suspended { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .status-inactive { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-
-    .status-legend-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-    .status-card-btn {
-      padding: 14px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      background: #ffffff;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .status-card-btn:hover {
-      border-color: #2563eb;
-      background: #f8fafc;
-      transform: translateY(-1px);
-    }
-    .status-card-btn.is-active-card {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-      background: #eff6ff;
-    }
-    .status-card-btn h4 {
+    .sage-page-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
       margin: 0 0 6px 0;
-      font-size: 13px;
-      font-weight: 600;
+    }
+    .sage-page-title p {
+      font-size: 14px;
+      color: #6b7280;
+      margin: 0;
+    }
+    .sage-header-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 12px;
     }
-    .status-card-btn p {
-      margin: 0;
-      font-size: 12px;
+    .sage-btn-primary {
+      background: #3b82f6;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sage-btn-primary:hover {
+      background: #2563eb;
+    }
+    .sage-btn-outline {
+      background: #ffffff;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .sage-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+      border: 1px solid #f3f4f6;
+      overflow: hidden;
+      margin-bottom: 30px;
+      padding: 24px;
+    }
+    .sage-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 20px 0;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    /* Forms */
+    .sage-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .sage-form-field {
+      margin-bottom: 16px;
+    }
+    .sage-form-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .sage-form-field input, .sage-form-field select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .sage-form-field input:focus, .sage-form-field select:focus {
+      border-color: #3b82f6;
+    }
+    .sage-form-field input[readonly] {
+      background-color: #f9fafb;
       color: #6b7280;
-      line-height: 1.4;
+      cursor: not-allowed;
     }
+
+    /* Avatar specific */
+    .profile-avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+    .avatar-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 600;
+      background-size: cover;
+      background-position: center;
+    }
+    .avatar-info h2 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+      color: #111827;
+    }
+    .avatar-info p {
+      margin: 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .avatar-actions {
+      margin-top: 12px;
+    }
+
+    /* Modals */
+    .sage-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(17, 24, 39, 0.4);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .sage-modal-overlay.is-open { display: flex; }
+    .sage-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 100%; max-width: 480px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .sage-modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sage-modal-header h3 {
+      margin: 0; font-size: 18px; font-weight: 600; color: #111827;
+    }
+    .sage-modal-close {
+      background: none; border: none; color: #9ca3af; cursor: pointer;
+    }
+    .sage-modal-body { padding: 24px; }
+    .sage-modal-footer {
+      padding: 16px 24px; border-top: 1px solid #f3f4f6;
+      display: flex; justify-content: flex-end; gap: 12px; background: #f9fafb;
+    }
+
+    .avatar-preset-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      margin-bottom: 20px;
+    }
+    .avatar-preset-opt {
+      aspect-ratio: 1; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 600; font-size: 18px;
+      cursor: pointer; border: 2px solid transparent;
+    }
+    .avatar-preset-opt.is-selected { border-color: #111827; }
   </style>
+
 </head>
 <body>
 
-  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
-
   <div class="app-shell">
-    <!-- Sidebar Navigation Target -->
     <aside id="sidebar-root" class="app-shell__sidebar"></aside>
 
     <div class="app-shell__main">
-      <header class="topbar">
-        <div class="topbar__search">
-          <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" class="topbar__search-input" placeholder="Search profile...">
-        </div>
-        <div class="topbar__actions">
-          <button class="btn btn--primary btn--sm" id="snQuickAddBtn" type="button">+ Quick Add</button>
-          <div class="topbar__dropdown-wrap">
-            <button class="topbar__avatar global-header-avatar" type="button" onclick="window.location.href='profile.html'"></button>
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <main class="page-content" style="padding: 32px 40px; background-color: #f9fafb; min-height: 100vh;">
+        
+        <div class="sage-page-header">
+          <div class="sage-page-title">
+            <h1>My Profile</h1>
+            <p>Update your personal account information and avatar.</p>
           </div>
         </div>
-      </header>
 
-      <main class="main-content">
-        <!-- Hero Header -->
-        <div class="profile-hero-card">
-          <div class="profile-hero__left">
-            <div class="profile-avatar-xl global-header-avatar" id="avatarPreviewText"></div>
-            <div>
-              <div style="font-size:20px; font-weight:700;" id="heroNameText"></div>
-              <div style="font-size:13px; color:#9ca3af;" id="heroEmailText"></div>
-              <div style="font-size:12px; color:#60a5fa; margin-top:4px;">Workspace Administrator</div>
+        <div class="sage-card">
+          
+          <div class="profile-avatar-row">
+            <div class="avatar-circle global-header-avatar" id="avatarPreviewText"></div>
+            <div class="avatar-info">
+              <h2 id="heroNameText">Loading...</h2>
+              <p id="heroEmailText">Loading...</p>
+              <div class="avatar-actions">
+                <button class="sage-btn-outline" onclick="openModal('avatarModalBackdrop')">Change Avatar</button>
+              </div>
             </div>
           </div>
-          <div>
-            <button class="btn btn--primary btn--sm" id="btnOpenAvatarModal">📷 Change Avatar</button>
-          </div>
-        </div>
 
-        <!-- Personal Details -->
-        <div class="sn-card">
-          <h2 class="sn-card__title">Personal Profile Details</h2>
-          <p class="sn-card__desc">Update your personal account information.</p>
-
-          <form id="proProfileForm" style="margin-top:20px;">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-              <div class="form-group">
-                <label class="form-label">First Name</label>
-                <input class="form-input" type="text" id="profFirstName" value="" required>
+          <h3 class="sage-card-title">Personal Details</h3>
+          
+          <form id="proProfileForm">
+            <div class="sage-form-grid">
+              <div class="sage-form-field">
+                <label>First Name</label>
+                <input type="text" id="profFirstName" required>
               </div>
-              <div class="form-group">
-                <label class="form-label">Last Name</label>
-                <input class="form-input" type="text" id="profLastName" value="" required>
+              <div class="sage-form-field">
+                <label>Last Name</label>
+                <input type="text" id="profLastName" required>
               </div>
-              <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <input class="form-input" type="email" id="profEmail" value="" required>
+              <div class="sage-form-field">
+                <label>Email Address</label>
+                <input type="email" id="profEmail" required>
               </div>
-              <div class="form-group">
-                <label class="form-label">Phone Number</label>
-                <input class="form-input" type="text" value="+1 (555) 234-5678">
+              <div class="sage-form-field">
+                <label>Phone Number</label>
+                <input type="text" id="profPhone" placeholder="+1 (555) 000-0000">
+              </div>
+              <div class="sage-form-field">
+                <label>Department</label>
+                <input type="text" id="profDepartment" placeholder="e.g. Engineering">
+              </div>
+              <div class="sage-form-field">
+                <label>Role</label>
+                <input type="text" id="profAccess" readonly>
               </div>
             </div>
-            <div style="margin-top:16px;">
-              <button class="btn btn--primary" type="submit">Save Details</button>
+            <div style="margin-top: 10px;">
+              <button class="sage-btn-primary" type="submit">Save Changes</button>
             </div>
           </form>
+
         </div>
-
-        <!-- Account Overview (Read-Only) -->
-        <div class="sn-card" style="margin-top:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <h2 class="sn-card__title">Account Overview (Read-Only)</h2>
-              <p class="sn-card__desc">System generated account metrics and permission attributes.</p>
-            </div>
-            <span class="status-badge-pill status-active" id="currentAccountStatusBadge">
-              🟢 Active
-            </span>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:20px; padding:16px; background:#f9fafb; border-radius:8px; border:1px solid #f3f4f6;">
-            <div>
-              <div style="font-size:12px; color:#6b7280; font-weight:500;">Member Since</div>
-              <div style="font-size:15px; font-weight:600; color:#111827; margin-top:4px;">Jan 15, 2024</div>
-            </div>
-            <div>
-              <div style="font-size:12px; color:#6b7280; font-weight:500;">Last Login</div>
-              <div style="font-size:15px; font-weight:600; color:#111827; margin-top:4px;" id="lastLoginTime">Today, 11:04 PM</div>
-            </div>
-            <div>
-              <div style="font-size:12px; color:#6b7280; font-weight:500;">Role Access Level</div>
-              <div style="font-size:15px; font-weight:600; color:#2563eb; margin-top:4px;">Workspace Administrator</div>
-            </div>
-          </div>
-
-          <div style="margin-top:20px;">
-            <label class="form-label" style="margin-bottom:8px; display:block;">Select Status View to Test System State:</label>
-            <div class="status-legend-grid">
-              <div class="status-card-btn is-active-card" id="card-active" onclick="switchStatusState('active')">
-                <h4>🟢 Active</h4>
-                <p>Standard operational status. Full workspace access and system privileges enabled.</p>
-              </div>
-              <div class="status-card-btn" id="card-pending" onclick="switchStatusState('pending')">
-                <h4>🟡 Pending</h4>
-                <p>Invitation sent. Awaiting user email verification and initial onboarding completion.</p>
-              </div>
-              <div class="status-card-btn" id="card-suspended" onclick="switchStatusState('suspended')">
-                <h4>🔴 Suspended</h4>
-                <p>Account temporarily restricted by system administrator due to policy enforcement.</p>
-              </div>
-              <div class="status-card-btn" id="card-inactive" onclick="switchStatusState('inactive')">
-                <h4>⚫ Inactive</h4>
-                <p>Account permanently deactivated. User access revoked across all workspace services.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </main>
     </div>
   </div>
 
   <!-- AVATAR CHANGE MODAL POPUP -->
-  <div class="sn-modal-backdrop" id="avatarModalBackdrop">
-    <div class="sn-modal-box">
-      <div class="sn-modal__head">
-        <h3 class="sn-modal__title">Update Profile Picture</h3>
-        <button class="sn-modal__close" onclick="closeModal('avatarModalBackdrop')">✕</button>
+  <div class="sage-modal-overlay" id="avatarModalBackdrop">
+    <div class="sage-modal">
+      <div class="sage-modal-header">
+        <h3>Update Profile Picture</h3>
+        <button class="sage-modal-close" onclick="closeModal('avatarModalBackdrop')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
       </div>
-      
-      <p style="font-size:13px; color:#6b7280;">Choose a color avatar preset or upload a custom image from your computer.</p>
+      <div class="sage-modal-body">
+        <p style="font-size:13px; color:#6b7280; margin-top:0;">Choose a preset color:</p>
+        <div class="avatar-preset-grid">
+          <div class="avatar-preset-opt is-selected" style="background:#3b82f6;" onclick="selectPreset('#3b82f6', 'JD')">JD</div>
+          <div class="avatar-preset-opt" style="background:#10b981;" onclick="selectPreset('#10b981', 'JD')">JD</div>
+          <div class="avatar-preset-opt" style="background:#8b5cf6;" onclick="selectPreset('#8b5cf6', 'JD')">JD</div>
+          <div class="avatar-preset-opt" style="background:#f59e0b;" onclick="selectPreset('#f59e0b', 'JD')">JD</div>
+        </div>
 
-      <div class="avatar-preset-grid">
-        <div class="avatar-preset-opt is-selected" style="background:#2563eb;" onclick="selectPreset('#2563eb', 'JD')">JD</div>
-        <div class="avatar-preset-opt" style="background:#10b981;" onclick="selectPreset('#10b981', 'JD')">JD</div>
-        <div class="avatar-preset-opt" style="background:#8b5cf6;" onclick="selectPreset('#8b5cf6', 'JD')">JD</div>
-        <div class="avatar-preset-opt" style="background:#f59e0b;" onclick="selectPreset('#f59e0b', 'JD')">JD</div>
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid #f3f4f6;">
+          <label style="display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:8px;">Or upload custom image:</label>
+          <input type="file" id="localAvatarUpload" accept="image/*" style="width:100%; border:1px solid #d1d5db; border-radius:6px; padding:6px; font-size:13px;">
+        </div>
       </div>
-
-      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #f3f4f6;">
-        <label class="form-label">Upload Custom Image</label>
-        <input type="file" id="localAvatarUpload" accept="image/*" class="form-input" style="padding:8px;">
-      </div>
-      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-        <button class="btn btn--outline" onclick="closeModal('avatarModalBackdrop')">Cancel</button>
-        <button class="btn btn--primary" id="btnSaveAvatarChoice">Apply Avatar</button>
+      <div class="sage-modal-footer">
+        <button class="sage-btn-outline" onclick="closeModal('avatarModalBackdrop')">Cancel</button>
+        <button class="sage-btn-primary" id="btnSaveAvatarChoice">Apply Avatar</button>
       </div>
     </div>
   </div>
 
   <script src="sn_toast_module.js"></script>
-  <script src="sn_common.js"></script>
-  <script src="global-nav.js"></script>
   <script type="module">
     import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+    import { renderTopbar, initTopbarEvents } from './components/topbar.js';
     
-    // Render and initialize the reusable sidebar
+    // Initialize Sidebar
     renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'profile' });
     initSidebarNav(document.getElementById('sidebar-root'));
 
-    function switchStatusState(statusType) {
-      const badge = document.getElementById('currentAccountStatusBadge');
-      document.querySelectorAll('.status-card-btn').forEach(card => card.classList.remove('is-active-card'));
-
-      if (statusType === 'active') {
-        badge.className = 'status-badge-pill status-active';
-        badge.innerHTML = '🟢 Active';
-        document.getElementById('card-active').classList.add('is-active-card');
-      } else if (statusType === 'pending') {
-        badge.className = 'status-badge-pill status-pending';
-        badge.innerHTML = '🟡 Pending';
-        document.getElementById('card-pending').classList.add('is-active-card');
-      } else if (statusType === 'suspended') {
-        badge.className = 'status-badge-pill status-suspended';
-        badge.innerHTML = '🔴 Suspended';
-        document.getElementById('card-suspended').classList.add('is-active-card');
-      } else if (statusType === 'inactive') {
-        badge.className = 'status-badge-pill status-inactive';
-        badge.innerHTML = '⚫ Inactive';
-        document.getElementById('card-inactive').classList.add('is-active-card');
-      }
-      
-      snToast(`Account state switched to ${statusType.toUpperCase()}`, { title: 'Status Switch', type: 'info' });
-    }
+    renderTopbar(document.getElementById('topbar-root'), { searchPlaceholder: 'Search...' });
+    initTopbarEvents(document.getElementById('topbar-root'));
 
     function updateAllAvatarsUI() {
       const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
@@ -266,11 +320,10 @@
       document.querySelectorAll('.global-header-avatar, .topbar__avatar').forEach(el => {
         if (savedImg) {
           el.style.backgroundImage = `url(${savedImg})`;
-          el.style.backgroundSize = 'cover';
-          el.style.backgroundPosition = 'center';
+          el.style.backgroundColor = 'transparent';
           el.textContent = '';
         } else if (savedBg) {
-          el.style.backgroundImage = '';
+          el.style.backgroundImage = 'none';
           el.style.backgroundColor = savedBg;
           el.textContent = savedText;
         }
@@ -278,18 +331,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Check Authentication & Load Profile from Backend
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      if (!token) {
-        window.location.href = 'index.html';
-        return;
-      }
+      if (!token) { window.location.href = 'index.html'; return; }
 
       let userId = null;
 
       try {
         const res = await fetch('https://stocknest-rpcw.onrender.com/api/auth/me', {
-          method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -298,46 +346,29 @@
           const user = data.user;
           userId = user.user_id;
 
-          // Split name into first and last name
           const nameParts = user.name.split(' ');
           const firstName = nameParts[0] || '';
           const lastName = nameParts.slice(1).join(' ') || '';
 
-          // Populate DOM fields
           document.getElementById('profFirstName').value = firstName;
           document.getElementById('profLastName').value = lastName;
           document.getElementById('profEmail').value = user.email;
+          document.getElementById('profPhone').value = user.phone || '';
+          document.getElementById('profDepartment').value = user.department || '';
+          document.getElementById('profAccess').value = user.role || 'Staff';
 
-          // Populate Hero Elements
           document.getElementById('heroNameText').textContent = user.name;
           document.getElementById('heroEmailText').textContent = user.email;
 
-          // Sync database avatar config into localStorage cache
           const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase() || 'U';
-          if (user.avatar_img !== undefined && user.avatar_img !== null) {
-            localStorage.setItem(`sn_user_avatar_img_${userId}`, user.avatar_img);
-          } else {
-            localStorage.removeItem(`sn_user_avatar_img_${userId}`);
-          }
+          if (user.avatar_img) localStorage.setItem(`sn_user_avatar_img_${userId}`, user.avatar_img);
+          else localStorage.removeItem(`sn_user_avatar_img_${userId}`);
 
-          if (user.avatar_bg !== undefined && user.avatar_bg !== null) {
-            localStorage.setItem(`sn_user_avatar_bg_${userId}`, user.avatar_bg);
-          } else {
-            localStorage.removeItem(`sn_user_avatar_bg_${userId}`);
-          }
+          if (user.avatar_bg) localStorage.setItem(`sn_user_avatar_bg_${userId}`, user.avatar_bg);
+          else localStorage.removeItem(`sn_user_avatar_bg_${userId}`);
 
-          if (user.avatar_text !== undefined && user.avatar_text !== null) {
-            localStorage.setItem(`sn_user_avatar_text_${userId}`, user.avatar_text);
-          } else {
-            localStorage.setItem(`sn_user_avatar_text_${userId}`, initials);
-          }
+          localStorage.setItem(`sn_user_avatar_text_${userId}`, user.avatar_text || initials);
 
-          const avatarBox = document.getElementById('avatarPreviewText');
-          if (avatarBox) {
-            avatarBox.textContent = user.avatar_text || initials;
-          }
-
-          // Update the colored preset options in the avatar modal
           document.querySelectorAll('.avatar-preset-opt').forEach(el => {
             el.textContent = initials;
             const onclickAttr = el.getAttribute('onclick') || '';
@@ -346,30 +377,11 @@
               el.setAttribute('onclick', `selectPreset('${colorMatch[0]}', '${initials}')`);
             }
           });
-        } else {
-          // Token expired or invalid
-          window.location.href = 'index.html';
-          return;
         }
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-        snToast('Failed to load profile from backend.', { title: 'Network Error', type: 'error' });
-      }
+      } catch (err) { console.error('Error fetching profile:', err); }
 
-      // Initialize UI elements
       updateAllAvatarsUI();
 
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const lastLoginEl = document.getElementById('lastLoginTime');
-      if (lastLoginEl) lastLoginEl.textContent = `Today, ${timeStr}`;
-
-      // Open Avatar Modal
-      document.getElementById('btnOpenAvatarModal')?.addEventListener('click', () => {
-        openModal('avatarModalBackdrop');
-      });
-
-      // Handle custom file upload for profile avatar
       const fileInput = document.getElementById('localAvatarUpload');
       fileInput?.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -383,49 +395,38 @@
             try {
               await fetch(`https://stocknest-rpcw.onrender.com/api/users/${userId}`, {
                 method: 'PUT',
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                },
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ avatar_img: dataUrl, avatar_bg: null, avatar_text: null })
               });
-            } catch(err) {
-              console.error('Failed to save avatar to PostgreSQL:', err);
-            }
+            } catch(err) {}
 
             updateAllAvatarsUI();
             closeModal('avatarModalBackdrop');
-            snToast('Custom profile picture uploaded and saved to database!', { title: 'Photo Updated', type: 'success' });
+            snToast('Profile picture uploaded!', { type: 'success' });
           };
           reader.readAsDataURL(file);
         }
       });
 
-      // Save Form to Backend
       document.getElementById('proProfileForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const f = document.getElementById('profFirstName').value.trim();
         const l = document.getElementById('profLastName').value.trim();
         const email = document.getElementById('profEmail').value.trim();
+        const phone = document.getElementById('profPhone').value.trim();
+        const department = document.getElementById('profDepartment').value.trim();
         const fullName = `${f} ${l}`.trim();
 
-        if (!userId) {
-          snToast('User context not found.', { title: 'Error', type: 'error' });
-          return;
-        }
+        if (!userId) return;
 
         try {
           const res = await fetch(`https://stocknest-rpcw.onrender.com/api/users/${userId}`, {
             method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name: fullName, email })
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: fullName, email, phone, department })
           });
 
           const data = await res.json();
-
           if (res.ok && data.success) {
             document.getElementById('heroNameText').textContent = fullName;
             document.getElementById('heroEmailText').textContent = email;
@@ -434,7 +435,6 @@
             localStorage.setItem(`sn_user_avatar_text_${userId}`, initials);
             updateAllAvatarsUI();
 
-            // Sync localStorage cache
             const userString = localStorage.getItem('user') || sessionStorage.getItem('user');
             if (userString) {
               const cachedUser = JSON.parse(userString);
@@ -442,14 +442,12 @@
               if (localStorage.getItem('user')) localStorage.setItem('user', JSON.stringify(updatedUser));
               if (sessionStorage.getItem('user')) sessionStorage.setItem('user', JSON.stringify(updatedUser));
             }
-
-            snToast('Profile details updated successfully!', { title: 'Saved', type: 'success' });
+            snToast('Profile details updated!', { type: 'success' });
           } else {
-            snToast(data.message || 'Failed to update profile.', { title: 'Save Failed', type: 'error' });
+            snToast(data.message || 'Failed to update.', { type: 'error' });
           }
         } catch (err) {
-          console.error('Error saving profile:', err);
-          snToast('Server error updating profile.', { title: 'Error', type: 'error' });
+          snToast('Server error.', { type: 'error' });
         }
       });
     });
@@ -460,43 +458,31 @@
 
       const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
       let uId = 'default';
-      if (userStr) {
-        try { uId = JSON.parse(userStr).user_id || 'default'; } catch(e) {}
-      }
+      if (userStr) { try { uId = JSON.parse(userStr).user_id || 'default'; } catch(e) {} }
 
       localStorage.setItem(`sn_user_avatar_bg_${uId}`, color);
       localStorage.setItem(`sn_user_avatar_text_${uId}`, initials);
       localStorage.removeItem(`sn_user_avatar_img_${uId}`);
 
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       try {
         await fetch(`https://stocknest-rpcw.onrender.com/api/users/${uId}`, {
           method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ avatar_img: null, avatar_bg: color, avatar_text: initials })
         });
-      } catch(err) {
-        console.error('Failed to save preset selection to PostgreSQL:', err);
-      }
-
+      } catch(err) {}
       updateAllAvatarsUI();
     }
 
     document.getElementById('btnSaveAvatarChoice')?.addEventListener('click', () => {
       closeModal('avatarModalBackdrop');
-      snToast('Profile avatar updated!', { title: 'Success', type: 'success' });
+      snToast('Profile avatar updated!', { type: 'success' });
     });
 
-    function openModal(id) { document.getElementById(id)?.classList.add('is-open'); }
-    function closeModal(id) { document.getElementById(id)?.classList.remove('is-open'); }
-
-    // Expose helpers globally for HTML inline handlers
-    window.switchStatusState = switchStatusState;
+    window.openModal = (id) => document.getElementById(id)?.classList.add('is-open');
+    window.closeModal = (id) => document.getElementById(id)?.classList.remove('is-open');
     window.selectPreset = selectPreset;
-    window.openModal = openModal;
-    window.closeModal = closeModal;
   </script>
 </body>
 </html>

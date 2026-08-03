@@ -1,520 +1,371 @@
-/**
- * StockNest — Workspace Dashboard
- * API-ready dashboard with empty-state UI. No dummy data.
- */
-
+import { requireAuth, apiFetch } from './sn_common.js';
 import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+import { renderTopbar, initTopbarEvents } from './components/topbar.js';
 
-// Authentication Check
-const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-if (!token) {
-  console.warn('No authentication token found. Redirecting to login...');
-  window.location.href = 'index.html';
-}
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireAuth()) return;
 
-const BACKEND_URL = 'https://stocknest-rpcw.onrender.com/api';
+  // ── Layout ─────────────────────────────────────────────────────────────────
+  const sidebarRoot = document.getElementById('sidebar-root');
+  const topbarRoot  = document.getElementById('topbar-root');
+  if (sidebarRoot) { renderSidebar(sidebarRoot, { activeItem: 'dashboard' }); initSidebarNav(sidebarRoot); }
+  if (topbarRoot)  { renderTopbar(topbarRoot); initTopbarEvents(topbarRoot); }
 
-/* --------------------------------------------------------------------------
-   API-ready data store (populated by fetchDashboardData later)
-     -------------------------------------------------------------------------- */
-
-  const DashboardData = {
-    summary: {
-      totalRooms: null,
-      occupiedRooms: null,
-      availableRooms: null,
-      todayBookings: null,
-      trends: {
-        totalRooms: null,
-        occupiedRooms: null,
-        availableRooms: null,
-        todayBookings: null,
-      },
-    },
-    bookingTrend: { labels: [], datasets: [] },
-    occupancy: { labels: [], datasets: [] },
-    upcomingBookings: [],
-    roomAvailability: [],
-    recentActivity: [],
-  };
-
-  const MODULE_ROUTES = {
-    'setup-locations': 'organisation.html',
-    'inventory-management': 'inventory.html',
-    'maintenance': 'maintainance.html',
-    'room-booking': 'room-booking.html',
-    'room-allocation': 'allocation.html',
-    'settings': 'stocknest-settings-view.html',
-  };
-
-  let bookingChart = null;
-  let occupancyChart = null;
-
-  const $ = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
-
-  /* --------------------------------------------------------------------------
-     Utilities
-     -------------------------------------------------------------------------- */
-
-  function showToast(message, type = 'info') {
-    const container = $('#toastContainer');
-    if (!container) return;
-    const toast = document.createElement('div');
-    toast.className = `toast toast--${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3200);
+  // ── Topbar user info & Greeting ────────────────────────────────────────────
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}'); }
+    catch { return {}; }
+  })();
+  const profileBtn = document.getElementById('profileBtn');
+  let firstName = 'User';
+  if (profileBtn && user.name) {
+    const parts = user.name.trim().split(' ');
+    firstName = parts[0] || 'User';
+    profileBtn.textContent = `${parts[0]?.[0] || ''}${parts[1]?.[0] || ''}`.toUpperCase() || 'U';
   }
 
-  function formatValue(value) {
-    return value === null || value === undefined ? '--' : value;
+  // Dynamic Greeting
+  const greetingEl = document.getElementById('dashboardGreeting');
+  if (greetingEl) {
+    const hour = new Date().getHours();
+    let greeting = 'Good Evening';
+    if (hour < 12) greeting = 'Good Morning';
+    else if (hour < 18) greeting = 'Good Afternoon';
+    greetingEl.textContent = `${greeting}, ${firstName} 👋`;
   }
 
-  function formatTrend(value) {
-    return value === null || value === undefined ? '—' : value;
-  }
+  // ── Load dashboard data ────────────────────────────────────────────────────
+  try {
+    // Dashboard is public route — no auth required on the backend side
+    const res  = await fetch('http://localhost:5000/api/dashboard', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` }
+    });
 
-  /* --------------------------------------------------------------------------
-     Render functions — call after API data is loaded
-     -------------------------------------------------------------------------- */
+    if (!res.ok) {
+      console.warn('Dashboard data failed to load:', res.status);
+      return;
+    }
 
-  function renderSummaryCards() {
-    const s = DashboardData.summary;
-    const valueMap = {
-      totalRoomsValue: s.totalRooms,
-      occupiedRoomsValue: s.occupiedRooms,
-      availableRoomsValue: s.availableRooms,
-      todayBookingsValue: s.todayBookings,
+    const data = await res.json();
+
+    // ── Summary cards ──────────────────────────────────────────────────────
+    const summary = data.summary || {};
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val ?? '--';
     };
+    set('totalRoomsValue',     summary.totalRooms     ?? '--');
+    set('occupiedRoomsValue',  summary.occupiedRooms  ?? '--');
+    set('availableRoomsValue', summary.availableRooms ?? '--');
+    set('todayBookingsValue',  summary.todayBookings  ?? '--');
 
-    Object.entries(valueMap).forEach(([id, val]) => {
-      const el = $(`#${id}`);
-      if (el) el.textContent = formatValue(val);
-    });
+    // ── Charts (Pure CSS + SVG — no Chart.js) ─────────────────────────────
 
-    const trendMap = {
-      totalRoomsTrend: s.trends.totalRooms,
-      occupiedRoomsTrend: s.trends.occupiedRooms,
-      availableRoomsTrend: s.trends.availableRooms,
-      todayBookingsTrend: s.trends.todayBookings,
-    };
+    // ── 1. Bar Chart ──────────────────────────────────────────────────────
+    const barWrap  = document.getElementById('barChartWrap');
+    const barEmpty = document.getElementById('barChartEmpty');
+    const trend    = data.bookingTrend || {};
+    const trendLabels = trend.labels || [];
+    const trendData   = (trend.datasets?.[0]?.data || []);
+    const hasTrend    = trendData.some(v => v > 0);
+    const COLORS = ['#6366f1','#818cf8','#a5b4fc','#c7d2fe'];
 
-    Object.entries(trendMap).forEach(([id, val]) => {
-      const el = $(`#${id}`);
-      if (el) el.textContent = formatTrend(val);
-    });
-  }
-
-  function renderUpcomingBookings() {
-    const bookings = DashboardData.upcomingBookings;
-    const list = $('#bookingsTableBody');
-    const wrap = $('#bookingsTableWrap');
-    const empty = $('#bookingsEmpty');
-
-    if (!list || !wrap || !empty) return;
-
-    if (!bookings.length) {
-      wrap.hidden = true;
-      empty.hidden = false;
-      return;
-    }
-
-    wrap.hidden = false;
-    empty.hidden = true;
-
-    const now = new Date();
-    const futureBookings = bookings.filter(b => {
-      if (!b.booking_date || !b.end_time) return true;
-      const d = new Date(b.booking_date);
-      const [endH, endM] = b.end_time.split(':');
-      d.setHours(parseInt(endH, 10), parseInt(endM, 10), 0, 0);
-      return d >= now && b.status.toLowerCase() !== 'cancelled';
-    });
-
-    list.innerHTML = futureBookings
-      .map(
-        (b) => `
-      <tr onclick="window.location.href='room-booking.html'" style="cursor:pointer;">
-        <td><strong>${b.room}</strong></td>
-        <td>${b.time}</td>
-        <td>${b.bookedBy}</td>
-        <td><span class="badge badge--${b.status.toLowerCase()}">${b.status}</span></td>
-      </tr>`
-      )
-      .join('');
-  }
-
-  function renderRoomAvailability() {
-    const floors = DashboardData.roomAvailability;
-    const list = $('#availabilityList');
-    const empty = $('#availabilityEmpty');
-
-    if (!list || !empty) return;
-
-    if (!floors.length) {
-      list.hidden = true;
-      empty.hidden = false;
-      return;
-    }
-
-    list.hidden = false;
-    empty.hidden = true;
-
-    list.innerHTML = floors
-      .map(
-        (f) => `
-      <div class="availability-item" onclick="window.location.href='room-booking.html'" style="cursor:pointer;">
-        <div class="availability-item__header">
-          <span>${f.floor || f.roomName || 'Room'}</span>
-          <span>${f.percentage}%</span>
-        </div>
-        <div class="availability-item__track">
-          <div class="availability-item__fill" style="width: ${f.percentage}%"></div>
-        </div>
-      </div>`
-      )
-      .join('');
-  }
-
-  function renderRecentActivity() {
-    const activities = DashboardData.recentActivity;
-    const list = $('#activityList');
-    const empty = $('#activityEmpty');
-
-    if (!list || !empty) return;
-
-    if (!activities.length) {
-      list.hidden = true;
-      empty.hidden = false;
-      return;
-    }
-
-    list.hidden = false;
-    empty.hidden = true;
-
-    list.innerHTML = activities
-      .map(
-        (a) => {
-          const isMaint = a.description.toLowerCase().includes('maintenance');
-          const url = isMaint ? 'maintainance.html' : 'room-booking.html';
+    if (barWrap) {
+      if (!hasTrend) {
+        barWrap.style.display = 'none';
+        if (barEmpty) barEmpty.style.display = 'block';
+      } else {
+        const maxVal = Math.max(...trendData, 1);
+        // Use the full available height — no fixed px, pure % based
+        barWrap.style.height = '160px';
+        barWrap.style.alignItems = 'flex-end';
+        barWrap.style.gap = '6px';
+        barWrap.innerHTML = trendLabels.map((label, i) => {
+          const val   = trendData[i] || 0;
+          const pct   = Math.round((val / maxVal) * 100);
+          const clamp = Math.max(pct, val > 0 ? 6 : 0);
+          const bg    = val > 0 ? 'linear-gradient(180deg,#6366f1 0%,#818cf8 100%)' : '#f1f5f9';
+          const hover = val > 0 ? '#4f46e5' : '#e2e8f0';
           return `
-      <div class="activity-item" onclick="window.location.href='${url}'" style="cursor:pointer;">
-        <div class="activity-item__dot"></div>
-        <div class="activity-item__content">
-          <p class="activity-item__text">${a.description}</p>
-          <span class="activity-item__time">${a.time}</span>
-        </div>
-      </div>`;
-        }
-      )
-      .join('');
-  }
-
-  function renderDashboard() {
-    renderSummaryCards();
-    renderUpcomingBookings();
-    renderRoomAvailability();
-    renderRecentActivity();
-    updateCharts();
-  }
-
-  /* --------------------------------------------------------------------------
-     Charts setup
-     -------------------------------------------------------------------------- */
-
-  function initCharts() {
-    const bookingCtx = $('#bookingTrendChart');
-    if (bookingCtx) {
-      bookingChart = new Chart(bookingCtx, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-            x: { grid: { display: false } },
-          },
-        },
-      });
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:0;">
+              ${val > 0 ? `<span style="font-size:11px;font-weight:700;color:#6366f1;margin-bottom:3px;">${val}</span>` : '<span style="display:block;height:18px;"></span>'}
+              <div title="${val} booking${val !== 1 ? 's' : ''}"
+                style="width:76%;height:${clamp}%;background:${bg};border-radius:5px 5px 0 0;transition:opacity .15s;min-height:${val > 0 ? '6px' : '0'};"
+                onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'"
+              ></div>
+              <span style="font-size:10px;color:#94a3b8;font-weight:500;margin-top:5px;">${label.slice(0,3)}</span>
+            </div>`;
+        }).join('');
+        barWrap.style.alignItems = 'unset';
+        barWrap.style.paddingBottom = '0';
+        barWrap.style.borderBottom = '1px solid #f1f5f9';
+      }
     }
 
-    const occupancyCtx = $('#occupancyChart');
-    if (occupancyCtx) {
-      occupancyChart = new Chart(occupancyCtx, {
-        type: 'doughnut',
-        data: {
-          labels: [],
-          datasets: [],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
-          cutout: '70%',
-        },
-      });
-    }
-  }
+    // ── 2. SVG Doughnut ───────────────────────────────────────────────────
+    const occSvg     = document.getElementById('occupancySvg');
+    const occLegend  = document.getElementById('occupancyLegend');
+    const occEmpty   = document.getElementById('occupancyEmpty');
+    const occTotalEl = document.getElementById('occTotal');
+    const occ        = data.occupancy || {};
+    const occLabels  = occ.labels || [];
+    const occData    = (occ.datasets?.[0]?.data || []);
+    const total      = occData.reduce((a, b) => a + b, 0);
 
-  function updateChartEmptyStates() {
-    const hasBookingData = DashboardData.bookingTrend.labels.length > 0;
-    const hasOccupancyData = DashboardData.occupancy.labels.length > 0;
+    // Semantic colors: Booked=indigo, Under Maintenance=amber, Available=emerald
+    const OCC_COLORS = ['#6366f1', '#f59e0b', '#10b981'];
 
-    $('#bookingTrendChart').hidden = !hasBookingData;
-    $('#bookingChartEmpty').hidden = hasBookingData;
-
-    $('#occupancyChart').hidden = !hasOccupancyData;
-    $('#occupancyChartEmpty').hidden = hasOccupancyData;
-  }
-
-  function updateCharts() {
-    if (bookingChart) {
-      bookingChart.data.labels = DashboardData.bookingTrend.labels;
-      bookingChart.data.datasets = DashboardData.bookingTrend.datasets.length
-        ? DashboardData.bookingTrend.datasets
-        : [{ data: [], borderColor: '#2563eb', tension: 0.3 }];
-      bookingChart.update();
+    // Helper: convert polar angle to cartesian x,y
+    function polarToCartesian(cx, cy, r, angleDeg) {
+      const rad = (angleDeg - 90) * Math.PI / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
     }
 
-    if (occupancyChart) {
-      occupancyChart.data.labels = DashboardData.occupancy.labels;
-      occupancyChart.data.datasets = DashboardData.occupancy.datasets.length
-        ? DashboardData.occupancy.datasets
-        : [{ data: [], backgroundColor: ['#2563eb', '#93c5fd', '#e5e7eb'] }];
-      occupancyChart.update();
+    // Build an SVG arc path for a ring segment
+    function ringArcPath(cx, cy, r, strokeW, startAngle, endAngle) {
+      // Clamp to avoid full-circle (which collapses to a point in SVG)
+      const sweep = Math.min(endAngle - startAngle, 359.99);
+      const start = polarToCartesian(cx, cy, r, startAngle);
+      const end   = polarToCartesian(cx, cy, r, startAngle + sweep);
+      const large = sweep > 180 ? 1 : 0;
+      return `M ${start.x.toFixed(3)} ${start.y.toFixed(3)} A ${r} ${r} 0 ${large} 1 ${end.x.toFixed(3)} ${end.y.toFixed(3)}`;
     }
 
-    updateChartEmptyStates();
-  }
+    if (occSvg) {
+      if (occEmpty) occEmpty.style.display = 'none';
+      if (occTotalEl) occTotalEl.textContent = total || 0;
 
-  /* --------------------------------------------------------------------------
-     Data fetching
-     -------------------------------------------------------------------------- */
+      const cx = 90, cy = 90, r = 68, strokeW = 20;
+      const GAP_DEG = 2; // gap in degrees between segments
 
-  async function fetchDashboardData() {
-    try {
-      const response = await fetch(`${BACKEND_URL}/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
+      let startAngle = 0;
+      const paths = occData.map((val, i) => {
+        if (val <= 0 || total <= 0) return '';
+        const pct        = val / total;
+        const sweepDeg   = pct * 360;
+        const endAngle   = startAngle + sweepDeg;
+        // Apply gap only when segment is large enough
+        const s = sweepDeg > GAP_DEG * 2 ? startAngle + GAP_DEG / 2 : startAngle;
+        const e = sweepDeg > GAP_DEG * 2 ? endAngle   - GAP_DEG / 2 : endAngle;
+        const d = ringArcPath(cx, cy, r, strokeW, s, e);
+        const path = `<path
+          d="${d}"
+          fill="none"
+          stroke="${OCC_COLORS[i % OCC_COLORS.length]}"
+          stroke-width="${strokeW}"
+          stroke-linecap="butt"
+          class="occ-arc"
+          data-index="${i}"
+          data-val="${val}"
+          data-label="${occLabels[i] || ''}"
+          style="transition:stroke-width 0.2s,opacity 0.2s;cursor:pointer;"
+        />`;
+        startAngle = endAngle;
+        return path;
+      }).join('');
 
-      if (!response.ok) {
-        throw new Error(`Dashboard request failed with status ${response.status}`);
+      occSvg.innerHTML = `
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f1f5f9" stroke-width="${strokeW}"/>
+        ${paths}
+      `;
+
+      // Legend — always show all labels
+      if (occLegend) {
+        occLegend.innerHTML = occLabels.map((label, i) => {
+          const val   = occData[i] || 0;
+          const pct   = total > 0 ? Math.round((val / total) * 100) : 0;
+          const color = OCC_COLORS[i % OCC_COLORS.length];
+          return `
+            <div class="occ-legend-item" data-index="${i}"
+              style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;transition:background 0.2s;cursor:pointer;">
+              <div style="width:11px;height:11px;border-radius:50%;background:${color};flex-shrink:0;box-shadow:0 0 0 3px ${color}22;"></div>
+              <div style="flex:1;">
+                <div style="font-size:12px;font-weight:600;color:#334155;">${label}</div>
+                <div style="font-size:11px;color:#94a3b8;">${val} room${val !== 1 ? 's' : ''} · ${pct}%</div>
+              </div>
+            </div>`;
+        }).join('');
       }
 
-      const data = await response.json();
-      Object.assign(DashboardData, data);
-    } catch (err) {
-      console.error('Failed to load dashboard data:', err);
-    }
+      // Hover interactions
+      const arcEls        = occSvg.querySelectorAll('.occ-arc');
+      const legEls        = occLegend ? occLegend.querySelectorAll('.occ-legend-item') : [];
+      const occTotalLabel = occTotalEl ? occTotalEl.nextElementSibling : null;
 
-    renderDashboard();
-  }
+      const resetChart = () => {
+        arcEls.forEach(el => { el.style.opacity = '1'; el.setAttribute('stroke-width', strokeW); });
+        legEls.forEach(el => el.style.background = 'transparent');
+        if (occTotalEl) occTotalEl.textContent = total || 0;
+        if (occTotalLabel) occTotalLabel.textContent = 'Total';
+      };
 
-  /* --------------------------------------------------------------------------
-     Sidebar & shell navigation
-     -------------------------------------------------------------------------- */
+      const highlightIndex = (idx) => {
+        arcEls.forEach(el => {
+          if (el.getAttribute('data-index') == idx) {
+            el.style.opacity = '1';
+            el.setAttribute('stroke-width', strokeW + 5);
+            if (occTotalEl) occTotalEl.textContent = el.getAttribute('data-val');
+            if (occTotalLabel) occTotalLabel.textContent = el.getAttribute('data-label');
+          } else {
+            el.style.opacity = '0.2';
+            el.setAttribute('stroke-width', strokeW);
+          }
+        });
+        legEls.forEach(el => {
+          el.style.background = el.getAttribute('data-index') == idx ? '#f8fafc' : 'transparent';
+        });
+      };
 
-  function switchModule(moduleId) {
-    if (moduleId !== 'dashboard' && MODULE_ROUTES[moduleId]) {
-      window.location.href = MODULE_ROUTES[moduleId];
-    }
-  }
-
-  /* --------------------------------------------------------------------------
-     Shell layout controls
-     -------------------------------------------------------------------------- */
-
-  function openSidebar() {
-    $('#sidebar')?.classList.add('is-open');
-    $('#sidebarOverlay')?.classList.add('is-visible');
-    $('#sidebarOverlay')?.setAttribute('aria-hidden', 'false');
-  }
-
-  function closeSidebar() {
-    $('#sidebar')?.classList.remove('is-open');
-    $('#sidebarOverlay')?.classList.remove('is-visible');
-    $('#sidebarOverlay')?.setAttribute('aria-hidden', 'true');
-  }
-
-  function closeAllDropdowns() {
-    $$('.dropdown-panel').forEach((panel) => { panel.hidden = true; });
-    $$('[aria-expanded="true"]').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
-  }
-
-  function toggleDropdown(btn, panel) {
-    const isOpen = !panel.hidden;
-    closeAllDropdowns();
-    if (!isOpen) {
-      panel.hidden = false;
-      btn.setAttribute('aria-expanded', 'true');
-    }
-  }
-
-  function renderNotifications() {
-    const list = $('#notifList');
-    if (!list) return;
-    list.innerHTML = '<li class="dropdown-panel__empty">No notifications available.</li>';
-  }
-
-  function initSummaryCardAnimations() {
-    $$('.summary-card').forEach((card, i) => {
-      setTimeout(() => card.classList.add('is-visible'), i * 80);
-    });
-  }
-
-  /* --------------------------------------------------------------------------
-     Event bindings
-     -------------------------------------------------------------------------- */
-
-  function bindEvents() {
-    $$('.sidebar__nav-btn[data-module]').forEach((btn) => {
-      btn.addEventListener('click', () => switchModule(btn.dataset.module));
-    });
-
-    $('#sidebarToggle')?.addEventListener('click', openSidebar);
-    $('#sidebarClose')?.addEventListener('click', closeSidebar);
-    $('#sidebarOverlay')?.addEventListener('click', closeSidebar);
-
-    const locationBtn = $('#locationBtn');
-    const locationMenu = $('#locationMenu');
-
-    locationBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = !locationMenu.hidden;
-      closeAllDropdowns();
-      locationMenu.hidden = isOpen;
-      locationBtn.setAttribute('aria-expanded', String(!isOpen));
-    });
-
-    $$('#locationMenu li').forEach((li) => {
-      li.addEventListener('click', () => {
-        locationMenu.hidden = true;
-        locationBtn.setAttribute('aria-expanded', 'false');
-        showToast(`Location switched to ${li.dataset.location}.`);
+      arcEls.forEach(el => {
+        el.addEventListener('mouseenter', () => highlightIndex(el.getAttribute('data-index')));
+        el.addEventListener('mouseleave', resetChart);
       });
-    });
-
-    $('#helpCenterBtn')?.addEventListener('click', () => {
-      showToast('Help Center — contact admin@stocknest.io for support.');
-    });
-
-    const notifBtn = $('#notifBtn');
-    const notifPanel = $('#notifPanel');
-    notifBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleDropdown(notifBtn, notifPanel);
-    });
-
-    const profileBtn = $('#profileBtn');
-    const profilePanel = $('#profilePanel');
-    profileBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleDropdown(profileBtn, profilePanel);
-    });
-
-    $$('#profilePanel [data-action]').forEach((item) => {
-      item.addEventListener('click', () => {
-        closeAllDropdowns();
-        if (item.dataset.action === 'logout') {
-          showToast('Logging out...');
-          setTimeout(() => { window.location.href = 'index.html'; }, 800);
-        } else if (item.dataset.action === 'settings') {
-          window.location.href = 'stocknest-settings-view.html';
-        } else {
-          window.location.href = 'profile.html';
-        }
+      legEls.forEach(el => {
+        el.addEventListener('mouseenter', () => highlightIndex(el.getAttribute('data-index')));
+        el.addEventListener('mouseleave', resetChart);
       });
-    });
+    }
 
-    $('#quickAddBtn')?.addEventListener('click', () => {
-      if (window.openQuickAddModal) window.openQuickAddModal();
-    });
+    // ── Upcoming Bookings table ────────────────────────────────────────────
 
-    $('#globalSearch')?.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        $('#globalSearch')?.focus();
+    const tbody = document.getElementById('bookingsTableBody');
+    const wrap  = document.getElementById('bookingsTableWrap');
+    const empty = document.getElementById('bookingsEmpty');
+    const upcoming = data.upcomingBookings || [];
+
+    if (tbody && upcoming.length > 0) {
+      if (wrap)  wrap.hidden = false;
+      if (empty) empty.style.display = 'none';
+      tbody.innerHTML = upcoming.map(b => {
+        const statusColors = {
+          confirmed: '#dcfce7;color:#16a34a',
+          pending:   '#fef9c3;color:#ca8a04',
+          cancelled: '#fee2e2;color:#dc2626',
+          'no-show': '#f3f4f6;color:#6b7280',
+        };
+        const sc = statusColors[b.status] || '#f3f4f6;color:#6b7280';
+        const date = b.booking_date ? new Date(b.booking_date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+        const duration = b.duration_hours ? `${b.duration_hours} hr${b.duration_hours !== 1 ? 's' : ''}` : '—';
+        return `
+          <tr style="transition:background 0.2s;cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'" onclick="window.location.href='room-booking.html'">
+            <td>${b.room || '—'}</td>
+            <td><span style="font-weight:500;color:#64748b;">${date}</span></td>
+            <td>${b.time || '—'}</td>
+            <td>${duration}</td>
+            <td>${b.bookedBy || '—'}</td>
+            <td><span style="display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;background:${sc.split(';')[0].replace('background:','')};${sc.split(';')[1]||''};">${b.status}</span></td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ── Room Availability ──────────────────────────────────────────────────
+    const avList   = document.getElementById('availabilityList');
+    const avEmpty  = document.getElementById('availabilityEmpty');
+    const avData   = data.roomAvailability || [];
+
+    if (avList && avData.length > 0) {
+      avList.hidden = false;
+      if (avEmpty) avEmpty.style.display = 'none';
+      avList.innerHTML = avData.map(r => {
+        const pct = Math.min(Math.round(r.percentage || 0), 100);
+        return `
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:500;margin-bottom:6px;">
+              <span>${r.floor || 'General'}</span>
+              <span style="color:var(--color-text-muted);">${pct}%</span>
+            </div>
+            <div style="height:6px;background:#f1f5f9;border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:#2563eb;border-radius:999px;transition:width .4s;"></div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Admin Alerts ───────────────────────────────────────────────────────
+    const alertsWrap = document.getElementById('adminAlertsWrap');
+    const alertsGrid = document.getElementById('adminAlertsGrid');
+    
+    if (alertsWrap && alertsGrid && data.alerts) {
+      const { lowStock = [], maintenance = [] } = data.alerts;
+      let alertsHtml = '';
+
+      if (lowStock.length > 0) {
+        alertsHtml += `
+          <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <div style="background:#fef08a;color:#ca8a04;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:0;">Low Stock Alert</h3>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              ${lowStock.map(item => `
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span style="font-weight:500;color:#334155;">${item.item_name}</span>
+                  <span style="color:#64748b;">${item.current_stock} ${item.unit} left</span>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="window.location.href='inventory.html'" style="margin-top:12px;width:100%;padding:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;color:#334155;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">View Inventory</button>
+          </div>
+        `;
       }
-    });
 
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k' && document.activeElement !== $('#globalSearch')) {
-        e.preventDefault();
-        $('#globalSearch')?.focus();
+      if (maintenance.length > 0) {
+        alertsHtml += `
+          <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+              <div style="background:#fecaca;color:#dc2626;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:0;">Action Required</h3>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              ${maintenance.map(m => {
+                const desc = (m.description && String(m.description).toLowerCase() !== 'null') ? m.description : 'Maintenance Requested';
+                return `
+                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                  <span style="font-weight:500;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;" title="${desc}">${desc}</span>
+                  <span style="color:#ef4444;">${m.location}</span>
+                </div>
+              `}).join('')}
+            </div>
+            <button onclick="window.location.href='maintainance.html'" style="margin-top:12px;width:100%;padding:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;color:#334155;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">Manage Tickets</button>
+          </div>
+        `;
       }
-    });
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.topbar__dropdown-wrap') && !e.target.closest('.sidebar__footer')) {
-        closeAllDropdowns();
-        if (locationMenu) locationMenu.hidden = true;
-        if (locationBtn) locationBtn.setAttribute('aria-expanded', 'false');
+      if (alertsHtml) {
+        alertsGrid.innerHTML = alertsHtml;
+        alertsWrap.style.display = 'block';
       }
-    });
+    }
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 1024) closeSidebar();
-    });
+    // ── Recent Activity ────────────────────────────────────────────────────
+    const actList  = document.getElementById('activityList');
+    const actEmpty = document.getElementById('activityEmpty');
+    const activities = data.recentActivity || [];
+
+    if (actList && activities.length > 0) {
+      actList.hidden = false;
+      if (actEmpty) actEmpty.style.display = 'none';
+      actList.style.padding = '4px 0';
+      actList.innerHTML = activities.map(a => {
+        // Pick a dot color based on keyword
+        const isBook  = /book/i.test(a.description);
+        const isMaint = /maint/i.test(a.description);
+        const isInv   = /stock|inventor/i.test(a.description);
+        const dot     = isBook ? '#6366f1' : isMaint ? '#f43f5e' : isInv ? '#f97316' : '#10b981';
+        return `
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 20px;border-bottom:1px solid #f8fafc;border-radius:8px;transition:background 0.2s;cursor:pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+          <div style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0;margin-top:4px;box-shadow:0 0 0 2px ${dot}33;"></div>
+          <span style="flex:1;font-size:13px;color:#334155;line-height:1.5;">${a.description}</span>
+          <span style="font-size:11px;color:#94a3b8;white-space:nowrap;margin-left:8px;padding-top:1px;">${a.time}</span>
+        </div>`;
+      }).join('');
+    }
+
+  } catch (err) {
+    console.error('Dashboard load error:', err);
   }
-
-  /* --------------------------------------------------------------------------
-     Public API for backend integration
-     -------------------------------------------------------------------------- */
-
-  window.StockNestDashboard = {
-    data: DashboardData,
-    render: renderDashboard,
-    fetch: fetchDashboardData,
-    updateSummary(summary) {
-      Object.assign(DashboardData.summary, summary);
-      renderSummaryCards();
-    },
-    updateBookingTrend(labels, datasets) {
-      DashboardData.bookingTrend = { labels, datasets };
-      updateCharts();
-    },
-    updateOccupancy(labels, datasets) {
-      DashboardData.occupancy = { labels, datasets };
-      updateCharts();
-    },
-    setBookings(bookings) {
-      DashboardData.upcomingBookings = bookings;
-      renderBookings();
-    },
-    setRoomAvailability(floors) {
-      DashboardData.roomAvailability = floors;
-      renderRoomAvailability();
-    },
-    setRecentActivity(activities) {
-      DashboardData.recentActivity = activities;
-      renderRecentActivity();
-    },
-  };
-
-  /* --------------------------------------------------------------------------
-     Init
-     -------------------------------------------------------------------------- */
-
-  function init() {
-    renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'dashboard' });
-    initSidebarNav(document.getElementById('sidebar-root'));
-    renderNotifications();
-    initSummaryCardAnimations();
-    initCharts();
-    bindEvents();
-    fetchDashboardData();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+});

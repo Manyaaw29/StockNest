@@ -147,7 +147,7 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT user_id, name, email, role, org_id, avatar_img, avatar_bg, avatar_text, last_login, created_at FROM users WHERE user_id = $1',
+      'SELECT user_id, name, email, phone, department, role, org_id, avatar_img, avatar_bg, avatar_text, last_login, created_at FROM users WHERE user_id = $1',
     [req.userId]  // ✅ CORRECT - matches middleware
     );
     
@@ -189,7 +189,7 @@ const getUsers = async (req, res) => {
 // ─────────────────────────────────────────────
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, role, avatar_img, avatar_bg, avatar_text } = req.body;
+  const { name, email, phone, department, role, avatar_img, avatar_bg, avatar_text } = req.body;
 
   try {
     const userCheck = await pool.query('SELECT * FROM users WHERE user_id = $1 AND org_id = $2', [id, req.orgId]);
@@ -215,6 +215,8 @@ const updateUser = async (req, res) => {
 
     const updatedName = name !== undefined ? name : userCheck.rows[0].name;
     const updatedEmail = email !== undefined ? email : userCheck.rows[0].email;
+    const updatedPhone = phone !== undefined ? phone : userCheck.rows[0].phone;
+    const updatedDepartment = department !== undefined ? department : userCheck.rows[0].department;
     const updatedAvatarImg = avatar_img !== undefined ? avatar_img : userCheck.rows[0].avatar_img;
     const updatedAvatarBg = avatar_bg !== undefined ? avatar_bg : userCheck.rows[0].avatar_bg;
     const updatedAvatarText = avatar_text !== undefined ? avatar_text : userCheck.rows[0].avatar_text;
@@ -228,10 +230,10 @@ const updateUser = async (req, res) => {
 
     const result = await pool.query(
       `UPDATE users 
-       SET name = $1, email = $2, role = $3, avatar_img = $4, avatar_bg = $5, avatar_text = $6
+       SET name = $1, email = $2, role = $3, avatar_img = $4, avatar_bg = $5, avatar_text = $6, phone = $9, department = $10
        WHERE user_id = $7 AND org_id = $8
-       RETURNING user_id, org_id, email, name, role, avatar_img, avatar_bg, avatar_text, last_login, created_at`,
-      [updatedName, updatedEmail, targetRole, updatedAvatarImg, updatedAvatarBg, updatedAvatarText, id, req.orgId]
+       RETURNING user_id, org_id, email, phone, department, name, role, avatar_img, avatar_bg, avatar_text, last_login, created_at`,
+      [updatedName, updatedEmail, targetRole, updatedAvatarImg, updatedAvatarBg, updatedAvatarText, id, req.orgId, updatedPhone, updatedDepartment]
     );
 
     return res.status(200).json({

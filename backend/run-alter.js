@@ -13,15 +13,9 @@ async function run() {
   try {
     await c.connect();
     
-    // Create new enum type
-    await c.query("CREATE TYPE room_category AS ENUM ('Executive Boardroom', 'Meeting Room', 'Conference Hall', 'Hot Desk Area', 'Focus Pod', 'Private Cabin');").catch(e => console.log('Enum may already exist:', e.message));
-    
-    // Add new column
-    await c.query("ALTER TABLE room ADD COLUMN IF NOT EXISTS category room_category NOT NULL DEFAULT 'Meeting Room';").catch(e => console.log('Add category failed:', e.message));
-    
-    // Drop old columns
-    await c.query("ALTER TABLE room DROP COLUMN IF EXISTS utilization_pct;").catch(e => console.log('Drop utilization failed:', e.message));
-    await c.query("ALTER TABLE room DROP COLUMN IF EXISTS type;").catch(e => console.log('Drop type failed:', e.message));
+    // Add new columns to organization
+    await c.query("ALTER TABLE organization ADD COLUMN IF NOT EXISTS address VARCHAR(255);").catch(e => console.log('Add address failed:', e.message));
+    await c.query("ALTER TABLE organization ADD COLUMN IF NOT EXISTS support_email VARCHAR(255);").catch(e => console.log('Add support_email failed:', e.message));
     
     console.log('✅ Schema successfully updated!');
   } catch (err) {

@@ -17,6 +17,8 @@ CREATE TABLE organization (
   org_id          SERIAL PRIMARY KEY,
   name            VARCHAR(255) NOT NULL,
   subscription_tier VARCHAR(50),
+  address         VARCHAR(255),
+  support_email   VARCHAR(255),
   created_at      TIMESTAMP DEFAULT NOW()
 );
 
@@ -27,6 +29,8 @@ CREATE TABLE users (
   email           VARCHAR(255) UNIQUE NOT NULL,
   password_hash   VARCHAR(255) NOT NULL,
   name            VARCHAR(255) NOT NULL,
+  phone           VARCHAR(50),
+  department      VARCHAR(100),
   role            user_role NOT NULL DEFAULT 'Staff',
   permissions     JSONB DEFAULT '[]',
   avatar_img      TEXT,
@@ -54,6 +58,7 @@ CREATE TABLE booking (
   booking_id      SERIAL PRIMARY KEY,
   user_id         INT NOT NULL REFERENCES users(user_id),
   room_id         INT NOT NULL REFERENCES room(room_id),
+  client_id       INT REFERENCES client(client_id),
   booking_date    DATE NOT NULL,
   start_time      TIME NOT NULL,
   end_time        TIME NOT NULL,
@@ -66,12 +71,26 @@ CREATE TABLE booking (
 CREATE TABLE asset (
   asset_id        SERIAL PRIMARY KEY,
   org_id          INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
+  room_id         INT REFERENCES room(room_id) ON DELETE SET NULL,
   name            VARCHAR(255) NOT NULL,
+  category        VARCHAR(100) DEFAULT 'General',
   condition_level INT DEFAULT 100 CHECK (condition_level BETWEEN 0 AND 100),
   current_value   DECIMAL(10,2),
   service_history JSONB DEFAULT '[]',
   last_service_date DATE,
   status          asset_status DEFAULT 'Active'
+);
+
+-- TRANSFER HISTORY
+CREATE TABLE transfer_history (
+  transfer_id     SERIAL PRIMARY KEY,
+  org_id          INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
+  asset_id        INT NOT NULL REFERENCES asset(asset_id) ON DELETE CASCADE,
+  from_room_id    INT REFERENCES room(room_id) ON DELETE SET NULL,
+  to_room_id      INT REFERENCES room(room_id) ON DELETE SET NULL,
+  initiated_by    INT REFERENCES users(user_id) ON DELETE SET NULL,
+  reason          TEXT,
+  transfer_date   TIMESTAMP DEFAULT NOW()
 );
 
 -- INVENTORY
@@ -109,6 +128,8 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    department VARCHAR(100),
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50) DEFAULT 'Staff',
     status VARCHAR(50) DEFAULT 'Active',
@@ -118,3 +139,15 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Create index for faster email lookups
 CREATE INDEX idx_users_email ON users(email);
+-- CLIENT (External Users who book rooms)
+CREATE TABLE IF NOT EXISTS client (
+  client_id       SERIAL PRIMARY KEY,
+  org_id          INT NOT NULL REFERENCES organization(org_id) ON DELETE CASCADE,
+  name            VARCHAR(255) NOT NULL,
+  email           VARCHAR(255),
+  phone           VARCHAR(50),
+  company         VARCHAR(255),
+  status          VARCHAR(50) DEFAULT 'Active',
+  notes           TEXT,
+  created_at      TIMESTAMP DEFAULT NOW()
+);
