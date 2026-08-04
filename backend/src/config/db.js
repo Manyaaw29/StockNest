@@ -1,16 +1,23 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const isSupabase = process.env.DB_HOST && (
+  process.env.DB_HOST.includes('supabase.co') ||
+  process.env.DB_HOST.includes('pooler.supabase.com')
+);
+
 const pool = new Pool({
-  host:     process.env.DB_HOST,
-  port:     process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user:     process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  // SSL required for Supabase hosted PostgreSQL
-  ssl: process.env.DB_HOST && process.env.DB_HOST.includes('supabase.co')
-    ? { rejectUnauthorized: false }
-    : false,
+  host:                   process.env.DB_HOST,
+  port:                   process.env.DB_PORT,
+  database:               process.env.DB_NAME,
+  user:                   process.env.DB_USER,
+  password:               process.env.DB_PASSWORD,
+  // Limit connections — Supabase free tier allows max 15
+  max:                    5,
+  idleTimeoutMillis:      30000,
+  connectionTimeoutMillis: 10000,
+  // SSL required for Supabase
+  ssl: isSupabase ? { rejectUnauthorized: false } : false,
 });
 
 // Test connection on startup

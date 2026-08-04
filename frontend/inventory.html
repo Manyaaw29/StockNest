@@ -145,66 +145,6 @@
               </div>
             </section>
 
-            <!-- Right sidebar widgets -->
-            <aside class="inventory-widgets">
-
-              <!-- Stockout predictor -->
-              <section class="card widget-card" aria-labelledby="predictor-title">
-                <h3 id="predictor-title" class="widget-card__title">Stockout Predictor</h3>
-                <p class="widget-card__item-name">Coffee Beans (CFB-ESP-104)</p>
-
-                <div class="predictor-chart" aria-hidden="true">
-                  <svg viewBox="0 0 200 80" preserveAspectRatio="none">
-                    <polyline
-                      fill="none"
-                      stroke="#ef4444"
-                      stroke-width="2"
-                      points="0,20 40,25 80,35 120,50 160,65 200,75"
-                    />
-                  </svg>
-                </div>
-
-                <p class="predictor-alert">Predicted Stockout in 2.4 days</p>
-
-                <button type="button" class="btn btn--secondary btn--full" id="purchaseOrderBtn">
-                  Generate Purchase Order
-                </button>
-              </section>
-
-              <!-- Register consumable -->
-              <section class="card widget-card" aria-labelledby="register-title">
-                <h3 id="register-title" class="widget-card__title">Register Consumable</h3>
-                <p class="widget-card__subtitle">Add a new item to inventory tracking.</p>
-
-                <form id="registerForm" class="register-form" novalidate>
-                  <div class="register-form__field">
-                    <label for="itemName">Item Name</label>
-                    <input type="text" id="itemName" placeholder="e.g. Printer Ink" required />
-                  </div>
-
-                  <div class="register-form__field">
-                    <label for="itemCategory">Category</label>
-                    <select id="itemCategory">
-                      <option value="">Select category</option>
-                      <option value="Office Supplies">Office Supplies</option>
-                      <option value="Stationery">Stationery</option>
-                      <option value="Pantry">Pantry</option>
-                      <option value="Cleaning">Cleaning</option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Others">Others</option>
-                    </select>
-                  </div>
-
-                  <div class="register-form__field">
-                    <label for="minStock">Minimum Stock Level</label>
-                    <input type="number" id="minStock" placeholder="e.g. 10" min="0" />
-                  </div>
-
-                  <button type="submit" class="btn btn--primary btn--full">Register Item</button>
-                </form>
-              </section>
-
-            </aside>
           </div>
 
         </main>
