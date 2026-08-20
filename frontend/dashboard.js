@@ -36,10 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Load dashboard data ────────────────────────────────────────────────────
   try {
-    // Dashboard is public route — no auth required on the backend side
-    const res  = await fetch('http://localhost:5000/api/dashboard', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` }
-    });
+    const res  = await apiFetch('/api/dashboard');
 
     if (!res.ok) {
       console.warn('Dashboard data failed to load:', res.status);

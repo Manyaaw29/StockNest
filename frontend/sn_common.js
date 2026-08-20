@@ -79,12 +79,25 @@ export async function apiFetch(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+  } catch (networkErr) {
+    throw new Error('Unable to reach the server. Check your connection.');
+  }
 
   if (res.status === 401) {
     // Token expired or invalid — force re-login
     logout();
     throw new Error('Session expired. Please log in again.');
+  }
+
+  // Guard: if the server returned an HTML page (e.g. Render error page when
+  // Supabase is paused), throw a clean error before the caller tries to .json() it.
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json') && !contentType.includes('text/plain')) {
+    const statusText = res.status !== 200 ? ` (${res.status})` : '';
+    throw new Error(`Server unavailable${statusText}. The database may be temporarily offline. Please try again shortly.`);
   }
 
   return res;
