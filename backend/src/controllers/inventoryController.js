@@ -237,14 +237,16 @@ const updateInventoryItem = async (req, res) => {
 
     const updated = result.rows[0];
 
-    // Alert only when status worsens from a healthy state
-    const statusWorsened =
-      prev.status === 'In Stock' && newStatus !== 'In Stock';
+    // Alert when status worsens OR when item was already at Low/Out of Stock
+    // and stock was changed (so admins are reminded even without a fresh crossing)
+    const stockChanged = current_stock !== undefined;
+    const isAlertStatus = newStatus !== 'In Stock';
+    const shouldAlert = isAlertStatus && (prev.status === 'In Stock' || stockChanged);
 
-    if (statusWorsened) {
+    if (shouldAlert) {
       await triggerLowStockAlert(updated);
       return res.status(200).json({
-        message:       `Item updated. ⚠️ Status changed to "${newStatus}" — alert sent.`,
+        message:       `Item updated. ⚠️ Status is "${newStatus}" — alert sent.`,
         item:          updated,
         alert_sent:    true,
       });
@@ -343,9 +345,9 @@ const adjustStock = async (req, res) => {
 
     const updated = result.rows[0];
 
-    // Alert when status worsens
-    const statusWorsened = item.status === 'In Stock' && newStatus !== 'In Stock';
-    if (statusWorsened) {
+    // Alert whenever the final status is Low Stock or Out of Stock after any adjustment
+    const isAlertStatus = newStatus !== 'In Stock';
+    if (isAlertStatus) {
       await triggerLowStockAlert(updated);
       return res.status(200).json({
         message:    `Stock adjusted. ⚠️ Item is now "${newStatus}" — alert sent.`,

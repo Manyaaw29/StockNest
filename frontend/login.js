@@ -41,10 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerHTML = 'Logging in...';
             try {
-                const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:5000/api/auth/login'
-                    : '/api/auth/login';
-                const response = await fetch(apiUrl, {
+                const { API_BASE_URL } = await import('./sn_common.js');
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
