@@ -179,9 +179,9 @@ const getDashboard = async (req, res) => {
         },
       },
       bookingTrend: {
-        labels: bookingTrendResult.rows.map((row) => parseInt(row.hour, 10)),
+        labels: bookingTrendResult.rows.map((row) => row.label),
         datasets: [{
-          label: 'Rooms booked',
+          label: 'Bookings',
           data: bookingTrendResult.rows.map((row) => parseInt(row.count, 10)),
         }],
       },
