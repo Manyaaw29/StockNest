@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // ── Register / Add Item Form ───────────────────────────────────────────────
+  // ── Modal close button (used by Adjust Stock modal) ───────────────────────
   document.getElementById('modalCloseBtn')?.addEventListener('click', () => {
     const modal    = document.getElementById('inventoryModal');
     const backdrop = document.getElementById('modalBackdrop');
@@ -218,34 +218,98 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal?.close?.() || (modal && (modal.hidden = true));
   });
 
-  const registerForm = document.querySelector('form[id*="register"], form[id*="Register"]') || document.querySelector('aside form');
-  if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        item_name:    document.getElementById('itemName')?.value.trim(),
-        sku:          document.getElementById('itemSku')?.value.trim() || null,
-        category:     document.getElementById('itemCategory')?.value || 'General',
-        unit:         document.getElementById('itemUnit')?.value || 'Units',
-        current_stock: parseFloat(document.getElementById('currentStock')?.value) || 0,
-        reorder_point: parseFloat(document.getElementById('minStock')?.value) || 0,
-      };
-      if (!payload.item_name) { toast('Item name is required.', 'error'); return; }
-      try {
-        const res = await apiFetch('/api/inventory', { method: 'POST', body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Failed to register item');
-        toast('Item registered successfully!');
-        registerForm.reset();
-        loadInventory();
-      } catch (e) { toast(e.message, 'error'); }
+  // ── Register Drawer ────────────────────────────────────────────────────────
+  const registerDrawer  = document.getElementById('registerDrawer');
+  const drawerBackdrop  = document.getElementById('drawerBackdrop');
+
+  function openDrawer() {
+    registerDrawer?.classList.add('is-open');
+    drawerBackdrop?.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    // Focus first input after animation
+    setTimeout(() => document.getElementById('itemName')?.focus(), 310);
+  }
+
+  function closeDrawer() {
+    registerDrawer?.classList.remove('is-open');
+    drawerBackdrop?.classList.remove('is-open');
+    document.body.style.overflow = '';
+    // Clear errors
+    ['itemNameError', 'currentStockError'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
     });
   }
 
-  // ── Add Stock button → focus form ──────────────────────────────────────────
-  document.getElementById('addStockBtn')?.addEventListener('click', () => {
-    document.getElementById('itemName')?.focus();
-    document.querySelector('aside')?.scrollIntoView({ behavior: 'smooth' });
+  // Open via "Add Stock" button
+  document.getElementById('addStockBtn')?.addEventListener('click', openDrawer);
+
+  // Close via × button, Cancel, or backdrop click
+  document.getElementById('drawerCloseBtn')?.addEventListener('click', closeDrawer);
+  document.getElementById('drawerCancelBtn')?.addEventListener('click', closeDrawer);
+  drawerBackdrop?.addEventListener('click', closeDrawer);
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && registerDrawer?.classList.contains('is-open')) closeDrawer();
+  });
+
+  // ── Register Item Form Submit ───────────────────────────────────────────────
+  document.getElementById('registerItemForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Clear previous errors
+    ['itemNameError', 'currentStockError'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+
+    const itemName     = document.getElementById('itemName')?.value.trim();
+    const currentStock = document.getElementById('currentStock')?.value;
+
+    let hasError = false;
+    if (!itemName) {
+      const el = document.getElementById('itemNameError');
+      if (el) el.textContent = 'Item name is required.';
+      hasError = true;
+    }
+    if (currentStock === '' || currentStock === null) {
+      const el = document.getElementById('currentStockError');
+      if (el) el.textContent = 'Current stock is required.';
+      hasError = true;
+    }
+    if (hasError) return;
+
+    const payload = {
+      item_name:      itemName,
+      sku:            document.getElementById('itemSku')?.value.trim() || null,
+      category:       document.getElementById('itemCategory')?.value || 'General',
+      unit:           document.getElementById('itemUnit')?.value || 'Units',
+      current_stock:  parseFloat(currentStock) || 0,
+      reorder_point:  parseFloat(document.getElementById('minStock')?.value) || 0,
+      supplier_email: document.getElementById('supplierEmail')?.value.trim() || null,
+    };
+
+    const submitBtn  = document.getElementById('drawerSubmitBtn');
+    const origHTML   = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering…';
+
+    try {
+      const res  = await apiFetch('/api/inventory', { method: 'POST', body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to register item.');
+
+      toast('Item registered successfully! 🎉');
+      document.getElementById('registerItemForm').reset();
+      closeDrawer();
+      loadInventory();
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origHTML;
+    }
   });
 
   // ── Init ───────────────────────────────────────────────────────────────────
