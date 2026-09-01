@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockNest — User Management</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Clients Page Specific Styles to match the screenshot */
+    .sage-page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding-top: 10px;
+    }
+    .sage-page-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 6px 0;
+    }
+    .sage-page-title p {
+      font-size: 14px;
+      color: #6b7280;
+      margin: 0;
+    }
+    .sage-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sage-btn-primary {
+      background: #3b82f6;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sage-btn-primary:hover {
+      background: #2563eb;
+    }
+    .sage-btn-outline {
+      background: #ffffff;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .sage-btn-outline:hover {
+      background: #f9fafb;
+    }
+    
+    .sage-card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+      border: 1px solid #f3f4f6;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    
+    .sage-toolbar {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .sage-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sage-form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+    .sage-input {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      min-width: 200px;
+    }
+    
+    .sage-toolbar-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px; /* align with inputs */
+    }
+    
+    .sage-filter-text {
+      font-size: 12px;
+      color: #6b7280;
+      padding: 0 24px 16px 24px;
+    }
+    
+    .sage-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .sage-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .sage-table th {
+      padding: 12px 24px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-top: 1px solid #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
+      background: #fafafa;
+    }
+    .sage-table td {
+      padding: 16px 24px;
+      font-size: 13px;
+      color: #374151;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+    }
+    .sage-table tbody tr:hover {
+      background: #f9fafb;
+    }
+    
+    /* Specific Column Formatting */
+    .col-client strong {
+      display: block;
+      color: #111827;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .col-client span {
+      color: #9ca3af;
+      font-size: 12px;
+    }
+    
+    .col-space span {
+      display: block;
+      color: #6b7280;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    
+    .plan-badge {
+      color: #3b82f6;
+      font-weight: 500;
+      font-size: 12px;
+    }
+    
+    .emp-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #d1fae5;
+      color: #059669;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    
+    .sage-action-group {
+      display: flex;
+      gap: 8px;
+    }
+    .sage-icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .btn-view {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+    .btn-edit {
+      background: #fff1f2;
+      color: #e11d48;
+      border: 1px solid #ffe4e6;
+    }
+    .btn-delete {
+      background: #fef2f2;
+      color: #ef4444;
+      border: 1px solid #fee2e2;
+    }
+  
+    /* Modal Styles */
+    .sage-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(17, 24, 39, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .sage-modal-overlay.is-open {
+      display: flex;
+    }
+    .sage-modal {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .sage-modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sage-modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .sage-modal-close {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    .sage-modal-body {
+      padding: 24px;
+    }
+    .sage-form-field {
+      margin-bottom: 16px;
+    }
+    .sage-form-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .sage-form-field input, .sage-form-field select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .sage-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: #f9fafb;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-active { background: #d1fae5; color: #059669; }
+    .status-inactive { background: #fee2e2; color: #ef4444; }
+  </style>
+
+</head>
+<body>
+
+  <div class="app-shell">
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+
+    <div class="app-shell__main">
+      <div id="topbar-root" class="app-shell__topbar"></div>
+
+      <main class="page-content" style="padding: 32px 40px; background-color: #f9fafb; min-height: 100vh;">
+        
+        <div class="sage-page-header">
+          <div class="sage-page-title">
+            <h1>User Management</h1>
+            <p>Manage your team, invite new users, and update role permissions.</p>
+          </div>
+          <div class="sage-header-actions">
+            <span style="font-size: 12px; color: #9ca3af; margin-right: 8px;">Saved to StockNest</span>
+            <button class="sage-btn-primary" onclick="openModal('addUserModal')">Invite User</button>
+          </div>
+        </div>
+
+        <div class="sage-card">
+          <div class="sage-toolbar">
+            <div class="sage-form-group">
+              <label>Center</label>
+              <select class="sage-input">
+                <option>All centers</option>
+              </select>
+            </div>
+            <div class="sage-form-group">
+              <label>Search Clients</label>
+              <input type="text" class="sage-input" placeholder="Search...">
+            </div>
+            <div class="sage-toolbar-actions">
+              <button class="sage-btn-outline">Import CSV</button>
+              <button class="sage-btn-outline">Export CSV</button>
+            </div>
+          </div>
+          
+          <div class="sage-filter-text">
+            Manage access and roles for all team members in your organization.
+          </div>
+
+          <div class="sage-table-container">
+            <table class="sage-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Joined Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTbody">
+                <!-- Data will be loaded here dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  
+  <!-- Invite User Modal -->
+  <div class="sage-modal-overlay" id="addUserModal">
+    <div class="sage-modal">
+      <div class="sage-modal-header">
+        <h3>Invite New User</h3>
+        <button class="sage-modal-close" onclick="closeModal('addUserModal')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <form id="formAddUser">
+        <div class="sage-modal-body">
+          <div class="sage-form-field">
+            <label>Name</label>
+            <input type="text" id="userName" required placeholder="Full Name">
+          </div>
+          <div class="sage-form-field">
+            <label>Email Address</label>
+            <input type="email" id="userEmail" required placeholder="user@example.com">
+          </div>
+          <div class="sage-form-field">
+            <label>Temporary Password</label>
+            <input type="password" id="userPassword" required placeholder="Minimum 6 characters">
+          </div>
+          <div class="sage-form-field">
+            <label>Assign Role</label>
+            <select id="userRole">
+              <option value="Admin">Admin</option>
+              <option value="Manager">Manager</option>
+              <option value="Staff" selected>Staff</option>
+            </select>
+          </div>
+        </div>
+        <div class="sage-modal-footer">
+          <button type="button" class="sage-btn-outline" onclick="closeModal('addUserModal')">Cancel</button>
+          <button type="submit" class="sage-btn-primary">Invite User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Edit User Modal -->
+  <div class="sage-modal-overlay" id="editUserModal">
+    <div class="sage-modal">
+      <div class="sage-modal-header">
+        <h3>Edit User Details</h3>
+        <button class="sage-modal-close" onclick="closeModal('editUserModal')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <form id="formEditUser">
+        <input type="hidden" id="editUserId">
+        <div class="sage-modal-body">
+          <div class="sage-form-field">
+            <label>Update Role</label>
+            <select id="editUserRole">
+              <option value="Admin">Admin</option>
+              <option value="Manager">Manager</option>
+              <option value="Staff">Staff</option>
+            </select>
+          </div>
+          <div class="sage-form-field">
+            <label>Update Status</label>
+            <select id="editUserStatus">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="sage-modal-footer">
+          <button type="button" class="sage-btn-outline" onclick="closeModal('editUserModal')">Cancel</button>
+          <button type="submit" class="sage-btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="sn_toast_module.js"></script>
+  <script type="module">
+
+    import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+    import { renderTopbar, initTopbarEvents } from './components/topbar.js';
+    import { requireAuth, apiFetch, getUser, getToken } from './sn_common.js';
+
+    if (!requireAuth()) throw new Error('Not authenticated');
+    
+    // Initialize Sidebar
+    renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'user-management' });
+    initSidebarNav(document.getElementById('sidebar-root'));
+
+    renderTopbar(document.getElementById('topbar-root'), { searchPlaceholder: 'Search...' });
+    initTopbarEvents(document.getElementById('topbar-root'));
+
+    // API Setup
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000' 
+        : 'https://stocknest-rpcw.onrender.com';
+
+    async function loadClients() {
+      try {
+        const token = getToken();
+        let users = [];
+        if (token) {
+          const res = await apiFetch('/api/users');
+          if (res.ok) {
+            const data = await res.json();
+            users = data.users || [];
+          }
+        }
+        
+        const tbody = document.getElementById('clientsTbody');
+        
+        if (users.length === 0) {
+           tbody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No users found.</td></tr>`;
+           return;
+        }
+        
+        tbody.innerHTML = users.map(u => {
+            const date = u.created_at ? new Date(u.created_at).toLocaleDateString() : '-';
+            const statusStr = u.status || 'Active';
+            const statusClass = statusStr === 'Active' ? 'status-active' : 'status-inactive';
+            
+            return `
+              <tr>
+                <td class="col-client">
+                  <strong>${u.name}</strong>
+                  <span>${u.email}</span>
+                </td>
+                <td>
+                  <span class="plan-badge">${u.role}</span>
+                </td>
+                <td>
+                  <span class="status-badge ${statusClass}">${statusStr}</span>
+                </td>
+                <td>${date}</td>
+                <td>
+                  <div class="sage-action-group">
+                    <button class="sage-icon-btn btn-edit" title="Edit User" onclick="openEditModal(${u.id || u.user_id}, '${u.role}', '${statusStr}')">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="sage-icon-btn btn-delete" title="Delete User" onclick="deleteUser(${u.id || u.user_id})">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+        }).join('');
+        
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById('formAddUser')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('userName').value;
+      const email = document.getElementById('userEmail').value;
+      const password = document.getElementById('userPassword').value;
+      const role = document.getElementById('userRole').value;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const oldText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Inviting...';
+
+      try {
+        const token = getToken();
+        // Uses the auth register endpoint
+        const currentUser = getUser();
+        const orgId = currentUser ? currentUser.org_id : null;
+        const res = await apiFetch('/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ name, email, password, role, org_id: orgId })
+        });
+        
+        if (!res.ok) {
+           const errData = await res.json().catch(()=>({}));
+           throw new Error(errData.message || 'Failed to invite user');
+        }
+        
+        closeModal('addUserModal');
+        e.target.reset();
+        snToast('User invited successfully!', { type: 'success' });
+        loadClients();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = oldText;
+      }
+    });
+
+    document.getElementById('formEditUser')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editUserId').value;
+      const role = document.getElementById('editUserRole').value;
+      const status = document.getElementById('editUserStatus').value;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const oldText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+
+      try {
+        const token = getToken();
+        const res = await apiFetch(`/api/users/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ role, status })
+        });
+        
+        if (!res.ok) throw new Error('Failed to update user');
+        
+        closeModal('editUserModal');
+        snToast('User updated successfully!', { type: 'success' });
+        loadClients();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = oldText;
+      }
+    });
+
+    window.deleteUser = async (id) => {
+      if (!confirm('Are you sure you want to delete this user?')) return;
+      try {
+        const token = getToken();
+        const res = await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete user');
+        snToast('User deleted successfully.', { type: 'success' });
+        loadClients();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      }
+    };
+
+    window.openModal = (id) => document.getElementById(id).classList.add('is-open');
+    window.closeModal = (id) => document.getElementById(id).classList.remove('is-open');
+    window.openEditModal = (id, role, status) => {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUserRole').value = role;
+        document.getElementById('editUserStatus').value = status;
+        openModal('editUserModal');
+    };
+
+    // Call immediately — module scripts run after DOM is ready
+    loadClients();
+  </script>
+</body>
+</html>

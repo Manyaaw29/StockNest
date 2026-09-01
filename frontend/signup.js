@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * StockNest Sign Up Page
  */

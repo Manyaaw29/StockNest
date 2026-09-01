@@ -16,6 +16,8 @@ const getDashboard = async (req, res) => {
       upcomingBookingsResult,
       roomAvailabilityResult,
       recentActivityResult,
+      lowStockResult,
+      pendingMaintenanceResult
     ] = await Promise.all([
       // Count all rooms.
       pool.query('SELECT COUNT(*) AS count FROM room'),
@@ -93,11 +95,16 @@ const getDashboard = async (req, res) => {
           users.name AS "bookedBy",
           booking.status::text AS status,
           booking.booking_date,
-          booking.end_time
+          booking.end_time,
+          ROUND(EXTRACT(EPOCH FROM (booking.end_time - booking.start_time + CASE WHEN booking.end_time < booking.start_time THEN interval '1 day' ELSE interval '0 day' END))/3600.0, 1) AS duration_hours
         FROM booking
         JOIN room ON room.room_id = booking.room_id
         JOIN users ON users.user_id = booking.user_id
-        WHERE booking.booking_date >= CURRENT_DATE
+        WHERE booking.status != 'cancelled'
+          AND (
+            booking.booking_date > CURRENT_DATE
+            OR (booking.booking_date = CURRENT_DATE AND booking.end_time > (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::time)
+          )
         ORDER BY booking.booking_date ASC, booking.start_time ASC
         LIMIT 5
       `),
@@ -124,7 +131,7 @@ const getDashboard = async (req, res) => {
         FROM (
           SELECT
             users.name || ' booked ' || room.room_name AS description,
-            booking.created_at AS activity_time
+            (booking.booking_date + booking.start_time)::timestamp AS activity_time
           FROM booking
           JOIN users ON users.user_id = booking.user_id
           JOIN room ON room.room_id = booking.room_id
@@ -145,6 +152,29 @@ const getDashboard = async (req, res) => {
         ORDER BY activity_time DESC
         LIMIT 10
       `),
+      // Fetch low stock alerts
+      pool.query(`
+        SELECT item_name, current_stock, unit 
+        FROM inventory 
+        WHERE current_stock <= reorder_point OR status = 'Low Stock' 
+        ORDER BY current_stock ASC 
+        LIMIT 3
+      `),
+      // Fetch pending maintenance alerts
+      pool.query(`
+        SELECT m.request_id, m.description, m.priority,
+               CASE 
+                 WHEN r.room_id IS NOT NULL THEN r.room_name 
+                 WHEN i.inventory_id IS NOT NULL THEN i.item_name 
+                 ELSE 'General' 
+               END as location
+        FROM maintenance m
+        LEFT JOIN room r ON m.room_id = r.room_id
+        LEFT JOIN inventory i ON m.inventory_id = i.inventory_id
+        WHERE m.status IN ('Pending', 'In Progress')
+        ORDER BY m.created_at ASC
+        LIMIT 3
+      `)
     ]);
 
     return res.status(200).json({
@@ -176,6 +206,10 @@ const getDashboard = async (req, res) => {
       upcomingBookings: upcomingBookingsResult.rows,
       roomAvailability: roomAvailabilityResult.rows,
       recentActivity: recentActivityResult.rows,
+      alerts: {
+        lowStock: lowStockResult ? lowStockResult.rows : [],
+        maintenance: pendingMaintenanceResult ? pendingMaintenanceResult.rows : [],
+      }
     });
 
   } catch (err) {

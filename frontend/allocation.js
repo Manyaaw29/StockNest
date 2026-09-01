@@ -1,320 +1,297 @@
-/**
- * StockNest — Room Allocation & Transfer Page
- */
-
+import { requireAuth, apiFetch } from './sn_common.js';
 import { renderSidebar, initSidebarNav } from './components/sidebar.js';
 import { renderTopbar, initTopbarEvents } from './components/topbar.js';
 
-/* --------------------------------------------------------------------------
-   Mock Data
-   -------------------------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireAuth()) return;
 
-const ASSETS = [
-  {
-    id: 'AST-1042',
-    description: 'Herman Miller Aeron Chair',
-    category: 'Furniture',
-    status: 'in-use',
-    statusLabel: 'In Use',
-  },
-  {
-    id: 'AST-2099',
-    description: 'Dell UltraSharp 27" Monitor',
-    category: 'Electronics',
-    status: 'in-use',
-    statusLabel: 'In Use',
-  },
-  {
-    id: 'AST-0841',
-    description: 'Logitech MeetUp Camera',
-    category: 'A/V Equipment',
-    status: 'maintenance',
-    statusLabel: 'Maintenance Scheduled',
-  },
-  {
-    id: 'AST-3102',
-    description: 'Standing Desk Frame (Dual Motor)',
-    category: 'Furniture',
-    status: 'in-use',
-    statusLabel: 'In Use',
-  },
-];
+  // ── Layout ────────────────────────────────────────────────────────────────
+  const sidebarRoot = document.getElementById('sidebar-root');
+  const topbarRoot  = document.getElementById('topbar-root');
+  if (sidebarRoot) { renderSidebar(sidebarRoot, { activeItem: 'room-allocation-transfer' }); initSidebarNav(sidebarRoot); }
+  if (topbarRoot)  { renderTopbar(topbarRoot, { searchPlaceholder: 'Search assets...' }); initTopbarEvents(topbarRoot); }
 
-const DESTINATION_LABELS = {
-  'maintenance-bay': 'Maintenance Bay',
-  'storage-c': 'Storage Room C',
-  'conf-b': 'Conference Room B (Floor 3)',
-  'it-closet': 'IT Equipment Closet',
-};
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const focusRoomSelect   = document.getElementById('focus-room');
+  const assetSearch       = document.getElementById('asset-search');
+  const assetTableBody    = document.getElementById('asset-table-body');
+  const transferDest      = document.getElementById('transfer-destination');
+  const transferReason    = document.getElementById('transfer-reason');
+  const transferDetails   = document.getElementById('transfer-details');
+  const transferForm      = document.getElementById('transfer-form');
+  const confirmTransferBtn= document.getElementById('btn-confirm-transfer');
+  const selectedAssetCard = document.getElementById('selected-asset-card');
+  const transferAssetId   = document.getElementById('transfer-asset-id');
+  const transferAssetName = document.getElementById('transfer-asset-name');
+  const transferAssetNameDisplay = document.getElementById('transfer-asset-name-display');
+  const transferAssetIdDisplay   = document.getElementById('transfer-asset-id-display');
+  const clearSelectionBtn = document.getElementById('btn-clear-selection');
+  const timeline          = document.getElementById('transfer-timeline');
+  const statTotalAssets   = document.getElementById('stat-total-assets');
+  const statRoomCapacity  = document.getElementById('stat-room-capacity');
+  const statTransfers     = document.getElementById('stat-transfers');
+  const registerModal     = document.getElementById('register-modal');
+  const registerForm      = document.getElementById('register-form');
+  const btnOpenRegister   = document.getElementById('btn-open-register');
+  const btnCloseRegister  = document.getElementById('btn-close-register');
+  const btnCancelRegister = document.getElementById('btn-cancel-register');
 
-const REASON_LABELS = {
-  maintenance: 'Scheduled Maintenance',
-  replacement: 'Equipment Replacement',
-  reallocation: 'Room Reallocation',
-  repair: 'Repair / Service',
-  other: 'Other',
-};
+  let allRooms = [];
+  let allAssets = [];
+  let selectedAsset = null;
 
-let transfers = [
-  {
-    id: 'transfer-1',
-    title: 'AST-0841 (Logitech Camera) moved to Maintenance Bay',
-    reason: 'Scheduled firmware update and lens cleaning.',
-    initiatedBy: 'Sarah Jenkins',
-    timestamp: 'Today, 09:45 AM',
-    isRecent: true,
-  },
-  {
-    id: 'transfer-2',
-    title: 'AST-1042 (Aeron Chair) received from Storage Room C',
-    reason: 'Replaced broken chair (AST-1011).',
-    initiatedBy: 'Marcus Chen',
-    timestamp: 'Oct 24, 14:20 PM',
-    isRecent: false,
-  },
-];
-
-/** Currently selected asset in the transfer form */
-let selectedAsset = { id: 'AST-0841', description: 'Logitech MeetUp Camera' };
-
-/* --------------------------------------------------------------------------
-   Render Helpers
-   -------------------------------------------------------------------------- */
-
-function createStatusBadge(asset) {
-  const modifier = asset.status === 'maintenance' ? 'maintenance' : 'in-use';
-  return `<span class="status-badge status-badge--${modifier}">
-    <span class="status-badge__dot">●</span> ${asset.statusLabel}
-  </span>`;
-}
-
-function createAssetRowHTML(asset) {
-  return `
-    <tr data-asset-id="${asset.id}" data-asset-name="${asset.description}">
-      <td>
-        <button type="button" class="asset-table__id-link" data-asset-id="${asset.id}" data-asset-name="${asset.description}">
-          ${asset.id}
-        </button>
-      </td>
-      <td>${asset.description}</td>
-      <td>${asset.category}</td>
-      <td>${createStatusBadge(asset)}</td>
-      <td>
-        <button type="button" class="asset-table__action-btn" aria-label="View ${asset.id} details">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
-      </td>
-    </tr>`;
-}
-
-function createTimelineItemHTML(transfer, index) {
-  const markerClass = index === 0 ? 'transfer-timeline__marker--active' : 'transfer-timeline__marker--past';
-  return `
-    <li class="transfer-timeline__item" data-transfer-id="${transfer.id}">
-      <div class="transfer-timeline__marker ${markerClass}" aria-hidden="true"></div>
-      <div class="transfer-timeline__content">
-        <div class="transfer-timeline__top">
-          <p class="transfer-timeline__title">${transfer.title}</p>
-          <time class="transfer-timeline__time">${transfer.timestamp}</time>
-        </div>
-        <p class="transfer-timeline__reason">Reason: ${transfer.reason}</p>
-        <p class="transfer-timeline__initiator">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-          Initiated by ${transfer.initiatedBy}
-        </p>
-      </div>
-    </li>`;
-}
-
-function renderAssetTable() {
-  const tbody = document.getElementById('asset-table-body');
-  if (!tbody) return;
-  tbody.innerHTML = ASSETS.map(createAssetRowHTML).join('');
-}
-
-function renderTransfers() {
-  const timeline = document.getElementById('transfer-timeline');
-  if (!timeline) return;
-  timeline.innerHTML = transfers.map(createTimelineItemHTML).join('');
-}
-
-function updateAssetChip(asset) {
-  selectedAsset = { id: asset.id, description: asset.description };
-  document.getElementById('chip-asset-id').textContent = asset.id;
-  document.getElementById('chip-asset-name').textContent = asset.description;
-  document.getElementById('asset-search').value = asset.id;
-}
-
-/* --------------------------------------------------------------------------
-   Transfer Form Logic
-   -------------------------------------------------------------------------- */
-
-function getFormElements() {
-  return {
-    form: document.getElementById('transfer-form'),
-    destination: document.getElementById('destination'),
-    reason: document.getElementById('transfer-reason'),
-    details: document.getElementById('transfer-details'),
-    confirmBtn: document.getElementById('transfer-confirm'),
-    destRadio: document.getElementById('dest-radio'),
-    assetSearch: document.getElementById('asset-search'),
-  };
-}
-
-function updateConfirmButtonState() {
-  const { destination, reason, confirmBtn, destRadio } = getFormElements();
-  const isValid = destination.value && reason.value;
-  confirmBtn.disabled = !isValid;
-
-  if (destination.value) {
-    destRadio.classList.add('transfer-route__radio--filled');
-  } else {
-    destRadio.classList.remove('transfer-route__radio--filled');
+  // ── Helper: toast ─────────────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    if (window.snToast) snToast(msg, { type });
+    else alert(msg);
   }
-}
 
-function resetTransferForm() {
-  const { form, destination, reason, details, confirmBtn, destRadio } = getFormElements();
+  // ── Load all rooms ─────────────────────────────────────────────────────────
+  async function loadRooms() {
+    try {
+      const res = await apiFetch('/api/rooms');
+      const data = await res.json();
+      allRooms = data.rooms || [];
 
-  selectedAsset = { id: 'AST-0841', description: 'Logitech MeetUp Camera' };
-  document.getElementById('chip-asset-id').textContent = selectedAsset.id;
-  document.getElementById('chip-asset-name').textContent = selectedAsset.description;
-  document.getElementById('asset-search').value = '';
+      focusRoomSelect.innerHTML = `<option value="">-- Select a room --</option>` +
+        allRooms.map(r => `<option value="${r.room_id}">${r.room_name} (${r.category || 'General'})</option>`).join('');
 
-  destination.selectedIndex = 0;
-  reason.selectedIndex = 0;
-  details.value = '';
-  confirmBtn.disabled = true;
-  destRadio.classList.remove('transfer-route__radio--filled');
-}
+      transferDest.innerHTML = `<option value="" disabled selected>Select destination...</option>` +
+        allRooms.map(r => `<option value="${r.room_id}">${r.room_name}</option>`).join('');
+    } catch (e) {
+      focusRoomSelect.innerHTML = `<option value="">Failed to load rooms</option>`;
+      console.error('Load rooms error:', e);
+    }
+  }
 
-function formatNowTimestamp() {
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  const h12 = hours % 12 || 12;
-  return `Today, ${h12}:${minutes} ${ampm}`;
-}
+  // ── Load assets for selected room ─────────────────────────────────────────
+  async function loadAssetsForRoom(roomId) {
+    if (!roomId) {
+      assetTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:32px;">Select a room to view assets.</td></tr>`;
+      statTotalAssets.textContent = '--';
+      statRoomCapacity.textContent = '--';
+      timeline.innerHTML = `<li class="timeline-item"><div class="timeline-desc">Select a room to view history.</div></li>`;
+      return;
+    }
 
-function handleConfirmTransfer(e) {
-  e.preventDefault();
+    assetTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:32px;">Loading assets…</td></tr>`;
 
-  const { destination, reason, details } = getFormElements();
-  if (!destination.value || !reason.value) return;
+    try {
+      const [assetsRes, historyRes] = await Promise.all([
+        apiFetch(`/api/assets/room/${roomId}`),
+        apiFetch(`/api/assets/room/${roomId}/history`)
+      ]);
 
-  const destLabel = DESTINATION_LABELS[destination.value] || destination.value;
-  const reasonLabel = REASON_LABELS[reason.value] || reason.value;
-  const detailText = details.value.trim() || reasonLabel;
+      const assetsData  = await assetsRes.json();
+      const historyData = await historyRes.json();
 
-  const newTransfer = {
-    id: `transfer-${Date.now()}`,
-    title: `${selectedAsset.id} (${selectedAsset.description}) moved to ${destLabel}`,
-    reason: detailText,
-    initiatedBy: 'Neha Yadav',
-    timestamp: formatNowTimestamp(),
-    isRecent: true,
-  };
+      allAssets = assetsData.assets || [];
+      const history = historyData.history || [];
 
-  transfers.unshift(newTransfer);
-  renderTransfers();
-  resetTransferForm();
+      // Update stats
+      statTotalAssets.textContent = allAssets.length;
+      const room = allRooms.find(r => String(r.room_id) === String(roomId));
+      statRoomCapacity.textContent = room?.capacity ?? '--';
+      statTransfers.textContent = history.length;
 
-  console.log('[Transfer Confirmed]', newTransfer);
-}
+      renderAssetTable(allAssets);
+      renderHistory(history);
 
-function initAssetTable() {
-  const tbody = document.getElementById('asset-table-body');
+    } catch (e) {
+      assetTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#ef4444;">Error loading assets: ${e.message}</td></tr>`;
+    }
+  }
 
-  tbody?.addEventListener('click', (e) => {
-    const link = e.target.closest('.asset-table__id-link');
-    if (!link) return;
+  // ── Render asset table ────────────────────────────────────────────────────
+  function renderAssetTable(assets) {
+    const query = (assetSearch?.value || '').toLowerCase();
+    const filtered = query
+      ? assets.filter(a => (a.name || '').toLowerCase().includes(query) || (a.category || '').toLowerCase().includes(query))
+      : assets;
 
-    updateAssetChip({
-      id: link.dataset.assetId,
-      description: link.dataset.assetName,
+    if (filtered.length === 0) {
+      assetTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:32px;">No assets found${query ? ' matching "' + query + '"' : ' in this room'}.</td></tr>`;
+      return;
+    }
+
+    assetTableBody.innerHTML = filtered.map(a => {
+      const statusColor = a.status === 'Active' ? '#d1fae5' : '#fee2e2';
+      const statusText  = a.status === 'Active' ? '#059669' : '#ef4444';
+      return `
+        <tr>
+          <td style="font-size:12px;color:#9ca3af;">#${a.asset_id}</td>
+          <td style="font-weight:500;color:#111827;">${a.name}</td>
+          <td style="color:#6b7280;">${a.category || '—'}</td>
+          <td><span style="display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;background:${statusColor};color:${statusText};">${a.status || 'Active'}</span></td>
+          <td>
+            <button class="btn btn--outline btn-transfer-asset" data-id="${a.asset_id}" data-name="${a.name}"
+              style="padding:5px 12px;font-size:12px;cursor:pointer;">Transfer</button>
+          </td>
+        </tr>`;
+    }).join('');
+
+    // Bind transfer buttons
+    document.querySelectorAll('.btn-transfer-asset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedAsset = { id: btn.dataset.id, name: btn.dataset.name };
+        transferAssetId.value = selectedAsset.id;
+        transferAssetName.value = selectedAsset.name;
+        if (transferAssetNameDisplay) transferAssetNameDisplay.textContent = selectedAsset.name;
+        if (transferAssetIdDisplay)   transferAssetIdDisplay.textContent = `ID: ${selectedAsset.id}`;
+        selectedAssetCard.classList.add('has-selection');
+        confirmTransferBtn.disabled = false;
+        // Remove focus-room from destination options
+        const currentRoomId = focusRoomSelect.value;
+        Array.from(transferDest.options).forEach(opt => {
+          opt.disabled = opt.value === currentRoomId;
+        });
+        transferDest.value = '';
+      });
     });
+  }
 
-    document.getElementById('transfer-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    console.log('[Asset Selected]', selectedAsset);
+  // ── Render transfer history timeline ──────────────────────────────────────
+  function renderHistory(history) {
+    if (!timeline) return;
+    if (history.length === 0) {
+      timeline.innerHTML = `
+        <li class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-desc" style="color:#9ca3af;">No transfer history for this room.</div>
+        </li>`;
+      return;
+    }
+    timeline.innerHTML = history.map(h => {
+      const raw  = h.transfer_date ? new Date(h.transfer_date) : null;
+      const date = raw ? raw.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+      const time = raw ? raw.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true }) : '';
+      const reasonMap = {
+        new_hire: 'New Hire', departure: 'Offboarding', reconfiguration: 'Reconfiguration',
+        upgrade: 'Upgrade', faulty: 'Faulty', temporary: 'Temporary', storage: 'Storage', other: 'Other'
+      };
+      const reasonLabel = reasonMap[h.reason] || h.reason || '';
+      return `
+        <li class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-date">${date}${time ? ' · ' + time : ''}</div>
+          <p class="timeline-title">${h.asset_name || 'Asset'}</p>
+          <div class="timeline-desc">
+            <em>${h.from_room_name || '—'}</em>
+            &nbsp;→&nbsp;
+            <em>${h.to_room_name || '—'}</em>
+            ${h.initiated_by_name ? `<span style="color:#9ca3af;"> · by ${h.initiated_by_name}</span>` : ''}
+          </div>
+          ${reasonLabel ? `<span style="display:inline-block;margin-top:6px;padding:2px 8px;background:#eff6ff;color:#2563eb;border-radius:999px;font-size:11px;font-weight:600;">${reasonLabel}</span>` : ''}
+        </li>`;
+    }).join('');
+  }
+
+  // ── Clear selection ───────────────────────────────────────────────────────
+  clearSelectionBtn?.addEventListener('click', () => {
+    selectedAsset = null;
+    transferAssetId.value = '';
+    transferAssetName.value = '';
+    selectedAssetCard.classList.remove('has-selection');
+    confirmTransferBtn.disabled = true;
   });
-}
 
-function initTransferForm() {
-  const { form, destination, reason, confirmBtn } = getFormElements();
-
-  destination?.addEventListener('change', () => {
-    updateConfirmButtonState();
-    console.log('[Destination]', DESTINATION_LABELS[destination.value]);
+  // ── Room change ───────────────────────────────────────────────────────────
+  focusRoomSelect?.addEventListener('change', () => {
+    // Clear any existing selection
+    selectedAsset = null;
+    if (selectedAssetCard) selectedAssetCard.classList.remove('has-selection');
+    confirmTransferBtn.disabled = true;
+    loadAssetsForRoom(focusRoomSelect.value);
   });
 
-  reason?.addEventListener('change', () => {
-    updateConfirmButtonState();
-    console.log('[Reason]', REASON_LABELS[reason.value]);
-  });
+  // ── Search filter ─────────────────────────────────────────────────────────
+  assetSearch?.addEventListener('input', () => renderAssetTable(allAssets));
 
-  form?.addEventListener('submit', handleConfirmTransfer);
+  // ── Transfer form submit ──────────────────────────────────────────────────
+  transferForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!selectedAsset) { toast('Please select an asset to transfer.', 'error'); return; }
+    const destRoomId = transferDest.value;
+    if (!destRoomId) { toast('Please select a destination room.', 'error'); return; }
 
-  document.getElementById('transfer-cancel')?.addEventListener('click', () => {
-    resetTransferForm();
-    console.log('[Transfer Form] Reset');
-  });
-}
+    const reason  = transferReason?.value || 'other';
+    const details = transferDetails?.value || '';
 
-function initAssetSearch() {
-  const search = document.getElementById('asset-search');
+    confirmTransferBtn.disabled = true;
+    confirmTransferBtn.textContent = 'Transferring…';
 
-  search?.addEventListener('input', (e) => {
-    const query = e.target.value.trim().toLowerCase();
-    if (!query) return;
+    try {
+      const res = await apiFetch('/api/assets/transfer', {
+        method: 'POST',
+        body: JSON.stringify({
+          assetId: parseInt(selectedAsset.id),
+          targetRoomId: parseInt(destRoomId),
+          reason: `${reason}${details ? ': ' + details : ''}`
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Transfer failed');
 
-    const match = ASSETS.find(
-      (a) => a.id.toLowerCase().includes(query) || a.description.toLowerCase().includes(query)
-    );
-
-    if (match) {
-      updateAssetChip({ id: match.id, description: match.description });
+      toast('Asset transferred successfully!', 'success');
+      selectedAsset = null;
+      selectedAssetCard.classList.remove('has-selection');
+      transferForm.reset();
+      confirmTransferBtn.disabled = true;
+      loadAssetsForRoom(focusRoomSelect.value);
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      confirmTransferBtn.textContent = 'Confirm Transfer';
     }
   });
-}
 
-function initHeaderActions() {
-  document.getElementById('export-manifest')?.addEventListener('click', () => {
-    console.log('[Export Manifest] Placeholder — export not yet implemented');
+  // ── Register asset modal ──────────────────────────────────────────────────
+  btnOpenRegister?.addEventListener('click', () => {
+    if (!focusRoomSelect.value) { toast('Please select a Focus Room first.', 'error'); return; }
+    registerModal.classList.add('is-open');
+  });
+  [btnCloseRegister, btnCancelRegister].forEach(btn => {
+    btn?.addEventListener('click', () => registerModal.classList.remove('is-open'));
   });
 
-  document.getElementById('new-transfer')?.addEventListener('click', () => {
-    resetTransferForm();
-    document.getElementById('transfer-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.getElementById('asset-search')?.focus();
+  registerForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name     = document.getElementById('reg-asset-name').value.trim();
+    const category = document.getElementById('reg-asset-category').value;
+    const roomId   = focusRoomSelect.value;
+
+    if (!name || !category || !roomId) { toast('All fields are required.', 'error'); return; }
+
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering…';
+
+    try {
+      const res = await apiFetch('/api/assets/register', {
+        method: 'POST',
+        body: JSON.stringify({ roomId: parseInt(roomId), name, category })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
+
+      toast('Asset registered successfully!', 'success');
+      registerModal.classList.remove('is-open');
+      registerForm.reset();
+      loadAssetsForRoom(roomId);
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Register Asset';
+    }
   });
-}
 
-/* --------------------------------------------------------------------------
-   App Initialization
-   -------------------------------------------------------------------------- */
+  // ── Add .is-open support to the modal overlay ─────────────────────────────
+  // allocation.css uses '.sn-modal-overlay.open' — add alias for 'is-open' used in JS
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `.sn-modal-overlay.is-open { display:flex; opacity:1; }`;
+  document.head.appendChild(styleTag);
 
-function initApp() {
-  const sidebarRoot = document.getElementById('sidebar-root');
-  const topbarRoot = document.getElementById('topbar-root');
-
-  renderSidebar(sidebarRoot, { activeItem: 'room-allocation-transfer' });
-  initSidebarNav(sidebarRoot);
-
-  renderTopbar(topbarRoot);
-  initTopbarEvents(topbarRoot);
-
-  renderAssetTable();
-  renderTransfers();
-
-  initAssetTable();
-  initTransferForm();
-  initAssetSearch();
-  initHeaderActions();
-}
-
-document.addEventListener('DOMContentLoaded', initApp);
+  // ── Init ──────────────────────────────────────────────────────────────────
+  await loadRooms();
+});

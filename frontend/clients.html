@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockNest — Clients</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  
+  <style>
+    /* Base Sage Styles */
+    .sage-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-top: 10px; }
+    .sage-page-title h1 { font-size: 24px; font-weight: 700; color: #111827; margin: 0 0 6px 0; }
+    .sage-page-title p { font-size: 14px; color: #6b7280; margin: 0; }
+    .sage-header-actions { display: flex; align-items: center; gap: 12px; }
+    .sage-btn-primary { background: #3b82f6; color: #ffffff; border: none; border-radius: 6px; padding: 10px 16px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .sage-btn-primary:hover { background: #2563eb; }
+    .sage-btn-outline { background: #ffffff; color: #374151; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px 16px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .sage-btn-outline:hover { background: #f9fafb; }
+    
+    .sage-card { background: #ffffff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03); border: 1px solid #f3f4f6; overflow: hidden; margin-bottom: 30px; }
+    
+    .sage-table-container { width: 100%; overflow-x: auto; }
+    .sage-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .sage-table th { padding: 16px 24px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #e5e7eb; background: #fafafa; }
+    .sage-table td { padding: 16px 24px; font-size: 13px; color: #374151; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+    .sage-table tbody tr:hover { background: #f9fafb; }
+    
+    .col-name strong { display: block; color: #111827; font-size: 14px; font-weight: 600; }
+    .col-name span { color: #6b7280; font-size: 12px; }
+    
+    .sage-action-group { display: flex; gap: 8px; }
+    .sage-btn-action { background: #ffffff; border: 1px solid #e5e7eb; color: #374151; border-radius: 4px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+    .sage-btn-action.danger { color: #ef4444; }
+    .sage-btn-action:hover { background: #f9fafb; }
+    .status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-active { background: #d1fae5; color: #059669; }
+    .status-inactive { background: #fee2e2; color: #ef4444; }
+  
+    /* Modal Styles */
+    .sage-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17, 24, 39, 0.4); display: none; align-items: center; justify-content: center; z-index: 100; }
+    .sage-modal-overlay.is-open { display: flex; }
+    .sage-modal { background: #ffffff; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow: hidden; }
+    .sage-modal-header { padding: 20px 24px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+    .sage-modal-header h3 { margin: 0; font-size: 18px; font-weight: 600; color: #111827; }
+    .sage-modal-close { background: none; border: none; color: #9ca3af; cursor: pointer; }
+    .sage-modal-body { padding: 24px; }
+    .sage-form-field { margin-bottom: 16px; }
+    .sage-form-field label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+    .sage-form-field input { width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px 12px; font-size: 14px; box-sizing: border-box; }
+    .sage-modal-footer { padding: 16px 24px; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 12px; background: #f9fafb; }
+  </style>
+
+</head>
+<body>
+
+  <div class="app-shell">
+    <aside id="sidebar-root" class="app-shell__sidebar"></aside>
+    <div class="app-shell__main">
+      <div id="topbar-root" class="app-shell__topbar"></div>
+      <main class="page-content" style="padding: 32px 40px; background-color: #f9fafb; min-height: 100vh;">
+        
+        <div class="sage-page-header">
+          <div class="sage-page-title">
+            <h1>Clients</h1>
+            <p>Manage external customers and organizations booking rooms.</p>
+          </div>
+          <div class="sage-header-actions">
+            <button class="sage-btn-primary" onclick="openModal('addClientModal')">Add Client</button>
+          </div>
+        </div>
+
+        <div class="sage-card">
+          <div class="sage-table-container">
+            <table class="sage-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Company</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTbody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Add/Edit Client Modal -->
+  <div class="sage-modal-overlay" id="addClientModal">
+    <div class="sage-modal">
+      <div class="sage-modal-header">
+        <h3 id="modalTitle">Add New Client</h3>
+        <button class="sage-modal-close" onclick="closeModal('addClientModal')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <form id="formClient">
+        <input type="hidden" id="clientId">
+        <div class="sage-modal-body">
+          <div class="sage-form-field">
+            <label>Name</label>
+            <input type="text" id="clientName" required placeholder="Full Name">
+          </div>
+          <div class="sage-form-field">
+            <label>Email Address</label>
+            <input type="email" id="clientEmail" placeholder="client@company.com">
+          </div>
+          <div class="sage-form-field">
+            <label>Phone Number</label>
+            <input type="text" id="clientPhone" placeholder="+1 (555) 000-0000">
+          </div>
+          <div class="sage-form-field">
+            <label>Company / Organization</label>
+            <input type="text" id="clientCompany" placeholder="Company Name">
+          </div>
+          <div class="sage-form-field">
+            <label>Status</label>
+            <select id="clientStatus" style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px 12px; font-size: 14px; box-sizing: border-box;">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="sage-form-field">
+            <label>Notes</label>
+            <textarea id="clientNotes" rows="3" placeholder="Additional details..." style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px 12px; font-size: 14px; box-sizing: border-box; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+        </div>
+        <div class="sage-modal-footer">
+          <button type="button" class="sage-btn-outline" onclick="closeModal('addClientModal')">Cancel</button>
+          <button type="submit" class="sage-btn-primary">Save Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="sn_toast_module.js"></script>
+  <script type="module">
+    import { renderSidebar, initSidebarNav } from './components/sidebar.js';
+    import { renderTopbar, initTopbarEvents } from './components/topbar.js';
+    import { requireAuth, apiFetch } from './sn_common.js';
+    
+    if (!requireAuth()) throw new Error('Not authenticated');
+
+    renderSidebar(document.getElementById('sidebar-root'), { activeItem: 'clients' });
+    initSidebarNav(document.getElementById('sidebar-root'));
+    renderTopbar(document.getElementById('topbar-root'), { searchPlaceholder: 'Search clients...' });
+    initTopbarEvents(document.getElementById('topbar-root'));
+
+    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000' : 'https://stocknest-rpcw.onrender.com';
+
+    async function loadClients() {
+      try {
+        const res = await apiFetch('/api/clients');
+        const data = await res.json();
+        const clients = data.clients || [];
+        
+        const tbody = document.getElementById('clientsTbody');
+        if (clients.length === 0) {
+           tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding:32px;">No clients found. Add one to get started.</td></tr>`;
+           return;
+        }
+        
+        tbody.innerHTML = clients.map(c => `
+          <tr>
+            <td class="col-name">
+              <strong>${c.name}</strong>
+              <span>${c.email || 'No email provided'}</span>
+            </td>
+            <td>${c.company || '-'}</td>
+            <td>${c.phone || '-'}</td>
+            <td><span class="status-badge ${c.status === 'Active' ? 'status-active' : 'status-inactive'}">${c.status || 'Active'}</span></td>
+            <td>
+              <div class="sage-action-group">
+                <button class="sage-btn-action" onclick="editClient(${c.client_id}, '${c.name.replace(/'/g, "\'")}', '${(c.email||'').replace(/'/g, "\'")}', '${(c.phone||'').replace(/'/g, "\'")}', '${(c.company||'').replace(/'/g, "\'")}')">Edit</button>
+                <button class="sage-btn-action danger" onclick="deleteClient(${c.client_id})">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) { console.error(err); }
+    }
+
+    document.getElementById('formClient').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('clientId').value;
+      const name = document.getElementById('clientName').value;
+      const email = document.getElementById('clientEmail').value;
+      const phone = document.getElementById('clientPhone').value;
+      const company = document.getElementById('clientCompany').value;
+      const status = document.getElementById('clientStatus').value;
+      const notes = document.getElementById('clientNotes').value;
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      try {
+        const url = id ? `/api/clients/${id}` : `/api/clients`;
+        const method = id ? 'PUT' : 'POST';
+        const res = await apiFetch(url, { method, body: JSON.stringify({ name, email, phone, company, status, notes }) });
+        if (!res.ok) throw new Error('Failed to save client');
+        
+        closeModal('addClientModal');
+        snToast(`Client ${id ? 'updated' : 'added'} successfully!`, { type: 'success' });
+        loadClients();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    window.deleteClient = async (id) => {
+      if (!confirm('Are you sure you want to delete this client?')) return;
+      try {
+        const res = await apiFetch(`/api/clients/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete client');
+        snToast('Client deleted successfully.', { type: 'success' });
+        loadClients();
+      } catch (err) {
+        snToast(err.message, { type: 'error' });
+      }
+    };
+
+    window.editClient = (id, name, email, phone, company, status, notes) => {
+      document.getElementById('modalTitle').textContent = 'Edit Client';
+      document.getElementById('clientId').value = id;
+      document.getElementById('clientName').value = name;
+      document.getElementById('clientEmail').value = email;
+      document.getElementById('clientPhone').value = phone;
+      document.getElementById('clientCompany').value = company;
+      document.getElementById('clientStatus').value = status;
+      document.getElementById('clientNotes').value = notes || '';
+      openModal('addClientModal');
+    };
+
+    window.openModal = (id) => {
+      if (!document.getElementById('clientId').value && id === 'addClientModal') {
+        document.getElementById('modalTitle').textContent = 'Add New Client';
+        document.getElementById('formClient').reset();
+        document.getElementById('clientId').value = '';
+      }
+      document.getElementById(id).classList.add('is-open');
+    }
+    window.closeModal = (id) => document.getElementById(id).classList.remove('is-open');
+
+    // Call immediately — module scripts run after DOM is ready
+    loadClients();
+  </script>
+</body>
+</html>

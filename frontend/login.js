@@ -1,112 +1,77 @@
-/**
- * StockNest Login Page
- * Handles password visibility toggle and form submission.
- */
+// Auto-clear any stale tokens from old key names on login page load
+['stocknest_token', 'stocknest_user'].forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
 
-(function () {
-  'use strict';
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const loginAlert = document.getElementById('loginAlert');
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordInput = document.getElementById('password');
 
-
-  const passwordInput   = document.getElementById('password');
-  const passwordToggle  = document.getElementById('passwordToggle');
-  const loginForm       = document.getElementById('loginForm');
-  const API_BASE_URL = 'https://stocknest-rpcw.onrender.com';
-
-  if (!passwordInput || !passwordToggle || !loginForm) {
-    return;
-  }
-
-  /**
-   * Toggle password field visibility between masked and plain text.
-   */
-  function togglePasswordVisibility() {
-    const isVisible = passwordInput.type === 'text';
-
-    passwordInput.type = isVisible ? 'password' : 'text';
-    passwordToggle.classList.toggle('is-visible', !isVisible);
-    passwordToggle.setAttribute('aria-pressed', String(!isVisible));
-    passwordToggle.setAttribute(
-      'aria-label',
-      isVisible ? 'Show password' : 'Hide password'
-    );
-  }
-
-  passwordToggle.addEventListener('click', togglePasswordVisibility);
-
-  const loginAlert = document.getElementById('loginAlert');
-  const submitButton = loginForm.querySelector('button[type="submit"]');
-  const originalButtonText = submitButton.innerHTML;
-
-  function showAlert(message, type = 'error') {
-    loginAlert.textContent = message;
-    loginAlert.className = `form-alert form-alert--${type}`;
-    loginAlert.style.display = 'block';
-  }
-
-  function hideAlert() {
-    loginAlert.style.display = 'none';
-    loginAlert.textContent = '';
-  }
-
-  /**
-   * Handle login form submission.
-   */
-  loginForm.addEventListener('submit', async function (event) {
-    event.preventDefault();
-    hideAlert();
-
-    const email = document.getElementById('emailOrPhone').value.trim();
-    const password = passwordInput.value;
-    const rememberMe = document.getElementById('rememberMe').checked;
-
-    if (!email || !password) {
-      showAlert('Please enter both email and password.');
-      return;
+    // Toggle password visibility
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            const iconEye = passwordToggle.querySelector('.icon-eye');
+            const iconEyeOff = passwordToggle.querySelector('.icon-eye-off');
+            if (type === 'text') {
+                passwordToggle.setAttribute('aria-pressed', 'true');
+                if (iconEye) iconEye.style.display = 'none';
+                if (iconEyeOff) iconEyeOff.style.display = 'block';
+            } else {
+                passwordToggle.setAttribute('aria-pressed', 'false');
+                if (iconEye) iconEye.style.display = 'block';
+                if (iconEyeOff) iconEyeOff.style.display = 'none';
+            }
+        });
+        const iconEyeOff = passwordToggle.querySelector('.icon-eye-off');
+        if (iconEyeOff) iconEyeOff.style.display = 'none';
     }
 
-    try {
-      // Disable button and show loading state
-      submitButton.disabled = true;
-      submitButton.innerHTML = 'Logging in... <span class="btn-arrow" aria-hidden="true">→</span>';
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('emailOrPhone').value.trim();
+            const password = document.getElementById('password').value;
+            if (!email || !password) { showAlert('Please enter both email and password.', 'error'); return; }
+            loginAlert.style.display = 'none';
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Logging in...';
+            try {
+                const { API_BASE_URL } = await import('./sn_common.js');
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Login failed.');
+                showAlert('Login successful! Redirecting...', 'success');
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+                // Save under canonical keys — ALSO clear any old keys
+                ['stocknest_token', 'stocknest_user'].forEach(k => localStorage.removeItem(k));
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
 
-      let data = {};
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        data = {};
-      }
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please try again.');
-      }
-
-      // Success
-      showAlert('Login successful! Redirecting...', 'success');
-      
-      // Save token in localStorage or sessionStorage
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('token', data.token);
-      storage.setItem('user', JSON.stringify(data.user));
-
-      console.log('Logged in user:', data.user);
-      
-      // Redirect to the dashboard
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-    } catch (err) {
-      showAlert(err.message);
-    } finally {
-      // Re-enable button
-      submitButton.disabled = false;
-      submitButton.innerHTML = originalButtonText;
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
+            } catch (err) {
+                showAlert(err.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
     }
-  });
 
-})();
+    function showAlert(message, type = 'error') {
+        if (!loginAlert) return;
+        loginAlert.textContent = message;
+        loginAlert.style.cssText = `display:block;padding:10px;margin-bottom:16px;border-radius:6px;font-size:14px;font-weight:500;${
+            type === 'success'
+                ? 'background:#dcfce7;color:#15803d;border:1px solid #4ade80;'
+                : 'background:#fee2e2;color:#b91c1c;border:1px solid #f87171;'
+        }`;
+    }
+});

@@ -11,6 +11,8 @@ const getOrganizations = async (req, res) => {
           org_id,
           name,
           subscription_tier,
+          address,
+          support_email,
           created_at
        FROM organization
        ORDER BY org_id ASC`
@@ -29,10 +31,11 @@ const getOrganizations = async (req, res) => {
 // Body: { name, subscription_tier }
 // ─────────────────────────────────────────────
 const createOrganization = async (req, res) => {
-  const { name, subscription_tier } = req.body;
+  let { name, subscription_tier, address, support_email } = req.body;
 
-  if (!name || !subscription_tier) {
-    return res.status(400).json({ message: 'Name and subscription tier are required.' });
+  subscription_tier = subscription_tier || 'Professional';
+  if (!name) {
+    return res.status(400).json({ message: 'Name is required.' });
   }
 
   try {
@@ -40,19 +43,25 @@ const createOrganization = async (req, res) => {
       `INSERT INTO organization
        (
            name,
-           subscription_tier
+           subscription_tier,
+           address,
+           support_email
        )
        VALUES
        (
            $1,
-           $2
+           $2,
+           $3,
+           $4
        )
        RETURNING
            org_id,
            name,
            subscription_tier,
+           address,
+           support_email,
            created_at`,
-      [name, subscription_tier]
+      [name, subscription_tier, address, support_email]
     );
 
     return res.status(201).json(result.rows[0]);
@@ -76,6 +85,8 @@ const getOrganizationById = async (req, res) => {
           org_id,
           name,
           subscription_tier,
+          address,
+          support_email,
           created_at
        FROM organization
        WHERE org_id = $1`,
@@ -100,10 +111,11 @@ const getOrganizationById = async (req, res) => {
 // ─────────────────────────────────────────────
 const updateOrganization = async (req, res) => {
   const { id } = req.params;
-  const { name, subscription_tier } = req.body;
+  let { name, subscription_tier, address, support_email } = req.body;
 
-  if (!name || !subscription_tier) {
-    return res.status(400).json({ message: 'Name and subscription tier are required.' });
+  subscription_tier = subscription_tier || 'Professional';
+  if (!name) {
+    return res.status(400).json({ message: 'Name is required.' });
   }
 
   try {
@@ -111,14 +123,18 @@ const updateOrganization = async (req, res) => {
       `UPDATE organization
        SET
            name = $1,
-           subscription_tier = $2
-       WHERE org_id = $3
+           subscription_tier = $2,
+           address = $3,
+           support_email = $4
+       WHERE org_id = $5
        RETURNING
            org_id,
            name,
            subscription_tier,
+           address,
+           support_email,
            created_at`,
-      [name, subscription_tier, id]
+      [name, subscription_tier, address, support_email, id]
     );
 
     if (result.rows.length === 0) {

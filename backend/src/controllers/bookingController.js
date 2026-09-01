@@ -4,7 +4,12 @@ const pool = require('../config/db');
 // POST /api/bookings - Create booking
 // ─────────────────────────────────────────────
 const createBooking = async (req, res) => {
-  const { room_id, booking_date, start_time, end_time, duration, attendees, purpose } = req.body;
+  const { room_id, client_id, user_id, booking_date, start_time, end_time, duration, attendees, purpose } = req.body;
+
+  let finalUserId = req.userId;
+  if ((req.userRole === 'Admin' || req.userRole === 'Manager') && user_id) {
+    finalUserId = user_id;
+  }
 
   // Compute end_time from duration (minutes) if not provided directly
   let resolvedEndTime = end_time;
@@ -46,10 +51,10 @@ const createBooking = async (req, res) => {
 
     // Create booking
     const result = await pool.query(
-      `INSERT INTO booking (user_id, room_id, booking_date, start_time, end_time, attendees, purpose, status)
+      `INSERT INTO booking (user_id, room_id, client_id, booking_date, start_time, end_time, attendees, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 'confirmed')
        RETURNING *`,
-      [req.userId, room_id, booking_date, start_time, resolvedEndTime, attendees || 1, purpose || null]
+      [finalUserId, room_id, client_id || null, booking_date, start_time, resolvedEndTime, attendees || 1]
     );
 
     return res.status(201).json({
@@ -69,13 +74,17 @@ const getBookings = async (req, res) => {
   try {
     let query, params;
     if (req.userRole === 'Admin' || req.userRole === 'Manager') {
-      query = `SELECT b.*, r.room_name FROM booking b
+      query = `SELECT b.*, r.room_name, r.floor, c.name as client_name, u.name as user_name FROM booking b
                JOIN room r ON b.room_id = r.room_id
+               LEFT JOIN client c ON b.client_id = c.client_id
+               LEFT JOIN users u ON b.user_id = u.user_id
                ORDER BY b.booking_date DESC`;
       params = [];
     } else {
-      query = `SELECT b.*, r.room_name FROM booking b
+      query = `SELECT b.*, r.room_name, r.floor, c.name as client_name, u.name as user_name FROM booking b
                JOIN room r ON b.room_id = r.room_id
+               LEFT JOIN client c ON b.client_id = c.client_id
+               LEFT JOIN users u ON b.user_id = u.user_id
                WHERE b.user_id = $1
                ORDER BY b.booking_date DESC`;
       params = [req.userId];
@@ -101,8 +110,9 @@ const getBookingById = async (req, res) => {
     const { id } = req.params;
     
     const result = await pool.query(
-      `SELECT b.*, r.room_name FROM booking b
+      `SELECT b.*, r.room_name, r.floor, c.name as client_name FROM booking b
        JOIN room r ON b.room_id = r.room_id
+       LEFT JOIN client c ON b.client_id = c.client_id
        WHERE b.booking_id = $1 AND b.user_id = $2`,
       [id, req.userId]
     );

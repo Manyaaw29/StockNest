@@ -5,14 +5,15 @@
 /** Maps nav item ids to page URLs. */
 const NAV_ROUTES = {
   'dashboard': 'dashboard.html',
-  'setup-locations': 'organisation.html',
+  'centers': 'centers.html',
   'inventory-management': 'inventory.html',
   'maintenance': 'maintainance.html',
   'room-booking': 'room-booking.html',
   'bookings.html': 'room-booking',
   'room-allocation-transfer': 'allocation.html',
+  'user-management': 'users.html',
+  'clients': 'clients.html',
   'profile': 'profile.html',
-  'settings': 'stocknest-settings-view.html',
 };
 
 const NAV_ITEMS = [
@@ -22,8 +23,8 @@ const NAV_ITEMS = [
     icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
   },
   {
-    id: 'setup-locations',
-    label: 'Setup & Locations',
+    id: 'centers',
+    label: 'Centers',
     icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
   },
   {
@@ -43,18 +44,18 @@ const NAV_ITEMS = [
   },
   {
     id: 'room-allocation-transfer',
-    label: 'Allocation & Transfer',
+    label: 'Asset Registry & Transfer',
     icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
   },
   {
-    id: 'profile',
-    label: 'My Profile',
-    icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    id: 'user-management',
+    label: 'User Management',
+    icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
   },
   {
-    id: 'settings',
-    label: 'Account Settings',
-    icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+    id: 'clients',
+    label: 'Clients',
+    icon: `<svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
   },
 ];
 
@@ -63,14 +64,15 @@ export function detectActiveItem() {
   const page = window.location.pathname.split('/').pop() || 'dashboard.html';
   const map = {
     'dashboard.html': 'dashboard',
-    'organisation.html': 'setup-locations',
+    'centers.html': 'centers',
     'inventory.html': 'inventory-management',
     'maintainance.html': 'maintenance',
     'room-booking.html': 'room-booking',
     'bookings.html': 'room-booking',
     'allocation.html': 'room-allocation-transfer',
+    'users.html': 'user-management',
+    'clients.html': 'clients',
     'profile.html': 'profile',
-    'stocknest-settings-view.html': 'settings',
   };
   return map[page] || 'dashboard';
 }

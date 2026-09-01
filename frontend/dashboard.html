@@ -65,8 +65,8 @@
 
           <header class="page-header">
             <div class="page-header__text">
-              <h1 class="page-header__title">Workspace Overview</h1>
-              <p class="page-header__subtitle">Monitor workspace occupancy, bookings, and room utilization.</p>
+              <h1 class="page-header__title" id="dashboardGreeting">Workspace Overview</h1>
+              <p class="page-header__subtitle" id="dashboardTime">Monitor workspace occupancy, bookings, and room utilization.</p>
             </div>
           </header>
 
@@ -113,35 +113,52 @@
             </article>
           </div>
 
+          <!-- ADMIN ALERTS -->
+          <div id="adminAlertsWrap" style="display:none; margin-bottom: 24px;">
+            <h2 style="font-size:15px;font-weight:700;color:#0f172a;margin:0 0 12px;">Admin Alerts</h2>
+            <div id="adminAlertsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+              <!-- Handled by dashboard.js -->
+            </div>
+          </div>
+
           <!-- Charts -->
-          <div class="charts-grid">
-            <article class="chart-card">
-              <div class="chart-card__header">
-                <h2 class="chart-card__title">Daily Booking Trend</h2>
-                <p class="chart-card__subtitle">Bookings over time</p>
+          <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+
+            <!-- Bar Chart Card -->
+            <article style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+              <div style="margin-bottom:20px;">
+                <h2 style="font-size:15px;font-weight:700;color:#0f172a;margin:0 0 2px;">Daily Booking Trend</h2>
+                <p style="font-size:12px;color:#94a3b8;margin:0;">Bookings this week</p>
               </div>
-              <div class="chart-card__body">
-                <canvas id="bookingTrendChart" aria-label="Daily booking trend chart"></canvas>
-                <div class="chart-empty" id="bookingChartEmpty">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                  <p class="chart-empty__title">Analytics will appear here once data is available.</p>
-                </div>
+              <div id="barChartWrap" style="display:flex;align-items:flex-end;gap:8px;height:140px;padding-bottom:28px;position:relative;border-bottom:1px solid #f1f5f9;">
+                <!-- Rendered by dashboard.js -->
               </div>
+              <div id="barChartEmpty" style="text-align:center;padding:40px 0;color:#94a3b8;font-size:13px;display:none;">No booking data yet.</div>
             </article>
 
-            <article class="chart-card">
-              <div class="chart-card__header">
-                <h2 class="chart-card__title">Room Occupancy</h2>
-                <p class="chart-card__subtitle">Current utilization breakdown</p>
+            <!-- SVG Doughnut Card -->
+            <article style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+              <div style="margin-bottom:20px;">
+                <h2 style="font-size:15px;font-weight:700;color:#0f172a;margin:0 0 2px;">Room Occupancy</h2>
+                <p style="font-size:12px;color:#94a3b8;margin:0;">Current utilization breakdown</p>
               </div>
-              <div class="chart-card__body chart-card__body--doughnut">
-                <canvas id="occupancyChart" aria-label="Room occupancy chart"></canvas>
-                <div class="chart-empty" id="occupancyChartEmpty">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
-                  <p class="chart-empty__title">Analytics will appear here once data is available.</p>
+              <div style="display:flex;align-items:center;justify-content:space-evenly;gap:40px;padding:12px 24px;">
+                <div style="position:relative;flex-shrink:0;">
+                  <svg id="occupancySvg" width="180" height="180" viewBox="0 0 180 180">
+                    <!-- Rendered by dashboard.js -->
+                  </svg>
+                  <div id="occupancyCenter" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <span id="occTotal" style="font-size:26px;font-weight:800;color:#0f172a;line-height:1;">--</span>
+                    <span style="font-size:10px;color:#94a3b8;font-weight:500;margin-top:2px;">Total</span>
+                  </div>
+                </div>
+                <div id="occupancyLegend" style="display:flex;flex-direction:column;gap:10px;flex:1;">
+                  <!-- Rendered by dashboard.js -->
                 </div>
               </div>
+              <div id="occupancyEmpty" style="text-align:center;padding:40px 0;color:#94a3b8;font-size:13px;display:none;">No occupancy data yet.</div>
             </article>
+
           </div>
 
           <!-- Bookings + Availability -->
@@ -155,7 +172,9 @@
                   <thead>
                     <tr>
                       <th>Room</th>
+                      <th>Date</th>
                       <th>Time</th>
+                      <th>Duration</th>
                       <th>Booked By</th>
                       <th>Status</th>
                     </tr>
@@ -226,8 +245,7 @@
 
   <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="dashboard.js"></script>
+  <script type="module" src="dashboard.js?v=14"></script>
 
   <!-- High-priority click interceptor to bypass dashboard.js coming soon alerts -->
   <script>
