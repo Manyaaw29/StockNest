@@ -61,13 +61,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const topSearch = (document.getElementById('inventorySearch')?.value || '').toLowerCase();
     const tableSearch = (document.getElementById('tableFilter')?.value || '').toLowerCase();
+    const statusFilter = document.getElementById('statusFilter')?.value;
     const search = topSearch || tableSearch;
     
-    const filtered = search ? items.filter(i =>
-      (i.item_name || '').toLowerCase().includes(search) ||
-      (i.sku || '').toLowerCase().includes(search) ||
-      (i.category || '').toLowerCase().includes(search)
-    ) : items;
+    let filtered = items;
+    
+    if (statusFilter) {
+      filtered = filtered.filter(i => i.status === statusFilter);
+    }
+
+    if (search) {
+      filtered = filtered.filter(i =>
+        (i.item_name || '').toLowerCase().includes(search) ||
+        (i.sku || '').toLowerCase().includes(search) ||
+        (i.category || '').toLowerCase().includes(search)
+      );
+    }
 
     if (filtered.length === 0) {
       tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:#9ca3af;">No items found.</td></tr>`;
@@ -159,9 +168,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Search ─────────────────────────────────────────────────────────────────
   document.getElementById('inventorySearch')?.addEventListener('input', () => renderTable(allItems));
   document.getElementById('tableFilter')?.addEventListener('input', () => renderTable(allItems));
+  document.getElementById('statusFilter')?.addEventListener('change', () => renderTable(allItems));
   document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
     const tf = document.getElementById('tableFilter');
+    const sf = document.getElementById('statusFilter');
     if (tf) tf.value = '';
+    if (sf) sf.value = '';
     renderTable(allItems);
   });
   document.getElementById('filterBtn')?.addEventListener('click', () => {
