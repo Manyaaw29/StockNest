@@ -24,39 +24,8 @@
 
     <div class="app-shell__main">
 
-      <!-- Topbar -->
-      <header class="topbar">
-        <button class="topbar__menu-btn" id="sidebarToggle" type="button" aria-label="Open navigation">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <div class="topbar__search">
-          <svg class="topbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="search" id="globalSearch" class="topbar__search-input" placeholder="Search rooms, bookings..." autocomplete="off" aria-label="Search workspace">
-          <kbd class="topbar__search-kbd" aria-hidden="true">⌘ K</kbd>
-        </div>
-        <div class="topbar__actions">
-          <div class="topbar__dropdown-wrap">
-            <button class="topbar__icon-btn" id="notifBtn" type="button" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            </button>
-            <div class="dropdown-panel" id="notifPanel" hidden>
-              <div class="dropdown-panel__header">Notifications</div>
-              <ul class="dropdown-panel__list" id="notifList"></ul>
-            </div>
-          </div>
-          <button class="btn btn--primary btn--sm" id="quickAddBtn" type="button">+ Quick Add</button>
-          <div class="topbar__dropdown-wrap">
-            <!-- Linked directly to profile.html -->
-            <button class="topbar__avatar" id="profileBtn" type="button" onclick="window.location.href='profile.html'" aria-label="User menu">U</button>
-            <div class="dropdown-panel dropdown-panel--right" id="profilePanel" hidden>
-              <button class="dropdown-panel__item" type="button" onclick="window.location.href='profile.html'" data-action="profile">Profile</button>
-              <button class="dropdown-panel__item" type="button" onclick="window.location.href='stocknest-settings-view.html'" data-action="settings">Settings</button>
-              <hr class="dropdown-panel__divider">
-              <button class="dropdown-panel__item dropdown-panel__item--danger" type="button" data-action="logout">Logout</button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <!-- Topbar component target -->
+      <div id="topbar-root" class="app-shell__topbar"></div>
 
       <!-- WORKSPACE DASHBOARD -->
       <main class="main-content" id="mainContent">
