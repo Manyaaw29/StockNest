@@ -58,46 +58,67 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ── Charts (Pure CSS + SVG — no Chart.js) ─────────────────────────────
 
-    // ── 1. Bar Chart ──────────────────────────────────────────────────────
+    // ── 1. Hourly Bar Chart ───────────────────────────────────────────────
     const barWrap  = document.getElementById('barChartWrap');
     const barEmpty = document.getElementById('barChartEmpty');
     const trend    = data.bookingTrend || {};
-    const trendLabels = trend.labels || [];
+    const trendLabels = trend.labels || [];   // array of hour numbers 0-23
     const trendData   = (trend.datasets?.[0]?.data || []);
     const hasTrend    = trendData.some(v => v > 0);
-    const COLORS = ['#6366f1','#818cf8','#a5b4fc','#c7d2fe'];
+
+    // Update chart section title
+    const barTitle = document.querySelector('.panel-card__title');
+    if (barTitle && barTitle.textContent.includes('Booking')) {
+      barTitle.textContent = "Today's Booking Timeline";
+    }
+
+    // Current IST hour for highlighting
+    const nowHour = new Date().getHours();
+
+    function fmtHour(h) {
+      if (h === 0)  return '12a';
+      if (h === 6)  return '6a';
+      if (h === 12) return '12p';
+      if (h === 18) return '6p';
+      if (h === 23) return '11p';
+      return '';  // Hide label for non-key hours to keep chart clean
+    }
 
     if (barWrap) {
-      if (!hasTrend) {
+      if (trendLabels.length === 0) {
         barWrap.style.display = 'none';
         if (barEmpty) barEmpty.style.display = 'block';
       } else {
         const maxVal = Math.max(...trendData, 1);
-        // Use the full available height — no fixed px, pure % based
-        barWrap.style.height = '160px';
-        barWrap.style.alignItems = 'flex-end';
-        barWrap.style.gap = '6px';
-        barWrap.innerHTML = trendLabels.map((label, i) => {
-          const val   = trendData[i] || 0;
-          const pct   = Math.round((val / maxVal) * 100);
-          const clamp = Math.max(pct, val > 0 ? 6 : 0);
-          const bg    = val > 0 ? 'linear-gradient(180deg,#6366f1 0%,#818cf8 100%)' : '#f1f5f9';
-          const hover = val > 0 ? '#4f46e5' : '#e2e8f0';
-          return `
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:0;">
-              ${val > 0 ? `<span style="font-size:11px;font-weight:700;color:#6366f1;margin-bottom:3px;">${val}</span>` : '<span style="display:block;height:18px;"></span>'}
-              <div title="${val} booking${val !== 1 ? 's' : ''}"
-                style="width:76%;height:${clamp}%;background:${bg};border-radius:5px 5px 0 0;transition:opacity .15s;min-height:${val > 0 ? '6px' : '0'};"
-                onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'"
-              ></div>
-              <span style="font-size:10px;color:#94a3b8;font-weight:500;margin-top:5px;">${label.slice(0,3)}</span>
-            </div>`;
-        }).join('');
+        barWrap.style.height = '140px';
         barWrap.style.alignItems = 'unset';
+        barWrap.style.gap = '2px';
         barWrap.style.paddingBottom = '0';
         barWrap.style.borderBottom = '1px solid #f1f5f9';
+        barWrap.innerHTML = trendLabels.map((hour, i) => {
+          const val     = trendData[i] || 0;
+          const pct     = Math.round((val / maxVal) * 100);
+          const clamp   = Math.max(pct, val > 0 ? 8 : 0);
+          const isCurrent = hour === nowHour;
+          const bg = isCurrent
+            ? 'linear-gradient(180deg,#f43f5e 0%,#fb7185 100%)'    // current hour = pink
+            : val > 0
+              ? 'linear-gradient(180deg,#6366f1 0%,#818cf8 100%)'  // booked = indigo
+              : '#f1f5f9';                                           // empty = grey
+          const label = fmtHour(hour);
+          return `
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:0;">
+              ${val > 0 && (isCurrent || val > 1) ? `<span style="font-size:9px;font-weight:700;color:${isCurrent ? '#f43f5e' : '#6366f1'};margin-bottom:2px;">${val}</span>` : '<span style="display:block;height:14px;"></span>'}
+              <div title="${val} booking${val !== 1 ? 's' : ''} at ${hour}:00${isCurrent ? ' (now)' : ''}"
+                style="width:80%;height:${clamp}%;background:${bg};border-radius:3px 3px 0 0;transition:opacity .15s;min-height:${val > 0 ? '4px' : '0'};${isCurrent ? 'box-shadow:0 0 0 1px #f43f5e44;' : ''}"
+                onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'"
+              ></div>
+              <span style="font-size:9px;color:${isCurrent ? '#f43f5e' : '#94a3b8'};font-weight:${isCurrent ? '700' : '500'};margin-top:4px;min-height:12px;">${label}${isCurrent && !label ? '▾' : ''}</span>
+            </div>`;
+        }).join('');
       }
     }
+
 
     // ── 2. SVG Doughnut ───────────────────────────────────────────────────
     const occSvg     = document.getElementById('occupancySvg');
