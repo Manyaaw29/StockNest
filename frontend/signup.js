@@ -99,6 +99,11 @@
     submitBtn.disabled = true;
     submitBtn.innerHTML = 'Creating Account...';
 
+    // Show warm-up notice after 4 seconds (Render free tier cold start)
+    var warmupTimer = setTimeout(function () {
+      submitBtn.innerHTML = 'Please wait, server is starting up... (up to 60s)';
+    }, 4000);
+
     try {
       var response = await fetch('https://stocknest-rpcw.onrender.com/api/auth/register', {
         method: 'POST',
@@ -126,6 +131,7 @@
       alert('Error: ' + err.message);
       setError('email', err.message);
     } finally {
+      clearTimeout(warmupTimer);
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalText;
     }
