@@ -62,12 +62,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const topSearch = (document.getElementById('inventorySearch')?.value || '').toLowerCase();
     const tableSearch = (document.getElementById('tableFilter')?.value || '').toLowerCase();
     const statusFilter = document.getElementById('statusFilter')?.value;
+    const categoryFilter = document.getElementById('categoryFilter')?.value;
     const search = topSearch || tableSearch;
     
     let filtered = items;
     
     if (statusFilter) {
       filtered = filtered.filter(i => i.status === statusFilter);
+    }
+    
+    if (categoryFilter) {
+      filtered = filtered.filter(i => i.category === categoryFilter);
     }
 
     if (search) {
@@ -169,11 +174,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('inventorySearch')?.addEventListener('input', () => renderTable(allItems));
   document.getElementById('tableFilter')?.addEventListener('input', () => renderTable(allItems));
   document.getElementById('statusFilter')?.addEventListener('change', () => renderTable(allItems));
+  document.getElementById('categoryFilter')?.addEventListener('change', () => renderTable(allItems));
   document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
     const tf = document.getElementById('tableFilter');
     const sf = document.getElementById('statusFilter');
+    const cf = document.getElementById('categoryFilter');
     if (tf) tf.value = '';
     if (sf) sf.value = '';
+    if (cf) cf.value = '';
     renderTable(allItems);
   });
   document.getElementById('filterBtn')?.addEventListener('click', () => {
