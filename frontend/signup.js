@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * StockNest Sign Up Page
  */
@@ -11,6 +10,12 @@
 
   var passwordInput = document.getElementById('password');
   var confirmPasswordInput = document.getElementById('confirmPassword');
+
+  // ── Dynamic API URL (localhost in dev, Render in production) ──────────────
+  var API_BASE_URL =
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:5000'
+      : 'https://stocknest-rpcw.onrender.com';
 
   function setupPasswordToggle(toggleId, input) {
     var toggle = document.getElementById(toggleId);
@@ -55,7 +60,7 @@
 
     var fullName = document.getElementById('fullName').value.trim();
     var email = document.getElementById('email').value.trim();
-    var phone = document.getElementById('phone').value.trim();
+    var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : 'N/A';
     var password = passwordInput.value;
     var confirmPassword = confirmPasswordInput.value;
 
@@ -69,7 +74,7 @@
       valid = false;
     }
 
-    if (!phone || !validatePhone(phone)) {
+    if (document.getElementById('phone') && (!phone || !validatePhone(phone))) {
       setError('phone', 'Please enter a valid phone number.');
       valid = false;
     }
@@ -106,7 +111,7 @@
     }, 4000);
 
     try {
-      var response = await fetch('https://stocknest-rpcw.onrender.com/api/auth/register', {
+      var response = await fetch(API_BASE_URL + '/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -116,7 +121,7 @@
           email: email,
           password: password,
           role: 'Staff',
-          org_id: 1 // Default BMU Organization
+          org_id: 1 // Default Organization
         })
       });
 
