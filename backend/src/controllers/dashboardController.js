@@ -21,24 +21,18 @@ const getDashboard = async (req, res) => {
     ] = await Promise.all([
       // Count all rooms.
       pool.query('SELECT COUNT(*) AS count FROM room'),
-      // Count rooms currently marked as booked (dynamic based on being occupied AT THIS MOMENT).
+      // Count rooms booked today (any booking today).
       pool.query(`
         SELECT COUNT(DISTINCT room_id) AS count FROM booking 
-        WHERE status != 'cancelled' 
-        AND CURRENT_TIMESTAMP BETWEEN 
-          (booking_date + start_time) AT TIME ZONE 'Asia/Kolkata'
-          AND 
-          (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END) AT TIME ZONE 'Asia/Kolkata'
+        WHERE status != 'cancelled'
+          AND booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date
       `),
-      // Count rooms currently marked as available (dynamic).
+      // Count rooms not booked today and not under maintenance.
       pool.query(`
         SELECT (SELECT COUNT(*) FROM room) 
         - (SELECT COUNT(DISTINCT room_id) FROM booking 
-           WHERE status != 'cancelled' 
-           AND CURRENT_TIMESTAMP BETWEEN 
-             (booking_date + start_time) AT TIME ZONE 'Asia/Kolkata'
-             AND 
-             (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END) AT TIME ZONE 'Asia/Kolkata'
+           WHERE status != 'cancelled'
+             AND booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date
           ) 
         - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
       `),
@@ -67,25 +61,19 @@ const getDashboard = async (req, res) => {
         GROUP BY hours.h
         ORDER BY hours.h ASC
       `),
-      // Count rooms by status dynamically for right now.
+      // Count rooms booked TODAY (any booking today, not just right now) for the occupancy donut.
       pool.query(`
-        SELECT 'Booked' AS label, COUNT(DISTINCT room_id) AS count FROM booking 
+        SELECT 'Booked Today' AS label, COUNT(DISTINCT room_id) AS count FROM booking 
         WHERE status != 'cancelled'
-        AND CURRENT_TIMESTAMP BETWEEN 
-          (booking_date + start_time) AT TIME ZONE 'Asia/Kolkata'
-          AND 
-          (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END) AT TIME ZONE 'Asia/Kolkata'
+          AND booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date
         UNION ALL
         SELECT 'Under Maintenance' AS label, COUNT(room_id) AS count FROM room WHERE status = 'Under Maintenance'
         UNION ALL
         SELECT 'Available' AS label, 
           (SELECT COUNT(*) FROM room) 
           - (SELECT COUNT(DISTINCT room_id) FROM booking 
-             WHERE status != 'cancelled' 
-             AND CURRENT_TIMESTAMP BETWEEN 
-               (booking_date + start_time) AT TIME ZONE 'Asia/Kolkata'
-               AND 
-               (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END) AT TIME ZONE 'Asia/Kolkata'
+             WHERE status != 'cancelled'
+               AND booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date
             ) 
           - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
       `),
