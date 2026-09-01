@@ -208,6 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const detailedDesc = document.getElementById('reportDesc')?.value;
       const roomId = document.getElementById('reportSpaceSelect')?.value;
       const invId = document.getElementById('reportInventorySelect')?.value;
+      const deadlineDate = document.getElementById('reportDeadline')?.value;
       
       if (currentCategory === 'Space' && !roomId) return toast('Please select a space', 'error');
       if (currentCategory === 'Consumable' && !invId) return toast('Please select an item', 'error');
@@ -217,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         priority: currentPriority,
         room_id: roomId || null,
         inventory_id: invId || null,
-        deadline: null
+        deadline: deadlineDate || null
       };
       
       submitBtn.disabled = true;
@@ -229,6 +230,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         document.getElementById('reportSpaceSelect').value = '';
         document.getElementById('reportInventorySelect').value = '';
+        if(document.getElementById('reportDeadline')) {
+          document.getElementById('reportDeadline').value = '';
+        }
         
         loadMaintenance();
       } catch (e) { 
