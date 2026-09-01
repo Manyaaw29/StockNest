@@ -15,7 +15,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const dateInput = document.getElementById('booking-date');
   const timeSelect = document.getElementById('booking-time');
 
-  function todayStr() { return new Date().toISOString().split('T')[0]; }
+  function todayStr() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 
   function filterPastTimes() {
     if (!timeSelect || !dateInput) return;

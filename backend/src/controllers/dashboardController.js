@@ -43,7 +43,7 @@ const getDashboard = async (req, res) => {
         - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
       `),
       // Count bookings scheduled for today.
-      pool.query('SELECT COUNT(*) AS count FROM booking WHERE booking_date = CURRENT_DATE'),
+      pool.query(`SELECT COUNT(*) AS count FROM booking WHERE booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date`),
       // Count bookings for each weekday from Monday to Sunday, including days with no bookings.
       pool.query(`
         SELECT
@@ -60,8 +60,8 @@ const getDashboard = async (req, res) => {
             (7, 'Sunday')
         ) AS wd(dow, label)
         LEFT JOIN booking ON EXTRACT(ISODOW FROM booking.booking_date) = wd.dow
-          AND booking.booking_date >= date_trunc('week', CURRENT_DATE) 
-          AND booking.booking_date < date_trunc('week', CURRENT_DATE) + interval '1 week'
+          AND booking.booking_date >= date_trunc('week', (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date) 
+          AND booking.booking_date < date_trunc('week', (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date) + interval '1 week'
         GROUP BY wd.dow, wd.label
         ORDER BY wd.dow ASC
       `),
@@ -102,8 +102,8 @@ const getDashboard = async (req, res) => {
         JOIN users ON users.user_id = booking.user_id
         WHERE booking.status != 'cancelled'
           AND (
-            booking.booking_date > CURRENT_DATE
-            OR (booking.booking_date = CURRENT_DATE AND booking.end_time > (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::time)
+            booking.booking_date > (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date
+            OR (booking.booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date AND booking.end_time > (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::time)
           )
         ORDER BY booking.booking_date ASC, booking.start_time ASC
         LIMIT 5
@@ -118,7 +118,7 @@ const getDashboard = async (req, res) => {
           )::double precision AS percentage
         FROM room r
         LEFT JOIN booking b ON r.room_id = b.room_id 
-          AND b.booking_date = CURRENT_DATE 
+          AND b.booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date 
           AND b.status != 'cancelled'
         GROUP BY r.category
         ORDER BY r.category ASC
