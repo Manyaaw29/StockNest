@@ -59,7 +59,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tbody = document.querySelector('tbody') || document.getElementById('inventoryTableBody');
     if (!tbody) return;
 
-    const search = (document.getElementById('inventorySearch')?.value || '').toLowerCase();
+    const topSearch = (document.getElementById('inventorySearch')?.value || '').toLowerCase();
+    const tableSearch = (document.getElementById('tableFilter')?.value || '').toLowerCase();
+    const search = topSearch || tableSearch;
+    
     const filtered = search ? items.filter(i =>
       (i.item_name || '').toLowerCase().includes(search) ||
       (i.sku || '').toLowerCase().includes(search) ||
@@ -155,6 +158,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Search ─────────────────────────────────────────────────────────────────
   document.getElementById('inventorySearch')?.addEventListener('input', () => renderTable(allItems));
+  document.getElementById('tableFilter')?.addEventListener('input', () => renderTable(allItems));
+  document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
+    const tf = document.getElementById('tableFilter');
+    if (tf) tf.value = '';
+    renderTable(allItems);
+  });
+  document.getElementById('filterBtn')?.addEventListener('click', () => {
+    document.getElementById('tableFilter')?.focus();
+  });
 
   // ── Adjust Stock Modal ─────────────────────────────────────────────────────
   function openAdjustModal(id, name, unit) {
