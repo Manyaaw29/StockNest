@@ -25,20 +25,20 @@ const getDashboard = async (req, res) => {
       pool.query(`
         SELECT COUNT(DISTINCT room_id) AS count FROM booking 
         WHERE status != 'cancelled' 
-        AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
-          (booking_date + start_time) 
+        AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata') BETWEEN 
+          ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + start_time) 
           AND 
-          (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+          ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
       `),
       // Count rooms currently marked as available (dynamic).
       pool.query(`
         SELECT (SELECT COUNT(*) FROM room) 
         - (SELECT COUNT(DISTINCT room_id) FROM booking 
            WHERE status != 'cancelled' 
-           AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
-             (booking_date + start_time) 
+           AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata') BETWEEN 
+             ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + start_time) 
              AND 
-             (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+             ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
           ) 
         - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
       `),
@@ -69,10 +69,10 @@ const getDashboard = async (req, res) => {
       pool.query(`
         SELECT 'Booked' AS label, COUNT(DISTINCT room_id) AS count FROM booking 
         WHERE status != 'cancelled'
-        AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
-          (booking_date + start_time) 
+        AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata') BETWEEN 
+          ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + start_time) 
           AND 
-          (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+          ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
         UNION ALL
         SELECT 'Under Maintenance' AS label, COUNT(room_id) AS count FROM room WHERE status = 'Under Maintenance'
         UNION ALL
@@ -80,10 +80,10 @@ const getDashboard = async (req, res) => {
           (SELECT COUNT(*) FROM room) 
           - (SELECT COUNT(DISTINCT room_id) FROM booking 
              WHERE status != 'cancelled' 
-             AND CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata' BETWEEN 
-               (booking_date + start_time) 
+             AND (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata') BETWEEN 
+               ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + start_time) 
                AND 
-               (booking_date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
+               ((booking_date AT TIME ZONE 'Asia/Kolkata')::date + end_time + CASE WHEN end_time < start_time THEN interval '1 day' ELSE interval '0 day' END)
             ) 
           - (SELECT COUNT(*) FROM room WHERE status = 'Under Maintenance') AS count
       `),
