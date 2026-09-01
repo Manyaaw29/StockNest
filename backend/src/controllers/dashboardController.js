@@ -38,28 +38,26 @@ const getDashboard = async (req, res) => {
       `),
       // Count bookings scheduled for today.
       pool.query(`SELECT COUNT(*) AS count FROM booking WHERE booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date`),
-      // Count bookings overlapping each hour of today (IST) — for the hourly bar chart.
+      // Count bookings for each weekday Mon–Sun for the current week.
       pool.query(`
         SELECT
-          hours.h AS hour,
-          COUNT(b.booking_id) AS count
-        FROM generate_series(0, 23) AS hours(h)
-        LEFT JOIN booking b ON
-          b.booking_date = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date
-          AND b.status != 'cancelled'
-          AND (
-            -- Normal booking (start <= end): overlaps hour H if start <= H and end > H
-            (b.end_time >= b.start_time
-              AND EXTRACT(HOUR FROM b.start_time)::int <= hours.h
-              AND EXTRACT(HOUR FROM b.end_time)::int > hours.h)
-            OR
-            -- Overnight booking (end < start): covers hour H if H >= start OR H < end
-            (b.end_time < b.start_time
-              AND (EXTRACT(HOUR FROM b.start_time)::int <= hours.h
-                OR EXTRACT(HOUR FROM b.end_time)::int > hours.h))
-          )
-        GROUP BY hours.h
-        ORDER BY hours.h ASC
+          wd.label,
+          COUNT(booking.booking_id) AS count
+        FROM (
+          VALUES
+            (1, 'Monday'),
+            (2, 'Tuesday'),
+            (3, 'Wednesday'),
+            (4, 'Thursday'),
+            (5, 'Friday'),
+            (6, 'Saturday'),
+            (7, 'Sunday')
+        ) AS wd(dow, label)
+        LEFT JOIN booking ON EXTRACT(ISODOW FROM booking.booking_date) = wd.dow
+          AND booking.booking_date >= date_trunc('week', (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date)
+          AND booking.booking_date <  date_trunc('week', (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')::date) + interval '1 week'
+        GROUP BY wd.dow, wd.label
+        ORDER BY wd.dow ASC
       `),
       // Count rooms booked TODAY (any booking today, not just right now) for the occupancy donut.
       pool.query(`
