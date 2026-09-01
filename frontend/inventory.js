@@ -44,10 +44,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const low      = allItems.filter(i => i.status === 'Low Stock').length;
       const out      = allItems.filter(i => i.status === 'Out of Stock').length;
       const inStock  = allItems.filter(i => i.status === 'In Stock').length;
+      const totalUnits = allItems.reduce((sum, i) => sum + (parseFloat(i.current_stock) || 0), 0);
 
       const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
       setEl('statActiveSKUs', total);
       setEl('statLowStock', low + out);
+      setEl('statInStock', inStock);
+      // Show total stock with smart formatting
+      const formattedTotal = totalUnits >= 1000 ? (totalUnits / 1000).toFixed(1) + 'k' : totalUnits.toFixed(0);
+      setEl('statTotalStock', formattedTotal);
 
       renderTable(allItems);
     } catch (e) {

@@ -67,8 +67,8 @@
               <div class="stat-card__body">
                 <span class="stat-card__label">Active SKUs</span>
                 <div class="stat-card__row">
-                  <span class="stat-card__value">428</span>
-                  <span class="stat-card__badge stat-card__badge--green">+12 this month</span>
+                  <span class="stat-card__value" id="statActiveSKUs">—</span>
+                  <span class="stat-card__badge stat-card__badge--green" id="statActiveSKUsBadge"></span>
                 </div>
               </div>
               <span class="stat-card__icon stat-card__icon--blue">&#9670; &#9632; &#9679;</span>
@@ -76,10 +76,10 @@
 
             <article class="stat-card">
               <div class="stat-card__body">
-                <span class="stat-card__label">Avg Burn Rate</span>
+                <span class="stat-card__label">Total Stock Value</span>
                 <div class="stat-card__row">
-                  <span class="stat-card__value">1.2k</span>
-                  <span class="stat-card__unit">units / week</span>
+                  <span class="stat-card__value" id="statTotalStock">—</span>
+                  <span class="stat-card__unit" id="statTotalStockUnit">units total</span>
                 </div>
               </div>
               <span class="stat-card__icon">&#9881;</span>
@@ -87,10 +87,10 @@
 
             <article class="stat-card">
               <div class="stat-card__body">
-                <span class="stat-card__label">Avg Lead Time</span>
+                <span class="stat-card__label">In Stock Items</span>
                 <div class="stat-card__row">
-                  <span class="stat-card__value">4.5</span>
-                  <span class="stat-card__unit">days to restock</span>
+                  <span class="stat-card__value" id="statInStock">—</span>
+                  <span class="stat-card__unit">fully stocked</span>
                 </div>
               </div>
               <span class="stat-card__icon">&#128666;</span>
@@ -98,9 +98,9 @@
 
             <article class="stat-card stat-card--alert">
               <div class="stat-card__body">
-                <span class="stat-card__label">Low Stock Alerts</span>
+                <span class="stat-card__label">Low / Out of Stock</span>
                 <div class="stat-card__row">
-                  <span class="stat-card__value stat-card__value--yellow">14</span>
+                  <span class="stat-card__value stat-card__value--yellow" id="statLowStock">—</span>
                   <span class="stat-card__note">Requires attention</span>
                 </div>
               </div>
@@ -141,15 +141,16 @@
                 <table class="asset-table consumables-table__table">
                   <thead>
                     <tr>
-                      <th class="col-check"><input type="checkbox" id="selectAll" aria-label="Select all rows" /></th>
-                      <th class="sortable" data-sort="name">SKU / Item <span class="sort-indicator"></span></th>
+                      <th class="sortable" data-sort="name">Item Name <span class="sort-indicator"></span></th>
+                      <th>SKU / Code</th>
                       <th class="sortable" data-sort="category">Category <span class="sort-indicator"></span></th>
                       <th class="sortable" data-sort="qty">Stock Level <span class="sort-indicator"></span></th>
+                      <th>Reorder Point</th>
                       <th class="sortable" data-sort="status">Status <span class="sort-indicator"></span></th>
                       <th class="col-actions">Actions</th>
                     </tr>
                   </thead>
-                  <tbody id="consumablesBody">
+                  <tbody id="inventoryTableBody">
                     <!-- rows added by inventory.js -->
                   </tbody>
                 </table>
