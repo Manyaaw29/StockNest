@@ -1,6 +1,12 @@
 // Auto-clear any stale tokens from old key names on login page load
 ['stocknest_token', 'stocknest_user'].forEach(k => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
 
+// ── Dynamic API URL (localhost in dev, Render in production) ──────────────────
+var API_BASE_URL =
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:5000'
+        : 'https://stocknest-rpcw.onrender.com';
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const loginAlert = document.getElementById('loginAlert');
@@ -40,8 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = 'Logging in...';
+
+            // Show warm-up notice after 4s (Render free tier cold start)
+            const warmupTimer = setTimeout(() => {
+                submitBtn.innerHTML = 'Please wait, server waking up... (up to 60s)';
+            }, 4000);
+
             try {
-                const { API_BASE_URL } = await import('./sn_common.js');
                 const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -61,6 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showAlert(err.message, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
+            } finally {
+                clearTimeout(warmupTimer);
             }
         });
     }
