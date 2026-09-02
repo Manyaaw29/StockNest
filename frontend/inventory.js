@@ -88,10 +88,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       );
     }
 
+    const pagInfo = document.getElementById('paginationInfo');
     if (filtered.length === 0) {
       tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:#9ca3af;">No items found.</td></tr>`;
+      if (pagInfo) pagInfo.textContent = 'Showing 0 items';
       return;
     }
+    if (pagInfo) pagInfo.textContent = `Showing ${filtered.length} item${filtered.length === 1 ? '' : 's'}`;
 
     tbody.innerHTML = filtered.map(item => {
       const pct = item.reorder_point > 0 ? Math.min(Math.round((item.current_stock / item.reorder_point) * 50), 100) : 100;
